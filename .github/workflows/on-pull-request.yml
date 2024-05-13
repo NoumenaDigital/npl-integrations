@@ -1,0 +1,29 @@
+name: "Verify PR"
+
+on:
+  pull_request
+
+env:
+  MAVEN_CLI_OPTS: "--batch-mode"
+  MAVEN_OPTS: >-
+    -Dorg.slf4j.simpleLogger.showDateTime=true 
+    -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss.SSS
+    -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
+
+jobs:
+  build-test-verify:
+    name: "Build and test"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Set up Java"
+        uses: actions/setup-java@v4
+        with:
+          distribution: "corretto"
+          java-version: "17"
+          cache: "maven"
+
+      - name: "Verify"
+        run: "mvn $MAVEN_CLI_OPTS clean verify"

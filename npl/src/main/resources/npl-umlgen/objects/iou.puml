@@ -1,0 +1,19 @@
+@startuml
+namespace objects.iou {
+    class TimestampedAmount << (s,orange) >>  {
+        amount: Number
+        timestamp: DateTime
+    }
+
+    class Iou << (p,orchid) >> {
+        +issuer:  Party
+        +payee: Party
+        +forAmount: Number
+        -payments: List<TimestampedAmount>
+        +[issuer] pay(amount: Number)
+        +[payee] forgive()
+        +[issuer|payee]  getAmountOwed():  Number
+    }
+    Iou --> "*" TimestampedAmount : payments
+}
+@enduml

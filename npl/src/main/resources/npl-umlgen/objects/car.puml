@@ -1,0 +1,20 @@
+@startuml
+namespace objects.car {
+    enum Color << (e,lightgrey) >> {
+        Red
+        Blue
+        Yellow
+        Green
+        Black
+    }
+
+    class Car << (p,orchid) >> {
+        +owner: Party
+        +model: Text
+        +color: Color
+        +[owner]changeColor(newColor: Color)
+        #[owner & *newOwner] transfer()
+    }
+    Car --> "1" Color : color
+}
+@enduml
