@@ -1,19 +1,17 @@
 GITHUB_SHA=HEAD
-VERSION?=1.0-SNAPSHOT
-INFRA_DIR?=../infra
 MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
-LEVANT_VERSION=0.3.2
 
 export NPL_VERSION=1.0
+export NC_DOMAIN=noumena.cloud
 export NC_APP_NAME=nplintegrations
-export NC_ORG_NAME=noumena
+export NC_ORG_NAME=pwctraining
 export NC_ORG := $(shell ./cli org list | jq --arg NC_ORG_NAME "$(NC_ORG_NAME)" -r '.[] | select(.slug == $$NC_ORG_NAME) | .id')
 export NC_APP := $(shell ./cli app list -org $(NC_ORG) | jq --arg NC_APP_NAME "$(NC_APP_NAME)" '.[] | select(.name == $$NC_APP_NAME) | .id')
 export NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) | jq  -r '.iam_username')
 export NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) | jq -r '.iam_password' )
-export KEYCLOAK_URL=https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME).shared-dev.noumenadigital.com
-export ENGINE_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).shared-dev.noumenadigital.com
-export READ_MODEL_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).shared-dev.noumenadigital.com/graphql
+export KEYCLOAK_URL=https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)
+export ENGINE_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)
+export READ_MODEL_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/graphql
 
 escape_dollar = $(subst $$,\$$,$1)
 
@@ -49,7 +47,7 @@ zip:
 	@if [ "$(NPL_VERSION)" = "" ]; then echo "NPL_VERSION not set"; exit 1; fi
 	@mkdir -p target && cd target && \
 		cp -r ../npl/src/main/npl-* . && cp -r ../npl/src/main/yaml . && cp -r ../npl/src/main/kotlin-script . && \
-		zip -r edu-$(NPL_VERSION).zip *
+		zip -r npl-integrations-$(NPL_VERSION).zip *
 
 .PHONY: build-npl
 build-npl:
@@ -67,13 +65,13 @@ download-cli:
 
 .PHONY: create-app
 create-app:
-	./cli app create -org $(NC_ORG) -engine 2024.1.0 -name $(NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME).shared-dev.noumenadigital.com/realms/$(NC_APP_NAME)"]'
+	./cli app create -org $(NC_ORG) -engine 2024.1.0 -name $(NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/realms/$(NC_APP_NAME)"]'
 
 clear-deploy: zip
 	@if [ "$(NC_APP)" = "" ] ; then echo "App $(NC_APP_NAME) not found"; exit 1; fi
 	@if [ "$(NPL_VERSION)" = "" ]; then echo "NPL_VERSION not set"; exit 1; fi
 	./cli app clear -app $(NC_APP)
-	./cli app deploy -app $(NC_APP) -binary ./target/edu-$(NPL_VERSION).zip
+	./cli app deploy -app $(NC_APP) -binary ./target/npl-integrations-$(NPL_VERSION).zip
 
 .PHONY: status-app
 status-app:

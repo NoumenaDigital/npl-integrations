@@ -14,9 +14,9 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
     require(forAmount > 0, "Initial amount must be strictly positive");
 
     initial state unpaid;
-    state pending_acknowledgement;
-    state paid;
-    final state confimed_repayment;
+    state unpaid_pending_acknowledgement;
+    state paid_pending_acknowledgement;
+    final state repaid;
     final state forgiven;
 
     private var payments = listOf<TimestampedAmount>();
@@ -25,7 +25,7 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
     function getAmountOwed() returns Number -> forAmount - total(payments);
 
     @api
-    permission[issuer] pay(amount: Number) | unpaid, pending_acknowledgement {
+    permission[issuer] pay(amount: Number) | unpaid, unpaid_pending_acknowledgement {
         require(amount > 0, "Amount must be strictly positive");
         require(amount <= getAmountOwed(), "Amount may not exceed amount owed");
 
@@ -37,20 +37,20 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
         notify RepaymentOccurence(amount, amountOwned);
 
         if (amountOwned == 0) {
-            become paid;
+            become paid_pending_acknowledgement;
         } else {
-            become pending_acknowledgement;
+            become unpaid_pending_acknowledgement;
         };
     };
 
     @api
-    permission[payee] acknowledgePayment() | unpaid, pending_acknowledgement {
+    permission[payee] acknowledgePayment() | unpaid_pending_acknowledgement {
         become unpaid;
     };
 
     @api
-    permission[payee] confirmRepayment() | paid {
-        become confimed_repayment;
+    permission[payee] confirmRepayment() | paid_pending_acknowledgement {
+        become repaid;
     };
 
     @api
