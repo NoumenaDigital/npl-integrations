@@ -1,0 +1,4 @@
+{
+    "API_BASE_URL": "https://engine-training-nplintegrations.noumena.cloud",
+    "KEYCLOAK_URL": "https://keycloak-training-nplintegrations.noumena.cloud"
+}

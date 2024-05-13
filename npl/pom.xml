@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>npl</artifactId>
+
+    <parent>
+        <groupId>com.noumenadigital.npl-integrations</groupId>
+        <artifactId>parent-pom</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../parent-pom</relativePath>
+    </parent>
+
+    <properties>
+        <platform.version>2024.1.7</platform.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.noumenadigital.platform</groupId>
+                <artifactId>npl-maven-plugin</artifactId>
+                <version>${platform.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>npl-puml</goal>
+                            <goal>npl-compile</goal>
+                            <goal>npl-test-compile</goal>
+                            <goal>npl-puml</goal>
+                            <goal>npl-test</goal>
+                            <goal>npl-api</goal>
+                        </goals>
+                        <configuration>
+                            <enableCompilerOptimisations>true</enableCompilerOptimisations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>7.4.0</version>
+                <executions>
+                    <execution>
+                        <id>python</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/target/generated-sources/openapi/iou-openapi.yml</inputSpec>
+                            <generatorName>python</generatorName>
+                            <output>../python/generated</output>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>typescript</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/target/generated-sources/openapi/iou-openapi.yml</inputSpec>
+                            <generatorName>typescript-axios</generatorName>
+                            <output>../webapp/generated</output>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

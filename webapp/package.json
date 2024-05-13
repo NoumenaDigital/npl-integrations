@@ -1,0 +1,44 @@
+{
+    "name": "nplintegrations",
+    "private": true,
+    "version": "0.0.1",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "lint": "eslint nplintegrations --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+        "format": "prettier . --write",
+        "format:ci": "prettier . --check",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@emotion/react": "^11.11.4",
+        "@emotion/styled": "^11.11.5",
+        "@fontsource/roboto": "^5.0.12",
+        "@mui/icons-material": "^5.15.15",
+        "@mui/material": "^5.15.15",
+        "@mui/x-charts": "^7.3.0",
+        "@react-keycloak/web": "^3.4.0",
+        "axios": "1.6.8",
+        "event-source-polyfill": "^1.0.31",
+        "keycloak-js": "24.0.2",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-router-dom": "^6.22.3"
+    },
+    "devDependencies": {
+        "@types/event-source-polyfill": "^1.0.5",
+        "@types/react": "^18.2.74",
+        "@types/react-dom": "^18.2.24",
+        "@typescript-eslint/eslint-plugin": "^7.5.0",
+        "@typescript-eslint/parser": "^7.5.0",
+        "@vitejs/plugin-react": "^4.2.1",
+        "eslint": "^8.56.0",
+        "eslint-plugin-react-hooks": "^4.6.0",
+        "eslint-plugin-react-refresh": "^0.4.6",
+        "prettier": "3.2.5",
+        "sharp": "^0.33.3",
+        "typescript": "^5.4.5",
+        "vite": "^5.2.8"
+    }
+}
