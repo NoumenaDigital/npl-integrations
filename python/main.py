@@ -1,7 +1,6 @@
 from src import auth
 from src import config
 from src import stream
-from src import iou
 
 from openapi_client.api.default_api import DefaultApi
 from openapi_client.api_client import ApiClient
@@ -30,8 +29,6 @@ if __name__ == '__main__':
         )
     )
 
-    # print("create IOU:", iou.createIou(api))
-
     streamReader = stream.StreamReader(api)
     for event in streamReader.readStream(access_token):
-        streamReader.handleNotification(event)
+        streamReader.manageNotification(event)

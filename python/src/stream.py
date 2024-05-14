@@ -1,16 +1,37 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import json
 from time import sleep
-
 from requests_sse import EventSource, MessageEvent
-
-from src import config
 
 from openapi_client.api.default_api import DefaultApi
 
+from src import config
 
-# @dataclass
-# class RepaymentOccurence(): 
+
+@dataclass
+class Agent:
+    id: str
+    party: str
+
+@dataclass
+class Argument:
+    nplType: str
+    value: int
+
+@dataclass
+class Notification:
+    type: str
+    refId: str
+    protocolVersion: str
+    agents: list[Agent]
+    created: str
+    name: str
+    arguments: list[Argument] = field(init=Argument)
+    callback: str
+
+    def __post_init__(self):
+        self.arguments = [Argument(**a_i) for a_i in self.arguments]
+        self.agents = [Agent(**a_i) for a_i in self.agents]
 
 class StreamReader:
 
@@ -22,31 +43,36 @@ class StreamReader:
         with EventSource(config.ROOT_URL + "/api/streams/notifications", timeout=30, headers= {'Authorization': 'Bearer ' + access_token}) as event_source:
             try:
                 for event in event_source:
-                    if(isinstance(event, MessageEvent) and event.type == "tick"):
+                    if not isinstance(event, MessageEvent):
+                        print("unrecognise event", event)
+                    elif event.type == "tick":
                         continue
-
-                    yield json.loads(event.data)
+                    elif event.type in ["notify"]:
+                        yield json.loads(event.data)["notification"]
+                    else:
+                        print("unrecognise message event", event)
             except KeyboardInterrupt:
                 exit
 
-    def manageNotification(self, event: MessageEvent):
-        if event.type == "notify":
-            print(notificationData)
-            notificationData = event["notification"]
-            print("Received", notificationData["name"].split('/')[-1])
-            iouId = notificationData["refId"]
-            paymentAmount = notificationData["arguments"][0]["value"]
-            remainderAmount = notificationData["arguments"][1]["value"]
-            
-            sleep(5) # Sleeping for allowing time to see the state before confirming the payment
+    def manageNotification(self, event: dict):
+        notification = Notification(**event)
+        if '/library-1.0?/objects/iou/RepaymentOccurence' == notification.name:
+            self.manageRepaymentOccurrence(notification)
+        else:
+            print(event.name, event)
 
-            if remainderAmount == 0:
-                self.api.iou_confirm_repayment(iouId)
-            else:
-                self.api.iou_acknowledge_payment(iouId)
+    def manageRepaymentOccurrence(self, notification: Notification):
+        iouId = notification.refId
+        paymentAmount = notification.arguments[0].value
+        remainderAmount = notification.arguments[1].value
+        
+        print(f"""Received{' full' if remainderAmount == 0 else ''}""", notification.name.split('/')[-1])
+        
+        sleep(5) # Sleeping for allowing time to see the state before confirming the payment
 
-            print("Payment acknowledged: ", paymentAmount)
-        
-        else: 
-            print(event)
-        
+        if remainderAmount == 0:
+            self.api.iou_confirm_repayment(iouId)
+        else:
+            self.api.iou_acknowledge_payment(iouId)
+
+        print("Payment acknowledged:", paymentAmount)
