@@ -33,4 +33,5 @@ if __name__ == '__main__':
     # print("create IOU:", iou.createIou(api))
 
     streamReader = stream.StreamReader(api)
-    streamReader.readStream(access_token)
+    for event in streamReader.readStream(access_token):
+        streamReader.handleNotification(event)

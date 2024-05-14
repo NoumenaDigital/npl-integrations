@@ -1,12 +1,16 @@
+from dataclasses import dataclass
 import json
 from time import sleep
-import requests
 
-from requests_sse import EventSource, InvalidStatusCodeError, InvalidContentTypeError, MessageEvent
+from requests_sse import EventSource, MessageEvent
 
 from src import config
 
 from openapi_client.api.default_api import DefaultApi
+
+
+# @dataclass
+# class RepaymentOccurence(): 
 
 class StreamReader:
 
@@ -21,25 +25,20 @@ class StreamReader:
                     if(isinstance(event, MessageEvent) and event.type == "tick"):
                         continue
 
-                    self.manageNotification(event)
-            except InvalidStatusCodeError:
-                pass
-            except InvalidContentTypeError:
-                pass
-            except requests.RequestException:
-                pass
+                    yield json.loads(event.data)
             except KeyboardInterrupt:
                 exit
 
     def manageNotification(self, event: MessageEvent):
         if event.type == "notify":
-            notificationData = json.loads(event.data)["notification"]
-            print("Recevied", notificationData["name"].split('/')[-1])
+            print(notificationData)
+            notificationData = event["notification"]
+            print("Received", notificationData["name"].split('/')[-1])
             iouId = notificationData["refId"]
             paymentAmount = notificationData["arguments"][0]["value"]
             remainderAmount = notificationData["arguments"][1]["value"]
             
-            sleep(5)
+            sleep(5) # Sleeping for allowing time to see the state before confirming the payment
 
             if remainderAmount == 0:
                 self.api.iou_confirm_repayment(iouId)
