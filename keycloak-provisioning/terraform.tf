@@ -199,74 +199,53 @@ resource "keycloak_openid_user_attribute_protocol_mapper" "organisation_mapper" 
   claim_value_type = "JSON"
 }
 
-resource "keycloak_user" "cherry" {
+resource "keycloak_user" "alice" {
   realm_id   = keycloak_realm.realm.id
-  username   = "cherry"
-  email      = "cherry@noumenadigital.com"
-  first_name = "Cherry"
+  username   = "alice"
+  email      = "alice@noumenadigital.com"
+  first_name = "Alice"
   last_name  = "Noumena"
   attributes = {
-    "party" = jsonencode(["lender"])
     "job_title" = jsonencode(["chairperson"])
     "organisation" = jsonencode(["Noumena"])
     "department" = jsonencode(["business"])
   }
   initial_password {
-    value     = "cherry-on-the-cake"
+    value     = "alice"
     temporary = false
   }
 }
 
-resource "keycloak_user" "bankingsystem" {
+resource "keycloak_user" "bob" {
   realm_id   = keycloak_realm.realm.id
-  username   = var.systemuser_name
-  email      = "bankingSystem@system.noumenadigital.com"
-  first_name = "Banking"
-  last_name  = "System"
-  attributes = {
-    "party" = jsonencode(["bankingSystem"])
-    "job_title" = jsonencode(["bankingSystem"])
-    "organisation" = jsonencode(["Bank"])
-    "department" = jsonencode(["internal operations"])
-  }
-  initial_password {
-    value     = var.systemuser_secret
-    temporary = false
-  }
-}
-
-resource "keycloak_user" "bora" {
-  realm_id   = keycloak_realm.realm.id
-  username   = "bora"
-  email      = "bora@noumenadigital.com"
-  first_name = "Bora"
+  username   = "bob"
+  email      = "bob@noumenadigital.com"
+  first_name = "Bob"
   last_name  = "Noumena"
   attributes = {
-    "party" = jsonencode(["borrower"])
     "job_title" = jsonencode(["board-member", "secretary"])
     "organisation" = jsonencode(["Noumena"])
     "department" = jsonencode(["tech"])
   }
   initial_password {
-    value     = "bora-the-explorer"
+    value     = "bob"
     temporary = false
   }
 }
 
-resource "keycloak_user" "bome" {
+resource "keycloak_user" "eve" {
   realm_id   = keycloak_realm.realm.id
-  username   = "bome"
-  email      = "bome@noumenadigital.com"
-  first_name = "Bome"
+  username   = "eve"
+  email      = "eve@noumenadigital.com"
+  first_name = "Eve"
   last_name  = "Noumena"
   attributes = {
-    "party" = jsonencode([])
     "job_title" = jsonencode(["board-member"])
     "organisation" = jsonencode(["TableOrg"])
     "department" = jsonencode(["business"])
   }
   initial_password {
-    value     = "bome-rang"
+    value     = "eve"
     temporary = false
   }
 }
