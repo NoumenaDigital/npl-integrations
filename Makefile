@@ -23,7 +23,7 @@ clean:
 install:
 	mvn $(MAVEN_CLI_OPTS) install
 	cd python && python3 -m pip install -r requirements.txt
-	cd webapp && npm run build
+	cd webapp && npm install
 
 .PHONY:	format
 format:
@@ -31,7 +31,15 @@ format:
 
 .PHONY:	run-only
 run-only:
-	docker compose up --wait
+	make run-webapp & make run-python
+
+.PHONY: run-webapp
+run-webapp:
+	cd webapp && npm run dev
+
+.PHONY: run-python
+run-python:
+	cd python && python3 main.py
 
 .PHONY:	run
 run: format install run-only

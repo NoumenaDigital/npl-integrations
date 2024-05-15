@@ -1,0 +1,28 @@
+package objects
+
+use objects.iou.Iou
+use objects.iou.RepaymentOccurence
+
+@test
+function test_iou_notifications(test: Test) -> {
+    var iou = Iou[ISSUER, PAYEE]("iou 2", 100);
+    iou.pay[ISSUER](50);
+
+    test.expectNotifications(iou, RepaymentOccurence, 1, function(paymentAmount: Number, remainingAmount: Number) returns Boolean -> paymentAmount == 50 && remainingAmount == 50);
+    test.assertEquals(Iou.States.unpaid_pending_acknowledgement, iou.activeState().getOrFail());
+
+    iou.acknowledgePayment[PAYEE]();
+
+    test.assertEquals(Iou.States.unpaid, iou.activeState().getOrFail());
+
+    iou.pay[ISSUER](50);
+
+    test.expectNotifications(iou, RepaymentOccurence, 1, function(paymentAmount: Number, remainingAmount: Number) returns Boolean -> paymentAmount == 50 && remainingAmount == 0);
+    test.expectNotifications(iou, RepaymentOccurence, 2, function(paymentAmount: Number, remainingAmount: Number) returns Boolean -> true);
+
+    test.assertEquals(Iou.States.paid_pending_acknowledgement, iou.activeState().getOrFail());
+
+    iou.confirmRepayment[PAYEE]();
+
+    test.assertEquals(Iou.States.repaid, iou.activeState().getOrFail());
+};
