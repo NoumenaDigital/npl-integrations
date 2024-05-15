@@ -105,60 +105,6 @@ resource "keycloak_openid_client" "client" {
   root_url                        = "http://localhost:5173"
 }
 
-resource "keycloak_user" "payee1" {
-  realm_id   = keycloak_realm.realm.id
-  username   = "payee1"
-  email      = "payee1@noumenadigital.com"
-  first_name = "payee1"
-  last_name  = "noumena"
-  attributes = {
-    "party" = jsonencode(["payee"])
-    "job_title" = jsonencode([])
-    "organisation" = jsonencode([])
-    "department" = jsonencode(["business"])
-  }
-  initial_password {
-    value     = var.default_password
-    temporary = false
-  }
-}
-
-resource "keycloak_user" "payee2" {
-  realm_id   = keycloak_realm.realm.id
-  username   = "payee2"
-  email      = "payee2@noumenadigital.com"
-  first_name = "payee2"
-  last_name  = "noumena"
-  attributes = {
-    "party" = jsonencode(["payee"])
-    "job_title" = jsonencode([])
-    "organisation" = jsonencode([])
-    "department" = jsonencode(["tech"])
-  }
-  initial_password {
-    value     = var.default_password
-    temporary = false
-  }
-}
-
-resource "keycloak_user" "issuer1" {
-  realm_id   = keycloak_realm.realm.id
-  username   = "issuer1"
-  email      = "issuer1@noumenadigital.com"
-  first_name = "issuer1"
-  last_name  = "noumena"
-  attributes = {
-    "party" = jsonencode(["issuer"])
-    "job_title" = jsonencode([])
-    "organisation" = jsonencode([])
-    "department" = jsonencode(["tech"])
-  }
-  initial_password {
-    value     = var.default_password
-    temporary = false
-  }
-}
-
 resource "keycloak_openid_user_attribute_protocol_mapper" "party_mapper" {
   realm_id  = keycloak_realm.realm.id
   client_id = keycloak_openid_client.client.id
