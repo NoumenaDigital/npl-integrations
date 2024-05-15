@@ -25,3 +25,4 @@ certs.json
 python/generated/
 node_modules
 cli
+.vite
