@@ -9,7 +9,7 @@ const PAYEE = 'payee';
 function test_initial_amount_owed(test: Test) -> {
     var iou = Iou[ISSUER, PAYEE]("iou 1", 100);
 
-    test.assertEquals(100, iou.amountOwned, "Amount owed should equal initial value");
+    test.assertEquals(100, iou.amountOwed, "Amount owed should equal initial value");
 };
 
 @test
@@ -17,7 +17,7 @@ function test_amount_owed_after_pay(test: Test) -> {
     var iou = Iou[ISSUER, PAYEE]("iou 2", 100);
     iou.pay[ISSUER](50);
 
-    test.assertEquals(50, iou.amountOwned, "Amount owed should reflect payment");
+    test.assertEquals(50, iou.amountOwed, "Amount owed should reflect payment");
 };
 
 @test
