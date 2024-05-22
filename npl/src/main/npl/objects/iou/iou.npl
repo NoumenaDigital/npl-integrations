@@ -14,43 +14,41 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
     require(forAmount > 0, "Initial amount must be strictly positive");
 
     initial state unpaid;
-    state unpaid_pending_acknowledgement;
-    state paid_pending_acknowledgement;
+    state payment_confirmation_required;
     final state repaid;
     final state forgiven;
 
     private var payments = listOf<TimestampedAmount>();
-    var amountOwned: Number = forAmount;
+    var paymentToBeConfirmed: Optional<TimestampedAmount> = optionalOf<TimestampedAmount>();
+    var amountOwed: Number = forAmount;
 
     function getAmountOwed() returns Number -> forAmount - total(payments);
 
     @api
-    permission[issuer] pay(amount: Number) | unpaid, unpaid_pending_acknowledgement {
+    permission[issuer] pay(amount: Number) | unpaid {
         require(amount > 0, "Amount must be strictly positive");
         require(amount <= getAmountOwed(), "Amount may not exceed amount owed");
 
-        var p = TimestampedAmount(amount = amount, timestamp = now());
+        paymentToBeConfirmed = optionalOf(
+            TimestampedAmount(amount = amount, timestamp = now())
+        );
+        notify RepaymentOccurence(amount, amountOwed);
 
-        payments = payments.with(p);
-        amountOwned = getAmountOwed();
+        become payment_confirmation_required;
+    };
 
-        notify RepaymentOccurence(amount, amountOwned);
+    @api
+    permission[payee] confirmPayment() | payment_confirmation_required {
 
-        if (amountOwned == 0) {
-            become paid_pending_acknowledgement;
+        payments = payments.with(paymentToBeConfirmed.getOrFail());
+        paymentToBeConfirmed = optionalOf<TimestampedAmount>();
+        amountOwed = getAmountOwed();
+
+        if (amountOwed == 0) {
+            become repaid;
         } else {
-            become unpaid_pending_acknowledgement;
+            become unpaid;
         };
-    };
-
-    @api
-    permission[payee] acknowledgePayment() | unpaid_pending_acknowledgement {
-        become unpaid;
-    };
-
-    @api
-    permission[payee] confirmRepayment() | paid_pending_acknowledgement {
-        become repaid;
     };
 
     @api
