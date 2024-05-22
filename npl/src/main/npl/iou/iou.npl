@@ -1,4 +1,4 @@
-package objects.iou
+package iou
 
 struct TimestampedAmount {
     amount: Number,

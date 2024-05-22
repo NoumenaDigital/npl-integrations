@@ -1,6 +1,6 @@
 package objects
 
-use objects.iou.Iou
+use iou.Iou
 
 const ISSUER = 'issuer';
 const PAYEE = 'payee';
@@ -10,14 +10,6 @@ function test_initial_amount_owed(test: Test) -> {
     var iou = Iou[ISSUER, PAYEE]("iou 1", 100);
 
     test.assertEquals(100, iou.amountOwed, "Amount owed should equal initial value");
-};
-
-@test
-function test_amount_owed_after_pay(test: Test) -> {
-    var iou = Iou[ISSUER, PAYEE]("iou 2", 100);
-    iou.pay[ISSUER](50);
-
-    test.assertEquals(50, iou.amountOwed, "Amount owed should reflect payment");
 };
 
 @test
@@ -33,3 +25,24 @@ function test_overpaying(test: Test) -> {
 
     test.assertFails(function() -> iou.pay[ISSUER](101), "Overpaying should fail");
 };
+
+@test
+function test_amount_owed_after_pay(test: Test) -> {
+    var iou = Iou[ISSUER, PAYEE]("iou 2", 100);
+    iou.pay[ISSUER](50);
+
+    test.assertEquals(100, iou.amountOwed, "Amount owed unchanged after yet unconfirmed payment");
+};
+
+
+
+@test
+function test_amount_owed_after_confirmation(test: Test) -> {
+    var iou = Iou[ISSUER, PAYEE]("iou 2", 100);
+    iou.pay[ISSUER](50);
+    iou.confirmPayment[PAYEE]();
+
+    test.assertEquals(50, iou.amountOwed, "Amount owed changed after payment confirmation");
+};
+
+
