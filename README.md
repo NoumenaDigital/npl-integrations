@@ -14,6 +14,10 @@ The './python' folder contains a python service interacting with the configured 
 
 run `cd python && python main.py`
 
+and in another terminal
+
+run `cd python && python notification.py`
+
 ## Webapp
 
 The './webapp' folder contains a typescript frontend service interacting with the configured engine.
