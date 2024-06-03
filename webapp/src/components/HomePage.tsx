@@ -19,6 +19,7 @@ import { useServices } from '../ServiceProvider'
 import { Iou } from '../../generated'
 import { CreateIouDialog } from './CreateIouDialog'
 import { RepayIouDialog } from './RepayIouDialog'
+import { ConfirmIouPaymentDialog } from './ConfirmIouPaymentDialog'
 
 interface ViewDialog {
     open: boolean
@@ -28,7 +29,11 @@ interface ViewDialog {
 export const HomePage = () => {
 
     const [createIouDialogOpen, setCreateIouDialogOpen] = useState<boolean>(false)
-    const [viewIouDialogOpen, setViewIouDialogOpen] = useState<ViewDialog>({
+    const [repayIouDialogOpen, setRepayIouDialogOpen] = useState<ViewDialog>({
+        open: false,
+        iouId: ""
+    })
+    const [confirmIouPaymentDialogOpen, setConfirmIouDialogOpen] = useState<ViewDialog>({
         open: false,
         iouId: ""
     })
@@ -38,10 +43,10 @@ export const HomePage = () => {
     const [iouList, setIouList] = useState<Iou[]>()
     
     useEffect(() => {
-        if (!createIouDialogOpen && !viewIouDialogOpen.open) {
+        if (!createIouDialogOpen && !repayIouDialogOpen.open) {
             getIouList().then((it) => setIouList(it))
         }
-    }, [createIouDialogOpen, viewIouDialogOpen.open])
+    }, [createIouDialogOpen, repayIouDialogOpen.open, confirmIouPaymentDialogOpen.open])
 
     return (
         (
@@ -89,7 +94,7 @@ export const HomePage = () => {
                                             >
                                                 <TableCell>{it.description}</TableCell>
                                                 <TableCell>{it.forAmount}</TableCell>
-                                                <TableCell>{it.amountOwned}</TableCell>
+                                                <TableCell>{it.amountOwed}</TableCell>
                                                 {false && <TableCell>to be implemented</TableCell>}
                                                 <TableCell>
                                                     <Chip
@@ -98,14 +103,22 @@ export const HomePage = () => {
                                                     ></Chip>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Button
-                                                        onClick={() => setViewIouDialogOpen({
+                                                    {it['@state'] == "unpaid" && <Button
+                                                        onClick={() => setRepayIouDialogOpen({
                                                             open: true,
                                                             iouId: it['@id']
                                                         })}
                                                     >
                                                         Repay
-                                                    </Button>
+                                                    </Button>}
+                                                    {it['@state'] == "payment_confirmation_required" && <Button
+                                                        onClick={() => setConfirmIouDialogOpen({
+                                                            open: true,
+                                                            iouId: it['@id']
+                                                        })}
+                                                    >
+                                                        Confirm Payment
+                                                    </Button>}
                                                 </TableCell>
                                             </TableRow>
                                         )) || <div>No Iou entry found</div>}
@@ -122,10 +135,20 @@ export const HomePage = () => {
                     }}
                 />
                 <RepayIouDialog
-                    open={viewIouDialogOpen.open}
-                    iouId={viewIouDialogOpen.iouId}
+                    open={repayIouDialogOpen.open}
+                    iouId={repayIouDialogOpen.iouId}
                     onClose={() => {
-                        setViewIouDialogOpen({
+                        setRepayIouDialogOpen({
+                            open: false,
+                            iouId: ""
+                        })
+                    }}
+                />
+                <ConfirmIouPaymentDialog
+                    open={confirmIouPaymentDialogOpen.open}
+                    iouId={confirmIouPaymentDialogOpen.iouId}
+                    onClose={() => {
+                        setConfirmIouDialogOpen({
                             open: false,
                             iouId: ""
                         })

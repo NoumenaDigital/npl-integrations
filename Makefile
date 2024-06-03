@@ -63,7 +63,7 @@ build-npl:
 	@(cd ./npl && make build-npl)
 
 download-cli: export CLI_OS_ARCH=npl_darwin_amd64
-download-cli: export RELEASE_TAG=1.2.0
+download-cli: export RELEASE_TAG=1.3.0
 download-cli: export API_URL=https://api.github.com/repos/NoumenaDigital/npl-cli/releases/tags/$(RELEASE_TAG)
 download-cli:
 	curl -s -H "Authorization: token $(GITHUB_USER_PASS)" $(API_URL) \
