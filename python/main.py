@@ -27,14 +27,12 @@ if __name__ == '__main__':
         )
     )
 
-    streamReader = stream.StreamReader(api)
+    streamReader = stream.StreamReader(api, "/api/streams")
     for event in streamReader.read_stream(access_token):
         
         api.api_client.configuration.access_token = authService.get_access_token()
 
-        if "notification" in event:
-            streamReader.manage_notification(event["notification"])
-        elif "payload" in event:
+        if "payload" in event:
             streamReader.manage_state_change(event["payload"])
         else:
             print("Unrecognised stream event", event)

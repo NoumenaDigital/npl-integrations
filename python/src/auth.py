@@ -25,7 +25,7 @@ class AuthService:
 
         json_response = response.json()
         self.access_token = json_response["access_token"]
-        self.validity = time.time() + int(json_response["expires_in"])
+        self.validity = time.time() + int(json_response["expires_in"]) - 10  # 10 seconds buffer
         return json_response["access_token"]
 
     def get_access_token(self):

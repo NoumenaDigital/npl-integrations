@@ -8,6 +8,9 @@ from openapi_client.models.iou_states import IouStates
 
 from src import config
 
+NPL_PREFIX = '/nplintegrations-1.0?'
+IOU_PROTOTYPE_ID = NPL_PREFIX + '/iou/Iou'
+REPAYMENT_OCCURRENCE_NAME = NPL_PREFIX + '/iou/RepaymentOccurrence'
 
 @dataclass
 class Agent:
@@ -52,13 +55,13 @@ class Payload:
 
 class StreamReader:
 
-    def __init__(self, defaultApi: DefaultApi, urlExtension: str = "") -> None:
+    def __init__(self, defaultApi: DefaultApi, path: str = "") -> None:
         self.api = defaultApi
-        self.urlExtension = urlExtension
+        self.path = path
 
     def read_stream(self, access_token: str):
         with EventSource(
-                config.ROOT_URL + "/api/streams" + self.urlExtension,
+                config.ROOT_URL + self.path,
                 timeout=30,
                 headers={'Authorization': 'Bearer ' + access_token}
         ) as event_source:
@@ -79,7 +82,7 @@ class StreamReader:
 
     def manage_notification(self, event: dict):
         notification = Notification(**event)  # type: ignore
-        if '/nplintegrations-1.0?/iou/RepaymentOccurrence' == notification.name:
+        if notification.name == REPAYMENT_OCCURRENCE_NAME:
             self.manage_repayment_occurrence(notification)
         else:
             print("unrecognized notification event", event)
@@ -99,11 +102,11 @@ class StreamReader:
 
     def manage_state_change(self, event: dict):
         payload = Payload(**event)  # type: ignore
-        if '/nplintegrations-1.0?/iou/Iou' == payload.prototypeId \
-                and IouStates.PAYMENT_CONFIRMATION_REQUIRED == payload.currentState:
+        if payload.prototypeId == IOU_PROTOTYPE_ID \
+                and payload.currentState == IouStates.PAYMENT_CONFIRMATION_REQUIRED:
             self.manage_payment_confirmation_required_state_change(payload)
-        elif '/nplintegrations-1.0?/iou/Iou' == payload.prototypeId \
-                and IouStates.UNPAID == payload.currentState:
+        elif payload.prototypeId == IOU_PROTOTYPE_ID \
+                and payload.currentState == IouStates.UNPAID:
             pass
         else:
             print("unrecognized state event", event)
