@@ -70,9 +70,6 @@ class StreamReader:
         
         sleep(5) # Sleeping for allowing time to see the state before confirming the payment
 
-        if remainderAmount == 0:
-            self.api.iou_confirm_repayment(iouId)
-        else:
-            self.api.iou_acknowledge_payment(iouId)
-
+        self.api.iou_confirm_payment(iouId)
+        
         print("Payment acknowledged:", paymentAmount)

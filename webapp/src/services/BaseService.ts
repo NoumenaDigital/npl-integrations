@@ -59,6 +59,18 @@ export class BaseService {
             )
             .then((it) => it.data)
 
+    public confirmPayment = async (
+            iouId: string,
+        ) =>
+            await this.api
+                .iouConfirmPayment(
+                    iouId,
+                    undefined,
+                    undefined,
+                    this.withAuthorizationHeader()
+                )
+                .then((it) => it.data)
+
     public createIou = async (
         description: string,
         amount: number,
