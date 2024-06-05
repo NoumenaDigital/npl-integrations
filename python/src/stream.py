@@ -78,7 +78,7 @@ class StreamReader:
 
     def manage_notification(self, event: dict):
         notification = Notification(**event)  # type: ignore
-        if '/library-1.0?/objects/iou/RepaymentOccurrence' == notification.name:
+        if '/nplintegrations-1.0?/iou/RepaymentOccurrence' == notification.name:
             self.manage_repayment_occurrence(notification)
         else:
             print("unrecognized notification event", event)
@@ -98,16 +98,16 @@ class StreamReader:
 
     def manage_state_change(self, event: dict):
         payload = Payload(**event)  # type: ignore
-        if '/library-1.0?/objects/iou/Iou' == payload.prototypeId \
-                and "unpaid_pending_acknowledgement" == payload.currentState:
-            self.manage_pending_acknowledgement_state_change(payload)
-        elif '/library-1.0?/objects/iou/Iou' == payload.prototypeId \
+        if '/nplintegrations-1.0?/iou/Iou' == payload.prototypeId \
+                and "payment_confirmation_required" == payload.currentState:
+            self.manage_payment_confirmation_required_state_change(payload)
+        elif '/nplintegrations-1.0?/iou/Iou' == payload.prototypeId \
                 and "unpaid" == payload.currentState:
             pass
         else:
             print("unrecognized state event", event)
 
-    def manage_pending_acknowledgement_state_change(self, payload: Payload):
+    def manage_payment_confirmation_required_state_change(self, payload: Payload):
         # todo
         print("TODO complete implementation")
         pass

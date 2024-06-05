@@ -10,6 +10,9 @@ The './python' folder contains a python service interacting with the configured 
 2. run `mvn install` to generate the python client
 3. run `cd python && pip install -r requirements.txt` 
 
+Note: it is needed to install requirements every time NPL code is changed.
+This is because the generated code is installed as a package for easier use.
+
 ### Running
 
 run `cd python && python main.py`
