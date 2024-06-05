@@ -1,2 +1,3 @@
 ./generated
 requests
+requests_sse

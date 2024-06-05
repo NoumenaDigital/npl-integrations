@@ -3,10 +3,11 @@ from openapi_client.models.iou_create import IouCreate
 from openapi_client.models.iou_parties import IouParties
 from openapi_client.models.party import Party
 
-def createIou(api: DefaultApi):
+
+def create_iou(api: DefaultApi):
     return api.create_iou(
         IouCreate(
-            forAmount= 5,
+            forAmount=5,
             parties=IouParties(
                 issuer=Party(
                     entity={
@@ -16,7 +17,7 @@ def createIou(api: DefaultApi):
                         "other": ["jean@noumenadigital.com"],
                     }
                 ),
-                payee= Party(
+                payee=Party(
                     entity={
                         "email": ["jean@noumenadigital.com"],
                     },

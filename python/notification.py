@@ -14,10 +14,6 @@ if __name__ == '__main__':
         config.PASSWORD
     )
 
-    if access_token == "":
-        print("error during login")
-        exit
-
     api = DefaultApi(
         ApiClient(
             Configuration(
@@ -32,13 +28,13 @@ if __name__ == '__main__':
     )
     
     streamReader = stream.StreamReader(api, "/notifications")
-    for event in streamReader.readStream(access_token):
+    for event in streamReader.read_stream(access_token):
         
         api.api_client.configuration.access_token = authService.get_access_token()
 
         if "notification" in event:
-            streamReader.manageNotification(event["notification"])
+            streamReader.manage_notification(event["notification"])
         elif "payload" in event:
-            streamReader.manageStateChange(event["payload"])
+            streamReader.manage_state_change(event["payload"])
         else:
             print("Unrecognised stream event", event)
