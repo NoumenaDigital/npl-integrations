@@ -4,6 +4,7 @@ from time import sleep
 from requests_sse import EventSource, MessageEvent
 
 from openapi_client.api.default_api import DefaultApi
+from openapi_client.models.iou_states import IouStates
 
 from src import config
 
@@ -99,10 +100,10 @@ class StreamReader:
     def manage_state_change(self, event: dict):
         payload = Payload(**event)  # type: ignore
         if '/nplintegrations-1.0?/iou/Iou' == payload.prototypeId \
-                and "payment_confirmation_required" == payload.currentState:
+                and IouStates.PAYMENT_CONFIRMATION_REQUIRED == payload.currentState:
             self.manage_payment_confirmation_required_state_change(payload)
         elif '/nplintegrations-1.0?/iou/Iou' == payload.prototypeId \
-                and "unpaid" == payload.currentState:
+                and IouStates.UNPAID == payload.currentState:
             pass
         else:
             print("unrecognized state event", event)
