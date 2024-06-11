@@ -31,27 +31,6 @@ services:
       keycloak:
         condition: service_healthy
 
-  history:
-    image: ghcr.io/noumenadigital/packages/history:${PLATFORM_VERSION}
-    ports:
-      - "12010:12010"
-      - "12711:12711"
-    environment:
-      HISTORY_DEV_MODE: ${DEV_MODE:-false}
-      HISTORY_ADMIN_HOST: 0.0.0.0
-      HISTORY_ADMIN_PORT: 12711
-      HISTORY_DB_URL: "jdbc:postgresql://engine-db:5432/engine"
-      HISTORY_DB_USER: history
-      HISTORY_DB_PASSWORD: secret
-      HISTORY_DB_SCHEMA: history
-      HISTORY_DB_ENGINE_SCHEMA: noumena
-      HISTORY_STARTUP_HEALTH_CHECK_ATTEMPTS: 10
-    depends_on:
-      engine-db:
-        condition: service_started
-      engine:
-        condition: service_healthy
-
   read-model:
     image: ghcr.io/noumenadigital/packages/postgraphile:${PLATFORM_VERSION}
     ports:
