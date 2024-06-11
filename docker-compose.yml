@@ -22,9 +22,10 @@ services:
       ENGINE_DB_HISTORY_SCHEMA: history
       ENGINE_DB_POSTGRAPHILE_USER: postgraphile
       ENGINE_DB_POSTGRAPHILE_PASSWORD: postgraphile
+      ENGINE_ISSUER_OVERRIDE: http://keycloak:11000/realms/nplintegrations
       SWAGGER_ENGINE_URL: http://localhost:12000
-      SWAGGER_SECURITY_AUTH_URL: http://localhost:11000/realms/npl-integrations
-      SWAGGER_KEYCLOAK_CLIENT_ID: npl-integrations
+      SWAGGER_SECURITY_AUTH_URL: http://localhost:11000/realms/nplintegrations
+      SWAGGER_KEYCLOAK_CLIENT_ID: nplintegrations
     depends_on:
       engine-db:
         condition: service_started
@@ -37,7 +38,7 @@ services:
       - "15000:15000"
     environment:
       POSTGRAPHILE_PORT: 15000
-      POSTGRAPHILE_DB_URL: postgres://npl-integrations:secret@engine-db:5432/engine
+      POSTGRAPHILE_DB_URL: postgres://postgraphile:secret@engine-db:5432/engine
       POSTGRAPHILE_DB_USER: postgraphile
       POSTGRAPHILE_DB_SCHEMA: noumena
       POSTGRAPHILE_TRUSTED_ISSUERS: "http://keycloak:11000/**,"
@@ -60,6 +61,8 @@ services:
       POSTGRES_PASSWORD: secret
       HISTORY_DB_USER: history
       HISTORY_DB_PASSWORD: secret
+      POSTGRAPHILE_DB_USER: postgraphile
+      POSTGRAPHILE_DB_PASSWORD: secret
     volumes:
       - ./db_init/db_init.sh:/docker-entrypoint-initdb.d/db_init.sh
     healthcheck:
@@ -97,7 +100,7 @@ services:
       KC_HEALTH_ENABLED: "true"
       KC_HTTP_ENABLED: "true"
       KC_HTTP_PORT: 11000
-      KC_HOSTNAME: keycloak
+      KC_HOSTNAME: localhost
     depends_on:
       keycloak-db:
         condition: service_started

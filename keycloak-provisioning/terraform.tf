@@ -6,7 +6,7 @@ variable "default_password" {
 
 variable "app_name" {
   type = string
-  default = "npl-integrations"
+  default = "nplintegrations"
 }
 
 /*
@@ -85,6 +85,12 @@ resource "keycloak_realm" "realm" {
     auth {
       username = var.realm_smtp_auth_username
       password = var.realm_smtp_auth_password
+    }
+  }
+
+  security_defenses {
+    headers {
+      content_security_policy = ""
     }
   }
 }
