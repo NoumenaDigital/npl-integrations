@@ -1,0 +1,174 @@
+version: "2.4"
+
+volumes:
+  keycloak-db: { }
+
+services:
+
+  api:
+    image: ghcr.io/noumenadigital/npl-integrations/api:latest
+    build:
+      context: api
+    ports:
+      - "8080:8080"
+      - "8000:8000"
+      - "8888:8888"
+    environment:
+      SYSTEM_USER: bankingsystem
+      SYSTEM_PASSWORD: super-secret-system-security-safe
+      KEYCLOAK_URL: http://keycloak:11000
+      ENGINE_URL: http://engine:12000
+      READ_MODEL_URL: http://read-model:15000
+      HTTP_PORT: 8080
+      HTTP_ADMIN_PORT: 8000
+      # JVM remote debug
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8888
+      ACCESS_LOG_VERBOSITY: "MAX"
+      API_SERVER_URL: ${API_SERVER_URL:-http://localhost:8080}
+      CORS_ALLOWED_ORIGINS: ${API_SERVER_URL:-http://localhost:8080},https://community.fluidapp.io
+    depends_on:
+      keycloak-provisioning:
+        condition: service_completed_successfully
+      engine:
+        condition: service_healthy
+    healthcheck:
+      test: "curl -s -f http://localhost:8000/health || exit 1"
+      interval: 1s
+      retries: 100
+
+  engine:
+    image: ghcr.io/noumenadigital/npl-integrations/engine:latest
+    build:
+      context: npl
+    ports:
+      - "12000:12000"
+    environment:
+      ENGINE_DEV_MODE: ${DEV_MODE:-false}
+      JWT_TRUSTED_ISSUERS: http://keycloak:11000
+      ENGINE_DB_URL: "jdbc:postgresql://engine-db:5432/engine"
+      ENGINE_DB_USER: npl-integrations
+      ENGINE_DB_PASSWORD: secret
+      ENGINE_DB_HISTORY_USER: history
+      ENGINE_DB_HISTORY_PASSWORD: secret
+      ENGINE_DB_HISTORY_SCHEMA: history
+      ENGINE_DB_POSTGRAPHILE_USER: postgraphile
+      ENGINE_DB_POSTGRAPHILE_PASSWORD: postgraphile
+      SWAGGER_ENGINE_URL: http://localhost:12000
+      SWAGGER_KEYCLOAK_URL: http://localhost:11000/realms/library
+      SWAGGER_KEYCLOAK_CLIENT_ID: npl-integrations
+    depends_on:
+      engine-db:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+
+  history:
+    image: ghcr.io/noumenadigital/packages/history:${PLATFORM_VERSION}
+    ports:
+      - "12010:12010"
+      - "12711:12711"
+    environment:
+      HISTORY_DEV_MODE: ${DEV_MODE:-false}
+      HISTORY_ADMIN_HOST: 0.0.0.0
+      HISTORY_ADMIN_PORT: 12711
+      HISTORY_DB_URL: "jdbc:postgresql://engine-db:5432/engine"
+      HISTORY_DB_USER: history
+      HISTORY_DB_PASSWORD: secret
+      HISTORY_DB_SCHEMA: history
+      HISTORY_DB_ENGINE_SCHEMA: noumena
+      HISTORY_STARTUP_HEALTH_CHECK_ATTEMPTS: 10
+    depends_on:
+      engine-db:
+        condition: service_started
+      engine:
+        condition: service_healthy
+
+  read-model:
+    image: ghcr.io/noumenadigital/packages/postgraphile:${PLATFORM_VERSION}
+    ports:
+      - "15000:15000"
+    environment:
+      POSTGRAPHILE_PORT: 15000
+      POSTGRAPHILE_DB_URL: postgres://npl-integrations:secret@engine-db:5432/engine
+      POSTGRAPHILE_DB_USER: postgraphile
+      POSTGRAPHILE_DB_SCHEMA: noumena
+      POSTGRAPHILE_TRUSTED_ISSUERS: "http://keycloak:11000/**,"
+      POSTGRAPHILE_ENGINE_HEALTH_ENDPOINT: "http://engine:12000/actuator/health"
+      POSTGRAPHILE_ENGINE_HEALTH_TIMEOUT_SECONDS: 250
+    depends_on:
+      engine-db:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+
+  engine-db:
+    image: postgres:14.4-alpine
+    mem_limit: 256m
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: engine
+      POSTGRES_USER: npl-integrations
+      POSTGRES_PASSWORD: secret
+      HISTORY_DB_USER: history
+      HISTORY_DB_PASSWORD: secret
+    volumes:
+      - ./db_init/db_init.sh:/docker-entrypoint-initdb.d/db_init.sh
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 1s
+      timeout: 5s
+      retries: 50
+
+  keycloak-provisioning:
+    image: ghcr.io/noumenadigital/npl-integrations/keycloak-provisioning:latest
+    build:
+      context: keycloak-provisioning
+    command: /local.sh
+    environment:
+      KEYCLOAK_USER: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-welcome}
+      KEYCLOAK_URL: http://keycloak:11000
+      TF_VAR_default_password: ${SEED_TEST_USERS_PASSWORD:-welcome}
+      TF_VAR_systemuser_secret: super-secret-system-security-safe
+    depends_on:
+      keycloak:
+        condition: service_healthy
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:19.0.0
+    command: start --hostname-strict=false --hostname-strict-https=false --health-enabled=true --http-enabled=true --metrics-enabled=true --db=postgres
+    ports:
+      - "11000:11000"
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-welcome}
+      KC_DB_URL: jdbc:postgresql://keycloak-db/postgres
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: testing
+      KC_HEALTH_ENABLED: "true"
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_PORT: 11000
+      KC_HOSTNAME: keycloak
+    depends_on:
+      keycloak-db:
+        condition: service_started
+    healthcheck:
+      test: curl -s localhost:11000/health || exit 1
+      interval: 1s
+      retries: 60
+
+  keycloak-db:
+    image: postgres:14.4-alpine
+    mem_limit: 256m
+    ports:
+      - "11040:5432"
+    volumes:
+      - keycloak-db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: testing
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 1s
+      timeout: 5s
+      retries: 50
