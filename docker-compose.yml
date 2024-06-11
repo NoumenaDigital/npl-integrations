@@ -23,7 +23,7 @@ services:
       ENGINE_DB_POSTGRAPHILE_USER: postgraphile
       ENGINE_DB_POSTGRAPHILE_PASSWORD: postgraphile
       SWAGGER_ENGINE_URL: http://localhost:12000
-      SWAGGER_KEYCLOAK_URL: http://localhost:11000/realms/library
+      SWAGGER_SECURITY_AUTH_URL: http://localhost:11000/realms/npl-integrations
       SWAGGER_KEYCLOAK_CLIENT_ID: npl-integrations
     depends_on:
       engine-db:

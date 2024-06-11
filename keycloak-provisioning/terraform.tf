@@ -6,6 +6,7 @@ variable "default_password" {
 
 variable "app_name" {
   type = string
+  default = "npl-integrations"
 }
 
 /*
