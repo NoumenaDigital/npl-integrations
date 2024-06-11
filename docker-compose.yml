@@ -123,3 +123,10 @@ services:
       interval: 1s
       timeout: 5s
       retries: 50
+
+  webapp:
+    image: ghcr.io/noumenadigital/npl-integrations/webapp:latest
+    build:
+      context: webapp
+    ports:
+      - "8080:8080"
