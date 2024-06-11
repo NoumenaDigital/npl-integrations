@@ -5,37 +5,6 @@ volumes:
 
 services:
 
-  api:
-    image: ghcr.io/noumenadigital/npl-integrations/api:latest
-    build:
-      context: api
-    ports:
-      - "8080:8080"
-      - "8000:8000"
-      - "8888:8888"
-    environment:
-      SYSTEM_USER: bankingsystem
-      SYSTEM_PASSWORD: super-secret-system-security-safe
-      KEYCLOAK_URL: http://keycloak:11000
-      ENGINE_URL: http://engine:12000
-      READ_MODEL_URL: http://read-model:15000
-      HTTP_PORT: 8080
-      HTTP_ADMIN_PORT: 8000
-      # JVM remote debug
-      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8888
-      ACCESS_LOG_VERBOSITY: "MAX"
-      API_SERVER_URL: ${API_SERVER_URL:-http://localhost:8080}
-      CORS_ALLOWED_ORIGINS: ${API_SERVER_URL:-http://localhost:8080},https://community.fluidapp.io
-    depends_on:
-      keycloak-provisioning:
-        condition: service_completed_successfully
-      engine:
-        condition: service_healthy
-    healthcheck:
-      test: "curl -s -f http://localhost:8000/health || exit 1"
-      interval: 1s
-      retries: 100
-
   engine:
     image: ghcr.io/noumenadigital/npl-integrations/engine:latest
     build:
