@@ -130,3 +130,8 @@ services:
       context: webapp
     ports:
       - "8080:8080"
+
+  python-service:
+    image: ghcr.io/noumenadigital/npl-integrations/python-service:latest
+    build:
+      context: python
