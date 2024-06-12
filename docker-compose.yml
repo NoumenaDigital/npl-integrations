@@ -135,3 +135,8 @@ services:
     image: ghcr.io/noumenadigital/npl-integrations/python-service:latest
     build:
       context: python
+    depends_on:
+      engine:
+        condition: service_healthy
+      keycloak-provisioning:
+        condition: service_completed_successfully
