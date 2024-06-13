@@ -16,6 +16,8 @@ if __name__ == '__main__':
         config.PASSWORD
     )
 
+    print("login succeeded")
+
     api = DefaultApi(
         ApiClient(
             Configuration(
@@ -33,7 +35,7 @@ if __name__ == '__main__':
 
     streamReader = stream.StreamReader(api, stream_uri)
     for event in streamReader.read_stream(access_token):
-        
+
         api.api_client.configuration.access_token = authService.get_access_token()
 
         if "payload" in event:
