@@ -15,6 +15,8 @@ if __name__ == '__main__':
     if access_token == "":
         print("error during login")
         exit
+    else:
+        print("login succeeded")
 
     api = DefaultApi(
         ApiClient(
