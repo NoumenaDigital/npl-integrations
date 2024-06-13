@@ -56,9 +56,11 @@ services:
     ports:
       - "5432:5432"
     environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: engine
-      POSTGRES_USER: npl-integrations
-      POSTGRES_PASSWORD: secret
+      ENGINE_DB_USER: npl-integrations
+      ENGINE_DB_PASSWORD: secret
       HISTORY_DB_USER: history
       HISTORY_DB_PASSWORD: secret
       POSTGRAPHILE_DB_USER: postgraphile
