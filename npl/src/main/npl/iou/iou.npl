@@ -32,7 +32,7 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
         paymentToBeConfirmed = optionalOf(
             TimestampedAmount(amount = amount, timestamp = now())
         );
-        notify RepaymentOccurence(amount, amountOwed);
+        notify RepaymentOccurrence(amount, amountOwed);
 
         become payment_confirmation_required;
     };
