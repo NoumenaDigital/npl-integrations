@@ -16,7 +16,7 @@ if __name__ == '__main__':
         config.PASSWORD
     )
 
-    print("login succeeded")
+    print(f"{config.USERNAME} login succeeded")
 
     api = DefaultApi(
         ApiClient(
