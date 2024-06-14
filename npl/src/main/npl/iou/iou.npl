@@ -7,7 +7,7 @@ struct TimestampedAmount {
 
 function total(entries: List<TimestampedAmount>) -> entries.map(function(p: TimestampedAmount) -> p.amount).sum();
 
-notification RepaymentOccurence(paymentAmount: Number, remainingAmount: Number) returns Unit;
+notification RepaymentOccurrence(paymentAmount: Number, remainingAmount: Number) returns Unit;
 
 @api
 protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
