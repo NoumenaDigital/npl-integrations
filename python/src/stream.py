@@ -83,9 +83,12 @@ class StreamReader:
     def manage_notification(self, event: dict):
         notification = Notification(**event)  # type: ignore
         if notification.name == REPAYMENT_OCCURRENCE_NAME:
+            print(event.name, event)
             self.manage_repayment_occurrence(notification)
+            print("Acted on notification RepaymentOccurrence")
         else:
             print("unrecognized notification event", event)
+            print("No action in this notification")
 
     def manage_repayment_occurrence(self, notification: Notification):
         iou_id = notification.refId
@@ -98,7 +101,7 @@ class StreamReader:
 
         self.api.iou_confirm_payment(iou_id)
 
-        print("Payment acknowledged:", payment_amount)
+        print("Payment confirmed:", payment_amount)
 
     def manage_state_change(self, event: dict):
         payload = Payload(**event)  # type: ignore
