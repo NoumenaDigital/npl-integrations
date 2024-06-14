@@ -13,10 +13,10 @@ if __name__ == '__main__':
     )
 
     if access_token == "":
-        print("error during login")
+        print(f"Error during {config.USERNAME} login")
         exit
     else:
-        print("login succeeded")
+        print(f"{config.USERNAME} login succeeded")
 
     api = DefaultApi(
         ApiClient(
