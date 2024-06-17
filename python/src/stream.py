@@ -61,11 +61,11 @@ class StreamReader:
     def manageNotification(self, event: dict):
         notification = Notification(**event)
         if '/nplintegrations-1.0?/iou/RepaymentOccurrence' == notification.name:
-            print(event.name, event)
+            print(event["name"], event)
             self.manageRepaymentOccurrence(notification)
             print("Acted on notification RepaymentOccurrence")
         else:
-            print(event.name, event)
+            print(event["name"], event)
             print("No action in this notification")
 
     def manageRepaymentOccurrence(self, notification: Notification):
