@@ -1,5 +1,7 @@
-from dataclasses import dataclass, field
+import os
 import json
+
+from dataclasses import dataclass, field
 from time import sleep
 from requests_sse import EventSource, MessageEvent
 
@@ -40,7 +42,9 @@ class StreamReader:
         pass
 
     def readStream(self, access_token: str):
-        with EventSource(config.ROOT_URL + "/api/streams/notifications", timeout=30, headers= {'Authorization': 'Bearer ' + access_token}) as event_source:
+        root_url = config.LOCAL_ROOT_URL if os.getenv("ENV") == "LOCAL" else config.PAAS_ROOT_URL
+        print("root url ", root_url)
+        with EventSource(root_url + "/api/streams/notifications", timeout=30, headers= {'Authorization': 'Bearer ' + access_token}) as event_source:
             try:
                 for event in event_source:
                     if not isinstance(event, MessageEvent):

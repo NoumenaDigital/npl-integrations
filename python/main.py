@@ -1,3 +1,5 @@
+import os
+
 from src import auth
 from src import config
 from src import stream
@@ -22,7 +24,7 @@ if __name__ == '__main__':
         ApiClient(
             Configuration(
                 access_token=access_token,
-                host=config.ROOT_URL,
+                host=config.LOCAL_ROOT_URL if os.getenv("ENV") == "LOCAL" else config.PAAS_ROOT_URL,
                 api_key={},
                 api_key_prefix={},
                 username=config.USERNAME,
