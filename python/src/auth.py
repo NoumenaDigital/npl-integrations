@@ -1,4 +1,6 @@
 import time
+import os
+import time
 import requests
 from src import config
 
@@ -6,7 +8,6 @@ from src import config
 class AuthService:
 
     def __init__(self):
-        super().__init__()
         self.validity = time.time() - 1
         self.access_token = None
 
@@ -17,8 +18,9 @@ class AuthService:
             "client_id": config.REALM,
             "grant_type": "password"
         }
+        url = config.LOCAL_TOKEN_URL if os.getenv("ENV") == "LOCAL" else config.PAAS_TOKEN_URL
         response = requests.post(
-            url=config.TOKEN_URL,
+            url=url,
             data=data
         )
         response.raise_for_status()

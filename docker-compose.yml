@@ -120,6 +120,7 @@ services:
       - keycloak-db:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: testing
+      ENV: LOCAL
     healthcheck:
       test: pg_isready -U postgres
       interval: 1s
@@ -131,12 +132,24 @@ services:
     build:
       context: webapp
     ports:
-      - "8080:8080"
+      - "8090:8080"
+
+  nginx-proxy:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      engine:
+        condition: service_healthy
 
   python-service:
     image: ghcr.io/noumenadigital/npl-integrations/python-service:latest
     build:
       context: python
+    environment:
+      ENV: LOCAL
     depends_on:
       engine:
         condition: service_healthy
