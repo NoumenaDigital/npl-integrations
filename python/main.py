@@ -1,6 +1,6 @@
 import os
 
-from src import auth
+from src.auth import AuthService
 from src import config
 from src import stream
 
@@ -9,7 +9,9 @@ from openapi_client.api_client import ApiClient
 from openapi_client.configuration import Configuration
 
 if __name__ == '__main__':
-    access_token = auth.auth(
+    authService = AuthService()
+
+    access_token = authService.auth(
         config.USERNAME,
         config.PASSWORD
     )
@@ -35,4 +37,5 @@ if __name__ == '__main__':
 
     streamReader = stream.StreamReader(api)
     for event in streamReader.readStream(access_token):
+        api.api_client.configuration.access_token = authService.get_access_token()
         streamReader.manageNotification(event)
