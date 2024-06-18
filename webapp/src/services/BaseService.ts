@@ -4,14 +4,18 @@ import {
     Iou,
     Party
 } from '../../generated'
+import { EventSourcePolyfill, MessageEvent } from 'event-source-polyfill'
 import Keycloak from 'keycloak-js'
+import { useEffect, useState } from 'react'
 
 export class BaseService {
     private api: DefaultApi
+    private apiBaseUrl: string
     private keycloak: Keycloak
 
     constructor(apiBaseUrl: string, keycloak: Keycloak) {
         this.keycloak = keycloak
+        this.apiBaseUrl = apiBaseUrl
         this.api = new DefaultApi(
             new Configuration({
                 basePath: apiBaseUrl
@@ -21,6 +25,38 @@ export class BaseService {
 
     private withAuthorizationHeader = () => {
         return { headers: { Authorization: `Bearer ${this.keycloak.token}` } }
+    }
+
+    public useStateStream = (requestRefresh: () => void) => {
+        const [active, setActive] = useState(true)
+        useEffect(() => {
+            const source = new EventSourcePolyfill(
+                this.apiBaseUrl + "/api/streams/states",
+                this.withAuthorizationHeader()
+            )
+
+            source.onmessage = function (_: MessageEvent) {
+                requestRefresh()
+            }
+
+            source.onopen = function (_: any) {
+                setActive(true)
+            }
+
+            source.onerror = function (_: any) {
+                source.close()
+                setActive(false)
+            }
+
+            source.addEventListener("state", requestRefresh)
+
+            return () => {
+                source.close()
+                setActive(false)
+            }
+        }, [])
+
+        return active
     }
 
     public getIouList: () => Promise<Iou[]> = async () =>

@@ -38,15 +38,16 @@ export const HomePage = () => {
         iouId: ""
     })
 
-    const { getIouList } = useServices()
+    const { getIouList, useStateStream } = useServices()
 
     const [iouList, setIouList] = useState<Iou[]>()
-    
+    const active = useStateStream(() => getIouList().then((it) => setIouList(it)))
+
     useEffect(() => {
         if (!createIouDialogOpen && !repayIouDialogOpen.open) {
             getIouList().then((it) => setIouList(it))
         }
-    }, [createIouDialogOpen, repayIouDialogOpen.open, confirmIouPaymentDialogOpen.open])
+    }, [createIouDialogOpen, repayIouDialogOpen.open, confirmIouPaymentDialogOpen.open, active])
 
     return (
         (

@@ -20,12 +20,14 @@
         "@mui/x-charts": "^7.3.0",
         "@react-keycloak/web": "^3.4.0",
         "axios": "1.6.8",
+        "event-source-polyfill": "^1.0.31",
         "keycloak-js": "24.0.2",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-router-dom": "^6.22.3"
     },
     "devDependencies": {
+        "@types/event-source-polyfill": "^1.0.5",
         "@types/react": "^18.2.74",
         "@types/react-dom": "^18.2.24",
         "@typescript-eslint/eslint-plugin": "^7.5.0",
