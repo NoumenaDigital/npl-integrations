@@ -38,5 +38,7 @@ if __name__ == '__main__':
 
         if "payload" in event:
             streamReader.manage_state_change(event["payload"])
+        if "notification" in event:
+            streamReader.manage_notification(event["notification"])
         else:
             print("Unrecognised stream event", event)
