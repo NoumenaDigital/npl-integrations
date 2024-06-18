@@ -1,3 +1,5 @@
+import os
+
 from src.auth import AuthService
 from src import config
 from src import stream
@@ -27,7 +29,9 @@ if __name__ == '__main__':
         )
     )
 
-    streamReader = stream.StreamReader(api, "/api/streams")
+    stream_uri = "/api/streams" if os.getenv("STREAMS_URI") == "ALL" else "/api/streams/notifications"
+
+    streamReader = stream.StreamReader(api, stream_uri)
     for event in streamReader.read_stream(access_token):
         
         api.api_client.configuration.access_token = authService.get_access_token()
