@@ -86,7 +86,6 @@ class StreamReader:
     def manage_notification(self, event: dict):
         notification = Notification(**event)  # type: ignore
         if notification.name == REPAYMENT_OCCURRENCE_NAME:
-            print(event["name"], event)
             self.manage_repayment_occurrence(notification)
             print("Acted on notification RepaymentOccurrence")
         else:
