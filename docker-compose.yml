@@ -150,6 +150,7 @@ services:
       context: python
     environment:
       ENV: LOCAL
+      REALM: nplintegrations
     depends_on:
       engine:
         condition: service_healthy

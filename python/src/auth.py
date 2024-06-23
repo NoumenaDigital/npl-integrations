@@ -19,6 +19,7 @@ class AuthService:
             "grant_type": "password"
         }
         url = config.LOCAL_TOKEN_URL if os.getenv("ENV") == "LOCAL" else config.PAAS_TOKEN_URL
+        print(f"Authenticating with {url}")
         response = requests.post(
             url=url,
             data=data
