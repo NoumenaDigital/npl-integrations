@@ -73,7 +73,7 @@ download-cli:
 
 .PHONY: create-app
 create-app:
-	./cli app create -org $(NC_ORG) -engine 2024.1.7 -name $(NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/realms/$(NC_APP_NAME)"]'
+	./cli app create -org $(NC_ORG) -engine 2024.1.3 -name $(NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/realms/$(NC_APP_NAME)"]'
 
 clear-deploy: zip
 	@if [ "$(NC_APP)" = "" ] ; then echo "App $(NC_APP_NAME) not found"; exit 1; fi
