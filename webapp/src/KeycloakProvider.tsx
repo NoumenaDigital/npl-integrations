@@ -12,8 +12,8 @@ export const KeycloakProvider: FC<KeycloakProviderProps> = ({ children }) => {
 
     const keycloak = new Keycloak({
         url: keycloakUrl,
-        realm: 'npl-integrations',
-        clientId: 'npl-integrations'
+        realm: 'nplintegrations',
+        clientId: 'nplintegrations'
     })
 
     const initOptions = {
