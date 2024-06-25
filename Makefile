@@ -3,7 +3,7 @@ MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
 
 export NPL_VERSION=1.0
 export NC_DOMAIN=noumena.cloud
-export NC_APP_NAME=evolve
+export NC_APP_NAME=nplintegrations
 export NC_ORG_NAME=training
 export NC_ORG := $(shell ./cli org list | jq --arg NC_ORG_NAME "$(NC_ORG_NAME)" -r '.[] | select(.slug == $$NC_ORG_NAME) | .id')
 export NC_APP := $(shell ./cli app list -org $(NC_ORG) | jq --arg NC_APP_NAME "$(NC_APP_NAME)" '.[] | select(.name == $$NC_APP_NAME) | .id')
@@ -35,7 +35,7 @@ run-only:
 
 .PHONY: run-webapp
 run-webapp:
-	cd webapp && API_BASE_URL="https://engine-training-evolve.noumena.cloud" KEYCLOAK_URL="https://keycloak-training-evolve.noumena.cloud/" REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) npm run dev
+	cd webapp && API_BASE_URL="https://engine-training-nplintegrations.noumena.cloud" KEYCLOAK_URL="https://keycloak-training-nplintegrations.noumena.cloud/" REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) npm run dev
 
 .PHONY: run-python
 run-python:

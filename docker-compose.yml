@@ -133,6 +133,9 @@ services:
       context: webapp
     ports:
       - "8090:8080"
+    depends_on:
+      nginx-proxy:
+        condition: service_started
 
   nginx-proxy:
     image: nginx:latest
