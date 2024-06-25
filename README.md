@@ -3,7 +3,7 @@
 ## Building and running with docker locally
 
 1. Run `mvn clean install` to build and generate NPL-api and clients.
-2. Run `docker compose up --wait` to create and start containers.
+2. Run `docker compose up --build -d` to ensure python and frontend are also build, then create and start containers.
 
 URLs:
 * Swagger UI of Engine APIs: http://localhost:12000/swagger-ui/
@@ -11,6 +11,18 @@ URLs:
 * Webapp: http://localhost:8080
 
 ## Building, running python & webapp locally, NPL on PaaS
+
+### NPL and keyloack
+
+1. Add the following variables to your shell
+```
+export NC_BASE_URL=https://portal.noumena.cloud
+export NC_EMAIL=your.email@your.domain
+export NC_ENV=PROD
+```
+2. Run `make create-app` to create the application with name defined in Makefile.
+3. Run `make iam` to provision keycloak on the created PaaS application with terraform.
+4. Run `make clear-deploy` to clear pre-existing packages in the app and upload current NPL and migration sources.
 
 ### Python
 
