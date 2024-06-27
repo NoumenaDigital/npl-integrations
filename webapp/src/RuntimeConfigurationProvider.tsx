@@ -26,14 +26,7 @@ interface RuntimeConfigurationProviderProps {
  */
 export const loadRuntimeConfiguration =
     async (): Promise<RuntimeConfiguration> => {
-        /*console.log("VITE_ENV: ", process.env.VITE_ENV)
-        console.log("ENV: ", process.env.ENV)
-        console.log("all env: ", process.env)
-        console.log("meta VITE_ENV", import.meta.env.VITE_ENV)
-        console.log("meta", import.meta.env)*/
-
         const config_file = import.meta.env.VITE_ENV == 'LOCAL' ? '/config.json' : '/config-prod.json'
-        console.log("config file: ", config_file)
         const response = await fetch(config_file)
         const value = await response.json()
 
