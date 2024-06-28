@@ -1,0 +1,25 @@
+package iou
+
+const CHARLIE = 'charlie'
+
+function demo() returns Unit -> {
+
+    var alice: Party = partyOf(
+        mapOf<Text, Set<Text>>(Pair("email", setOf("alice@noumenadigital.com"))),
+        mapOf<Text, Set<Text>>()
+    );
+    var bob: Party = partyOf(
+        mapOf<Text, Set<Text>>(Pair("email", setOf("bob@noumenadigital.com"))),
+        mapOf<Text, Set<Text>>()
+    );
+    var charlie: Party = partyOf(
+        mapOf<Text, Set<Text>>(Pair("email", setOf("charlie@noumenadigital.com"))),
+        mapOf<Text, Set<Text>>()
+    );
+
+    var iou1: Iou = Iou[alice, bob]("Alice owes Bob", 100);
+    iou1.pay[alice](50);
+
+    var iou2: Iou = Iou[alice, charlie]("Alice owes Charlie", 200);
+
+};
