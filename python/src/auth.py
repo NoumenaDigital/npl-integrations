@@ -18,10 +18,9 @@ class AuthService:
             "client_id": config.REALM,
             "grant_type": "password"
         }
-        url = config.LOCAL_TOKEN_URL if os.getenv("ENV") == "LOCAL" else config.PAAS_TOKEN_URL
-        print(f"Authenticating with {url}")
+        print(f"Authenticating with {config.TOKEN_URL}")
         response = requests.post(
-            url=url,
+            url=config.TOKEN_URL,
             data=data
         )
         response.raise_for_status()
