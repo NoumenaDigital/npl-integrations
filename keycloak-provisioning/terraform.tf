@@ -87,12 +87,6 @@ resource "keycloak_realm" "realm" {
       password = var.realm_smtp_auth_password
     }
   }
-
-  security_defenses {
-    headers {
-      content_security_policy = ""
-    }
-  }
 }
 
 resource "keycloak_default_roles" "default_roles" {
