@@ -55,4 +55,7 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
     permission[payee] forgive() | unpaid {
         become forgiven;
     };
+
+//    @api
+//    permission[payee] doSomething() {};
 }

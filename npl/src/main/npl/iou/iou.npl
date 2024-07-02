@@ -56,4 +56,6 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
         become forgiven;
     };
 
+//    @api
+//    permission[payee] doSomething() {};
 }
