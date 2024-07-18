@@ -35,7 +35,7 @@ run-only:
 
 .PHONY: run-webapp
 run-webapp:
-	cd webapp && API_BASE_URL="https://engine-training-nplintegrations.noumena.cloud" KEYCLOAK_URL="https://keycloak-training-nplintegrations.noumena.cloud/" REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) npm run dev
+	cd webapp && npm run dev
 
 .PHONY: run-python
 run-python:
