@@ -152,10 +152,8 @@ services:
   inspector:
     image: ghcr.io/noumenadigital/packages/inspector:latest
     environment:
-      API_ENDPOINT: http://localhost:8081
       GQL_ENDPOINT: http://localhost:15001/graphql
       KEYCLOAK_URL: http://keycloak:11000
-      SSE_ENDPOINT: http://localhost:12001/api
       KEYCLOAK_REALM: nplintegrations
       KEYCLOAK_CLIENT_ID: nplintegrations
     depends_on:
