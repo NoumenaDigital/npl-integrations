@@ -1,4 +1,3 @@
-import os
 import json
 
 from dataclasses import dataclass, field
@@ -57,13 +56,12 @@ class Payload:
 
 class StreamReader:
 
-    def __init__(self, defaultApi: DefaultApi, path: str = "") -> None:
+    def __init__(self, defaultApi: DefaultApi) -> None:
         self.api = defaultApi
-        self.path = path
 
     def read_stream(self, access_token: str):
         with EventSource(
-            config.ROOT_URL + self.path,
+            config.ROOT_URL + "/api/streams",
             timeout=30,
             headers={'Authorization': 'Bearer ' + access_token}
         ) as event_source:
@@ -76,7 +74,7 @@ class StreamReader:
                     elif event.type in ["notify", "state"]:
                         yield json.loads(event.data)
                     elif event.type in ["command"]:
-                        continue  # no action on command
+                        continue  # no action on command according to the business use-case
                     else:
                         print("unrecognized message event", event)
             except KeyboardInterrupt:
@@ -112,11 +110,11 @@ class StreamReader:
             self.manage_payment_confirmation_required_state_change(payload)
         elif payload.prototypeId == IOU_PROTOTYPE_ID \
                 and payload.currentState == IouStates.UNPAID:
+            # No action according to the business use-case
             pass
         else:
             print("unrecognized state event", event)
 
     def manage_payment_confirmation_required_state_change(self, payload: Payload):
-        # todo
-        print("TODO complete implementation")
+        print("TODO complete implementation according to the business use-case")
         pass
