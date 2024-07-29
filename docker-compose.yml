@@ -89,7 +89,9 @@ services:
         condition: service_healthy
 
   keycloak:
-    image: quay.io/keycloak/keycloak:19.0.0
+    image: ghcr.io/noumenadigital/npl-integrations/keycloak:latest
+    build:
+      context: keycloak
     command: start --hostname-strict=false --hostname-strict-https=false --health-enabled=true --http-enabled=true --metrics-enabled=true --db=postgres
     ports:
       - "11000:11000"
@@ -102,7 +104,7 @@ services:
       KC_HEALTH_ENABLED: "true"
       KC_HTTP_ENABLED: "true"
       KC_HTTP_PORT: 11000
-      KC_HOSTNAME: localhost
+      KC_HOSTNAME: keycloak
     depends_on:
       keycloak-db:
         condition: service_started
