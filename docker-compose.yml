@@ -41,7 +41,10 @@ services:
       POSTGRAPHILE_DB_URL: postgres://postgraphile:secret@engine-db:5432/engine
       POSTGRAPHILE_DB_USER: postgraphile
       POSTGRAPHILE_DB_SCHEMA: noumena
-      POSTGRAPHILE_ALLOWED_ISSUERS: http://keycloak:11000/realms/nplintegrations,http://keycloak:11000,http://localhost:11000/realms/nplintegrations
+      POSTGRAPHILE_ALLOWED_ISSUERS: >
+        http://keycloak:11000/realms/nplintegrations,
+        http://keycloak:11000,
+        http://localhost:11000/realms/nplintegrations
       POSTGRAPHILE_ENGINE_HEALTH_ENDPOINT: "http://engine:12000/actuator/health"
       POSTGRAPHILE_ENGINE_HEALTH_TIMEOUT_SECONDS: 250
     depends_on:
@@ -144,7 +147,8 @@ services:
       - "15001:15001"
       - "12001:12001"
     volumes:
-      - ./nginx:/etc/nginx/conf.d
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ./nginx/snippets:/etc/nginx/snippets
     depends_on:
       engine:
         condition: service_healthy
