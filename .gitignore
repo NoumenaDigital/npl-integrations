@@ -10,6 +10,7 @@ tags
 *.iml
 .*.swp
 *.tokens
+npl-contrib*
 .m2/repository/
 *.log
 venv
