@@ -41,7 +41,10 @@ services:
       POSTGRAPHILE_DB_URL: postgres://postgraphile:secret@engine-db:5432/engine
       POSTGRAPHILE_DB_USER: postgraphile
       POSTGRAPHILE_DB_SCHEMA: noumena
-      POSTGRAPHILE_TRUSTED_ISSUERS: "http://keycloak:11000/**,"
+      POSTGRAPHILE_ALLOWED_ISSUERS: >
+        http://keycloak:11000/realms/nplintegrations,
+        http://keycloak:11000,
+        http://localhost:11000/realms/nplintegrations
       POSTGRAPHILE_ENGINE_HEALTH_ENDPOINT: "http://engine:12000/actuator/health"
       POSTGRAPHILE_ENGINE_HEALTH_TIMEOUT_SECONDS: 250
     depends_on:
@@ -102,12 +105,12 @@ services:
       KC_HEALTH_ENABLED: "true"
       KC_HTTP_ENABLED: "true"
       KC_HTTP_PORT: 11000
-      KC_HOSTNAME: localhost
+      KC_HOSTNAME: keycloak
     depends_on:
       keycloak-db:
         condition: service_started
     healthcheck:
-      test: curl -s localhost:11000/health || exit 1
+      test: curl http://keycloak:11000/health || exit 1
       interval: 1s
       retries: 60
 
@@ -141,11 +144,27 @@ services:
     image: nginx:latest
     ports:
       - "8080:80"
+      - "15001:15001"
+      - "12001:12001"
     volumes:
-      - ./nginx:/etc/nginx/conf.d
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ./nginx/snippets:/etc/nginx/snippets
     depends_on:
       engine:
         condition: service_healthy
+
+  inspector:
+    image: ghcr.io/noumenadigital/packages/inspector:latest
+    environment:
+      GQL_ENDPOINT: http://localhost:15001/graphql
+      KEYCLOAK_URL: http://keycloak:11000
+      KEYCLOAK_REALM: nplintegrations
+      KEYCLOAK_CLIENT_ID: nplintegrations
+    depends_on:
+      nginx-proxy:
+        condition: service_started
+    ports:
+      - "8070:8080"
 
   python-service:
     image: ghcr.io/noumenadigital/npl-integrations/python-service:latest
