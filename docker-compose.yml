@@ -92,7 +92,7 @@ services:
         condition: service_healthy
 
   keycloak:
-    image: quay.io/keycloak/keycloak:19.0.0
+    image: quay.io/keycloak/keycloak:23.0.2
     command: start --hostname-strict=false --hostname-strict-https=false --health-enabled=true --http-enabled=true --metrics-enabled=true --db=postgres
     ports:
       - "11000:11000"
@@ -110,7 +110,7 @@ services:
       keycloak-db:
         condition: service_started
     healthcheck:
-      test: curl http://keycloak:11000/health || exit 1
+      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/11000;echo -e 'GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n' >&3;if [ $? -eq 0 ]; then echo 'Healthcheck Successful';exit 0;else echo 'Healthcheck Failed';exit 1;fi;" ]
       interval: 1s
       retries: 60
 
