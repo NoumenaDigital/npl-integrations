@@ -17,7 +17,7 @@
             <plugin>
                 <groupId>com.noumenadigital.platform</groupId>
                 <artifactId>npl-maven-plugin</artifactId>
-                <version>${platform.version}</version>
+                <version>${noumena.platform.version}</version>
                 <executions>
                     <execution>
                         <goals>
