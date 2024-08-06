@@ -57,7 +57,7 @@ const internalizeUser = async (tokenParsed: any): Promise<User> => {
     if (tokenParsed.name && tokenParsed.email) {
         return {
             name: tokenParsed.name as string,
-            email: tokenParsed.email as string,
+            email: tokenParsed.email as string
         }
     } else {
         throw Error(

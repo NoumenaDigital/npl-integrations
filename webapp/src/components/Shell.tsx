@@ -71,9 +71,7 @@ interface MenuItem {
     icon: SvgIconComponent
 }
 
-const allMenuItems: MenuItem[] = [
-    { label: 'Home', icon: HomeIcon },
-]
+const allMenuItems: MenuItem[] = [{ label: 'Home', icon: HomeIcon }]
 
 export default function Shell() {
     const navigate = useNavigate()

@@ -1,9 +1,4 @@
-import {
-    Configuration,
-    DefaultApi,
-    Iou,
-    Party
-} from '../../generated'
+import { Configuration, DefaultApi, Iou, Party } from '../../generated'
 import { EventSourcePolyfill, MessageEvent } from 'event-source-polyfill'
 import Keycloak from 'keycloak-js'
 import { useEffect, useState } from 'react'
@@ -31,7 +26,7 @@ export class BaseService {
         const [active, setActive] = useState(true)
         useEffect(() => {
             const source = new EventSourcePolyfill(
-                this.apiBaseUrl + "/api/streams/states",
+                this.apiBaseUrl + '/api/streams/states',
                 this.withAuthorizationHeader()
             )
 
@@ -48,7 +43,7 @@ export class BaseService {
                 setActive(false)
             }
 
-            source.addEventListener("state", requestRefresh)
+            source.addEventListener('state', requestRefresh)
 
             return () => {
                 source.close()
@@ -69,20 +64,17 @@ export class BaseService {
             )
             .then((it) => it.data.items)
 
-    public getIou = async (
-        iouId: string
-    ): Promise<Iou> =>
-        await this.api.getIouByID(
-            iouId,
-            undefined,
-            undefined,
-            this.withAuthorizationHeader()
-        ).then((it) => it.data)
+    public getIou = async (iouId: string): Promise<Iou> =>
+        await this.api
+            .getIouByID(
+                iouId,
+                undefined,
+                undefined,
+                this.withAuthorizationHeader()
+            )
+            .then((it) => it.data)
 
-    public pay = async (
-        iouId: string,
-        amount: number
-    ) =>
+    public pay = async (iouId: string, amount: number) =>
         await this.api
             .iouPay(
                 iouId,
@@ -95,17 +87,15 @@ export class BaseService {
             )
             .then((it) => it.data)
 
-    public confirmPayment = async (
-            iouId: string,
-        ) =>
-            await this.api
-                .iouConfirmPayment(
-                    iouId,
-                    undefined,
-                    undefined,
-                    this.withAuthorizationHeader()
-                )
-                .then((it) => it.data)
+    public confirmPayment = async (iouId: string) =>
+        await this.api
+            .iouConfirmPayment(
+                iouId,
+                undefined,
+                undefined,
+                this.withAuthorizationHeader()
+            )
+            .then((it) => it.data)
 
     public createIou = async (
         description: string,
@@ -113,22 +103,22 @@ export class BaseService {
         issuerEntity: Party['entity'],
         issuerAccess: Party['access'],
         payeeEntity: Party['entity'],
-        payeeAccess: Party['access'],
+        payeeAccess: Party['access']
     ) =>
         await this.api
             .createIou(
                 {
                     description: description,
                     forAmount: amount,
-                    ["@parties"]: {
-                        "issuer": {
-                            "entity": issuerEntity,
-                            "access": issuerAccess
+                    ['@parties']: {
+                        issuer: {
+                            entity: issuerEntity,
+                            access: issuerAccess
                         },
-                        "payee": {
-                            "entity": payeeEntity,
-                            "access": payeeAccess
-                        },
+                        payee: {
+                            entity: payeeEntity,
+                            access: payeeAccess
+                        }
                     }
                 },
                 undefined,

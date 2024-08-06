@@ -7,32 +7,29 @@ import {
     DialogContent,
     DialogTitle,
     Divider,
-    TextField,
+    TextField
 } from '@mui/material'
 import { useServices } from '../ServiceProvider.tsx'
 import { Iou } from '../../generated/api.ts'
 
 export const ConfirmIouPaymentDialog: React.FC<{
-    iouId: string,
-    open: boolean,
-    onClose: (subscribed: boolean) => void,
+    iouId: string
+    open: boolean
+    onClose: (subscribed: boolean) => void
 }> = ({ iouId, open, onClose }) => {
     const { getIou, confirmPayment } = useServices()
 
     const [iou, setIou] = useState<Iou>()
-    const valid = true;
-    
+    const valid = true
+
     useEffect(() => {
-        if (iouId && iouId !== "") {
+        if (iouId && iouId !== '') {
             getIou(iouId).then((it) => setIou(it))
         }
     }, [getIou, iouId])
 
     const confirmAction = async () => {
-        await confirmPayment(
-            iouId,
-        )
-            .then(() => onClose(true))
+        await confirmPayment(iouId).then(() => onClose(true))
     }
 
     return (

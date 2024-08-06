@@ -14,14 +14,13 @@ import { useMe } from '../UserProvider.tsx'
 import { useServices } from '../ServiceProvider.tsx'
 
 export const CreateIouDialog: React.FC<{
-    open: boolean,
+    open: boolean
     onClose: (subscribed: boolean) => void
 }> = ({ open, onClose }) => {
-
-    const user = useMe();
+    const user = useMe()
     const { createIou } = useServices()
-    const [description, setDescription] = useState<string>("")
-    const [payee, setPayee] = useState<string>("")
+    const [description, setDescription] = useState<string>('')
+    const [payee, setPayee] = useState<string>('')
     const [forAmount, setForAmount] = useState<number>()
 
     const [valid, setValid] = useState(false)
@@ -31,26 +30,25 @@ export const CreateIouDialog: React.FC<{
             description,
             forAmount || 0,
             {
-                "email": [user.email]
+                email: [user.email]
             },
             {},
             {
-                "email": [payee]
+                email: [payee]
             },
             {}
-        )
-            .then(() => onClose(true))
+        ).then(() => onClose(true))
     }
 
     const handleForAmountChange = (input: string) => {
         try {
-            if (input !== "") {
+            if (input !== '') {
                 setForAmount(parseInt(input, 10))
                 setValid(true)
             } else {
                 setValid(false)
             }
-        }  catch (e: unknown) {
+        } catch (e: unknown) {
             setValid(false)
         }
     }
@@ -58,7 +56,7 @@ export const CreateIouDialog: React.FC<{
     const handleDescriptionChange = (input: string) => {
         setDescription(input)
     }
-    
+
     const handlePayeeChange = (input: string) => {
         setPayee(input)
     }
@@ -118,9 +116,7 @@ export const CreateIouDialog: React.FC<{
                             variant="outlined"
                             value={payee}
                             type={'email'}
-                            onChange={(e) =>
-                                handlePayeeChange(e.target.value)
-                            }
+                            onChange={(e) => handlePayeeChange(e.target.value)}
                         />
                     </FormControl>
                 </Box>
