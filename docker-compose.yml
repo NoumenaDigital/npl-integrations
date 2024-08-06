@@ -143,11 +143,10 @@ services:
   nginx-proxy:
     image: nginx:latest
     ports:
-      - "8080:80"
       - "15001:15001"
       - "12001:12001"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/snippets:/etc/nginx/snippets
     depends_on:
       engine:
