@@ -9,7 +9,7 @@ export const router = () => {
             children: [
                 {
                     path: '/home',
-                    element: <HomePage/>
+                    element: <HomePage />
                 },
                 {
                     path: '*',

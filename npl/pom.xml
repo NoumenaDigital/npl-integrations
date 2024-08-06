@@ -12,23 +12,18 @@
         <relativePath>../parent-pom</relativePath>
     </parent>
 
-    <properties>
-        <platform.version>2024.1.7</platform.version>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
                 <groupId>com.noumenadigital.platform</groupId>
                 <artifactId>npl-maven-plugin</artifactId>
-                <version>${platform.version}</version>
+                <version>${noumena.platform.version}</version>
                 <executions>
                     <execution>
                         <goals>
                             <goal>npl-puml</goal>
                             <goal>npl-compile</goal>
                             <goal>npl-test-compile</goal>
-                            <goal>npl-puml</goal>
                             <goal>npl-test</goal>
                             <goal>npl-api</goal>
                         </goals>
