@@ -1,6 +1,7 @@
 GITHUB_SHA=HEAD
 MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
 
+export PAAS_ENGINE_VERSION=2024.1.3
 export NPL_VERSION=1.0
 export NC_DOMAIN=noumena.cloud
 export NC_APP_NAME=nplintegrations
@@ -63,7 +64,7 @@ download-cli:
 
 .PHONY: create-app
 create-app:
-	./cli app create -org $(NC_ORG) -engine 2024.1.3 -name $(NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/realms/$(NC_APP_NAME)"]'
+	./cli app create -org $(NC_ORG) -engine $(PAAS_ENGINE_VERSION) -name $(NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/realms/$(NC_APP_NAME)"]'
 
 clear-deploy: zip
 	@if [ "$(NC_APP)" = "" ] ; then echo "App $(NC_APP_NAME) not found"; exit 1; fi

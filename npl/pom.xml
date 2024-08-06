@@ -24,7 +24,6 @@
                             <goal>npl-puml</goal>
                             <goal>npl-compile</goal>
                             <goal>npl-test-compile</goal>
-                            <goal>npl-puml</goal>
                             <goal>npl-test</goal>
                             <goal>npl-api</goal>
                         </goals>
