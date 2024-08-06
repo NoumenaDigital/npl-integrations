@@ -2,6 +2,16 @@ GITHUB_SHA=HEAD
 MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
 
 ## Common commands
+.PHONY: rename
+rename:
+	@if [ "$(PROJECT_NAME)" = "" ]; then echo "PROJECT_NAME not set"; exit 1; fi
+	perl -p -i -e's/npl-integrations/$(PROJECT_NAME)/g' `find . -type f`
+	perl -p -i -e's/nplintegrations/$(shell echo $(PROJECT_NAME) | tr '[:upper:]' '[:lower:]' | tr -d '-')/g' `find . -type f`
+	@parent_dir=$$(basename "$$(pwd)") && \
+	if [ "$$parent_dir" = "npl-integrations" ]; then \
+		cd .. && mv npl-integrations $(PROJECT_NAME); \
+	fi
+
 .PHONY:	clean
 clean:
 	docker compose down -v
