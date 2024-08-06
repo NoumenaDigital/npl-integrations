@@ -12,10 +12,6 @@
         <relativePath>../parent-pom</relativePath>
     </parent>
 
-    <properties>
-        <platform.version>2024.1.7</platform.version>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
