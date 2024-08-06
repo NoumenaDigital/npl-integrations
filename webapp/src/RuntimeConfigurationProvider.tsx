@@ -27,9 +27,9 @@ interface RuntimeConfigurationProviderProps {
 export const loadRuntimeConfiguration =
     async (): Promise<RuntimeConfiguration> => {
         const config_file =
-            import.meta.env.VITE_ENV == 'LOCAL'
-                ? '/config.json'
-                : '/config-prod.json'
+            import.meta.env.VITE_ENV == 'DOCKER'
+                ? '/config-docker.json'
+                : '/config-paas.json'
         const response = await fetch(config_file)
         const value = await response.json()
 
