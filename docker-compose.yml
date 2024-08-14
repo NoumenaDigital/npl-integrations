@@ -2,6 +2,7 @@ version: "2.4"
 
 volumes:
   keycloak-db: { }
+  keycloak-provisioning: { }
 
 services:
 
@@ -81,6 +82,8 @@ services:
     build:
       context: keycloak-provisioning
     command: /local.sh
+    volumes:
+      - keycloak-provisioning:/state
     environment:
       KEYCLOAK_USER: ${KEYCLOAK_ADMIN}
       KEYCLOAK_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-welcome}

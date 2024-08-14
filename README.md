@@ -1,7 +1,11 @@
 # npl-integrations
 
-## Building and running with docker locally
+## Pre-requisites
+Make sure your `hosts` file includes keycloak at 127.0.0.1:
 
+![img.png](docs/img.png)
+
+## Building and running with docker locally
 1. Run `mvn clean install` to build and generate NPL-api and clients.
 2. Run `docker compose up --build -d` to ensure python and frontend are also build, then create and start containers.
 
