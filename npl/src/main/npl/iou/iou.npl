@@ -1,5 +1,7 @@
 package iou
 
+use sample.v1.concat;
+
 struct TimestampedAmount {
     amount: Number,
     timestamp: DateTime
@@ -12,6 +14,10 @@ notification RepaymentOccurrence(paymentAmount: Number, remainingAmount: Number)
 @api
 protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
     require(forAmount > 0, "Initial amount must be strictly positive");
+
+    init {
+        info(concat("NPL contrib ", "sample."));
+    }
 
     initial state unpaid;
     state payment_confirmation_required;

@@ -12,8 +12,40 @@
         <relativePath>../parent-pom</relativePath>
     </parent>
 
+    <properties>
+        <platform.version>2024.2.0</platform.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.noumenadigital.platform</groupId>
+            <artifactId>npl-contrib-sample</artifactId>
+            <version>${platform.version}</version>
+            <type>zip</type>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-npl-contrib</id>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <outputDirectory>${project.basedir}/npl-contrib</outputDirectory>
+                            <includeGroupIds>com.noumenadigital.platform</includeGroupIds>
+                            <includeArtifactIds>npl-contrib-sample</includeArtifactIds>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>com.noumenadigital.platform</groupId>
                 <artifactId>npl-maven-plugin</artifactId>
@@ -24,11 +56,13 @@
                             <goal>npl-puml</goal>
                             <goal>npl-compile</goal>
                             <goal>npl-test-compile</goal>
+                            <goal>npl-contrib</goal>
                             <goal>npl-test</goal>
                             <goal>npl-api</goal>
                         </goals>
                         <configuration>
                             <enableCompilerOptimisations>true</enableCompilerOptimisations>
+                            <nplContribPath>${project.basedir}/npl-contrib</nplContribPath>
                         </configuration>
                     </execution>
                 </executions>
