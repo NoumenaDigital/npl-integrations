@@ -181,6 +181,8 @@ services:
     image: ghcr.io/noumenadigital/npl-integrations/streamlit-ui:latest
     build:
       context: streamlit-ui
+    ports:
+      - "8080:8501"
     depends_on:
       engine:
         condition: service_healthy
