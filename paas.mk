@@ -1,7 +1,7 @@
 GITHUB_SHA=HEAD
 MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
 
-export PAAS_ENGINE_VERSION=2024.1.3
+export PAAS_ENGINE_VERSION=2024.1.8
 export NPL_VERSION=1.0
 export NC_DOMAIN=noumena.cloud
 export NC_APP_NAME=nplintegrations
