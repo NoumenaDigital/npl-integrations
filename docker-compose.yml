@@ -176,3 +176,13 @@ services:
         condition: service_healthy
       keycloak-provisioning:
         condition: service_completed_successfully
+
+  streamlit-ui:
+    image: ghcr.io/noumenadigital/npl-integrations/streamlit-ui:latest
+    build:
+      context: streamlit-ui
+    depends_on:
+      engine:
+        condition: service_healthy
+      keycloak-provisioning:
+        condition: service_completed_successfully

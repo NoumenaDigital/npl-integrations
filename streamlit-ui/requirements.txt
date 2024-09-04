@@ -1,0 +1,10 @@
+./generated
+requests
+requests_sse
+streamlit
+watchdog
+pandas
+streamlit_oauth
+keycloak
+streamlit-auth0
+auth0-python
