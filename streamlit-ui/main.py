@@ -1,6 +1,8 @@
 import streamlit as st
+
 from src import auth
 from src import app
+
 
 def main_page():
     st.title("Main Application")
@@ -11,12 +13,12 @@ def main_page():
 
         if st.button("Logout"):
             st.session_state.clear()
-            st.experimental_rerun()  # Rerun the app to go back to the login page
+            st.rerun()
     else:
         st.warning("You are not logged in.")
-        st.experimental_rerun()
+        st.rerun()
 
-# Main function to control navigation
+
 def main():
     if 'logged_in' not in st.session_state:
         st.session_state['logged_in'] = False
@@ -25,6 +27,7 @@ def main():
         app.app_page()
     else:
         auth.login_page()
+
 
 if __name__ == "__main__":
     main()

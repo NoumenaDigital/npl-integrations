@@ -1,13 +1,15 @@
-
 import jwt
+
+import pandas as pd
 import streamlit as st
 
-from src import iou
-from src import config
+import iou
+import config
 
 from openapi_client.api.default_api import DefaultApi
 from openapi_client.api_client import ApiClient
 from openapi_client.configuration import Configuration
+
 
 def get_api():
     api = DefaultApi(
@@ -22,16 +24,14 @@ def get_api():
     )
     return api
 
-def createIou():
-    import streamlit as st
 
+def create_iou():
     with st.form("new_iou_form"):
         st.write("Create an IOU")
         description_val = st.text_input("Description")
         amount_val = st.number_input("Iou amount")
         recipient = st.text_input("Recipient email")
 
-        # Every form must have a submit button.
         submitted = st.form_submit_button("Submit")
         if submitted:
             try:
@@ -48,10 +48,8 @@ def createIou():
             except Exception as e:
                 st.write(f"Error: {e}")
 
-def listIou():
-    import streamlit as st
-    import pandas as pd
 
+def list_iou():
     iou_list = get_api().get_iou_list()
     iou_df = pd.DataFrame([[
         iou.description,
@@ -63,12 +61,11 @@ def listIou():
     st.write("IOU List")
     st.write(iou_df)
 
+
 def app_page():
-    import streamlit as st
-    
     page_names_to_funcs = {
-        "Create IOU": createIou,
-        "IOU List": listIou,
+        "Create IOU": create_iou,
+        "IOU List": list_iou,
     }
 
     demo_name = st.sidebar.selectbox("Choose a demo", page_names_to_funcs.keys())

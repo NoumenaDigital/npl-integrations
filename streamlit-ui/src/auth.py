@@ -1,12 +1,10 @@
 import requests
-from src import config
-from urllib.parse import urlencode
 
-# Configuration for Keycloak
+import streamlit as st
 
-REDIRECT_URI = 'http://localhost:8501'  # Streamlit's default port
+import config
 
-# Function to get the access token using username and password
+
 def get_token(username, password):
     token_data = {
         'grant_type': 'password',
@@ -20,7 +18,7 @@ def get_token(username, password):
     response.raise_for_status()
     return response.json()
 
-# Function to get user info from the access token
+
 def get_user_info(access_token):
     headers = {
         'Authorization': f'Bearer {access_token}',
@@ -29,12 +27,10 @@ def get_user_info(access_token):
     response.raise_for_status()
     return response.json()
 
-# Streamlit App
-def login_page():
-    import streamlit as st
-    st.title("Streamlit Keycloak Login")
 
-    # Username and password input fields
+def login_page():
+    st.title("Login")
+
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
 
@@ -50,7 +46,7 @@ def login_page():
                 st.session_state['logged_in'] = True
                 st.session_state['user_info'] = user_info
                 st.session_state['access_token'] = access_token
-                st.rerun()  # Rerun the app to redirect to the main page
+                st.rerun()
             except requests.exceptions.HTTPError as e:
                 st.error(f"Login failed: {e}")
         else:
