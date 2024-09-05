@@ -76,3 +76,7 @@ status-app:
 .PHONY: iam
 iam:
 	make -f paas.mk iam
+
+.PHONY: run-streamlit-ui
+run-streamlit-ui:
+	make -f paas.mk run-streamlit-ui

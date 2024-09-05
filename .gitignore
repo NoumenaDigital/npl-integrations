@@ -26,3 +26,4 @@ python/generated/
 node_modules
 cli
 .vite
+generated

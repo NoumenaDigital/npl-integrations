@@ -1,0 +1,9 @@
+./generated
+auth0-python==4.7.1
+pandas==2.2.2
+PyJWT==2.9.0
+requests==2.32.3
+requests-sse==0.3.2
+streamlit==1.38.0
+streamlit-auth0==1.0.5
+watchdog==5.0.2
