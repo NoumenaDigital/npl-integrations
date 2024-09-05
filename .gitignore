@@ -27,3 +27,4 @@ node_modules
 cli
 .vite
 npl/npl-contrib.properties
+npl/npl-contrib/*

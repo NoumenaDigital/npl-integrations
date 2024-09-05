@@ -15,10 +15,6 @@ notification RepaymentOccurrence(paymentAmount: Number, remainingAmount: Number)
 protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
     require(forAmount > 0, "Initial amount must be strictly positive");
 
-    init {
-        info(concat("NPL contrib ", "sample."));
-    }
-
     initial state unpaid;
     state payment_confirmation_required;
     final state repaid;
@@ -61,4 +57,18 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
     permission[payee] forgive() | unpaid {
         become forgiven;
     };
+
+    @api
+    permission[payee] getPaymentLog() returns List<Text> {
+        return payments.fold(
+            listOf<Text>(),
+            function(acc: List<Text>, item: TimestampedAmount) returns List<Text> -> {
+                return acc.with(getPaymentData(item));
+            }
+        );
+    };
+
+    function getPaymentData(item: TimestampedAmount) returns Text -> {
+        return concat(item.timestamp.toText() + " ", item.amount.toText());
+    }
 }

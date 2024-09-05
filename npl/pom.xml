@@ -12,15 +12,11 @@
         <relativePath>../parent-pom</relativePath>
     </parent>
 
-    <properties>
-        <platform.version>2024.2.0</platform.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.noumenadigital.platform</groupId>
             <artifactId>npl-contrib-sample</artifactId>
-            <version>${platform.version}</version>
+            <version>${noumena.platform.version}</version>
             <type>zip</type>
         </dependency>
     </dependencies>
