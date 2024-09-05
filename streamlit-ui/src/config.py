@@ -1,7 +1,7 @@
 import os
 
-ORG = os.getenv("ORG") if os.getenv("ORG") is not None else "pwctraining"
-REALM = os.getenv("REALM") if os.getenv("REALM") is not None else "vwfs"
+ORG = os.getenv("ORG") if os.getenv("ORG") is not None else "training"
+REALM = os.getenv("REALM") if os.getenv("REALM") is not None else "nplintegrations"
 NOUMENA_DOMAIN = f"{ORG}-{REALM}.noumena.cloud"
 KEYCLOAK_DOMAIN = f"keycloak-{NOUMENA_DOMAIN}"
 TOKEN_URL = f"https://{KEYCLOAK_DOMAIN}/realms/{REALM}/protocol/openid-connect/token"

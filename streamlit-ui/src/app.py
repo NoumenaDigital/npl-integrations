@@ -3,8 +3,8 @@ import jwt
 import pandas as pd
 import streamlit as st
 
-import iou
-import config
+from src import iou
+from src import config
 
 from openapi_client.api.default_api import DefaultApi
 from openapi_client.api_client import ApiClient

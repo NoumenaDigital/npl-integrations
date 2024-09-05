@@ -2,7 +2,7 @@ import requests
 
 import streamlit as st
 
-import config
+from src import config
 
 
 def get_token(username, password):
