@@ -80,6 +80,17 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>streamlit-ui</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/target/generated-sources/openapi/iou-openapi.yml</inputSpec>
+                            <generatorName>python</generatorName>
+                            <output>../streamlit-ui/generated</output>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>typescript</id>
                         <goals>
                             <goal>generate</goal>

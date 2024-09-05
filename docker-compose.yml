@@ -1,7 +1,6 @@
-version: "2.4"
-
 volumes:
   keycloak-db: { }
+  keycloak-provisioning: { }
 
 services:
 
@@ -13,19 +12,17 @@ services:
       - "12000:12000"
     environment:
       ENGINE_DEV_MODE: ${DEV_MODE:-false}
-      JWT_TRUSTED_ISSUERS: http://keycloak:11000
+      ENGINE_ALLOWED_ISSUERS: http://keycloak:11000
       ENGINE_DB_URL: "jdbc:postgresql://engine-db:5432/engine"
       ENGINE_DB_USER: npl-integrations
       ENGINE_DB_PASSWORD: secret
       ENGINE_DB_HISTORY_USER: history
-      ENGINE_DB_HISTORY_PASSWORD: secret
       ENGINE_DB_HISTORY_SCHEMA: history
-      ENGINE_DB_POSTGRAPHILE_USER: postgraphile
-      ENGINE_DB_POSTGRAPHILE_PASSWORD: postgraphile
+      ENGINE_DB_READ_MODEL_USER: postgraphile
       ENGINE_ISSUER_OVERRIDE: http://keycloak:11000/realms/nplintegrations
       SWAGGER_ENGINE_URL: http://localhost:12000
       SWAGGER_SECURITY_AUTH_URL: http://localhost:11000/realms/nplintegrations
-      SWAGGER_KEYCLOAK_CLIENT_ID: nplintegrations
+      SWAGGER_SECURITY_CLIENT_ID: nplintegrations
     depends_on:
       engine-db:
         condition: service_started
@@ -33,20 +30,20 @@ services:
         condition: service_healthy
 
   read-model:
-    image: ghcr.io/noumenadigital/packages/postgraphile:${PLATFORM_VERSION}
+    image: ghcr.io/noumenadigital/packages/read-model:2024.2.1
     ports:
       - "15000:15000"
     environment:
-      POSTGRAPHILE_PORT: 15000
-      POSTGRAPHILE_DB_URL: postgres://postgraphile:secret@engine-db:5432/engine
-      POSTGRAPHILE_DB_USER: postgraphile
-      POSTGRAPHILE_DB_SCHEMA: noumena
-      POSTGRAPHILE_ALLOWED_ISSUERS: >
+      READ_MODEL_PORT: 15000
+      READ_MODEL_DB_URL: postgres://postgraphile:secret@engine-db:5432/engine
+      READ_MODEL_DB_USER: postgraphile
+      READ_MODEL_DB_SCHEMA: noumena
+      READ_MODEL_ALLOWED_ISSUERS: >
         http://keycloak:11000/realms/nplintegrations,
         http://keycloak:11000,
         http://localhost:11000/realms/nplintegrations
-      POSTGRAPHILE_ENGINE_HEALTH_ENDPOINT: "http://engine:12000/actuator/health"
-      POSTGRAPHILE_ENGINE_HEALTH_TIMEOUT_SECONDS: 250
+      READ_MODEL_ENGINE_HEALTH_ENDPOINT: "http://engine:12000/actuator/health"
+      READ_MODEL_ENGINE_HEALTH_TIMEOUT_SECONDS: 250
     depends_on:
       engine-db:
         condition: service_started
@@ -66,8 +63,8 @@ services:
       ENGINE_DB_PASSWORD: secret
       HISTORY_DB_USER: history
       HISTORY_DB_PASSWORD: secret
-      POSTGRAPHILE_DB_USER: postgraphile
-      POSTGRAPHILE_DB_PASSWORD: secret
+      READ_MODEL_DB_USER: postgraphile
+      READ_MODEL_DB_PASSWORD: secret
     volumes:
       - ./db_init/db_init.sh:/docker-entrypoint-initdb.d/db_init.sh
     healthcheck:
@@ -81,6 +78,8 @@ services:
     build:
       context: keycloak-provisioning
     command: /local.sh
+    volumes:
+      - keycloak-provisioning:/state
     environment:
       KEYCLOAK_USER: ${KEYCLOAK_ADMIN}
       KEYCLOAK_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-welcome}
@@ -172,6 +171,18 @@ services:
     environment:
       ENV: LOCAL
       REALM: nplintegrations
+    depends_on:
+      engine:
+        condition: service_healthy
+      keycloak-provisioning:
+        condition: service_completed_successfully
+
+  streamlit-ui:
+    image: ghcr.io/noumenadigital/npl-integrations/streamlit-ui:latest
+    build:
+      context: streamlit-ui
+    ports:
+      - "8080:8501"
     depends_on:
       engine:
         condition: service_healthy

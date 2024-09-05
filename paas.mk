@@ -1,7 +1,7 @@
 GITHUB_SHA=HEAD
 MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
 
-export PAAS_ENGINE_VERSION=2024.1.3
+export PAAS_ENGINE_VERSION=2024.1.8
 export NPL_VERSION=1.0
 export NC_DOMAIN=noumena.cloud
 export NC_APP_NAME=nplintegrations
@@ -29,11 +29,18 @@ first-install:
 install:
 	mvn $(MAVEN_CLI_OPTS) install
 	cd python && python3 -m pip install -r requirements.txt
+	cd streamlit-ui && python3 -m pip install -r requirements.txt
 	cd webapp && npm install
+
+.PHONY: install-python
+install-python:
+	mvn $(MAVEN_CLI_OPTS) install
+	cd python && python3 -m pip install -r requirements.txt
+	cd streamlit-ui && python3 -m pip install -r requirements.txt
 
 .PHONY:	run-only
 run-only:
-	make run-webapp & make run-python
+	make run-webapp & make run-python & run-streamlit-ui
 
 .PHONY: run-webapp
 run-webapp:
@@ -41,7 +48,11 @@ run-webapp:
 
 .PHONY: run-python
 run-python:
-	cd python && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) python3 main.py
+	cd python && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) streamlit run main.py
+
+.PHONY: run-streamlit-ui
+run-streamlit-ui:
+	cd streamlit-ui && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) streamlit run main.py
 
 .PHONY:	run
 run: install run-only
