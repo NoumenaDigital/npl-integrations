@@ -6,4 +6,4 @@ requests==2.32.3
 requests-sse==0.3.2
 streamlit==1.38.0
 streamlit-auth0==1.0.5
-watchdog==5.0.2
+watchdog==4.0.2
