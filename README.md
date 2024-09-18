@@ -11,7 +11,7 @@ Make sure your `hosts` file includes keycloak at 127.0.0.1:
 
 URLs:
 * Swagger UI of Engine APIs: http://localhost:12000/swagger-ui/
-* Keycloak admin console: http://localhost:11000
+* Keycloak admin console: http://keycloak:11000
 * Webapp: http://localhost:8090
 
 ## Building, running python & webapp locally, NPL on PaaS
