@@ -14,4 +14,4 @@ Notes:
 - The `--build` flag in docker compose ensures that if containers are recreated, images are rebuilt first from the latest sources. 
 - Look at the deployed containers using the Docker Desktop app or typing `docker ps -a`. You should see the engine and its database running, as well as keycloak and its database.
 - Keycloak has been provisioned with users Alice, Bob and Eve. A container `keycloak-provisioning` should show up as exited among docker containers since provisioning has completed. For technical details on the provisioning, follow the trail from the `keycloak-provisioning` service in `docker-compose.yml` to script `local.sh` and terraform file `terraform.tf` in module `keycloak-provisioning`.
-- Open the keycloak administration console accessible through a web browser under `http://localhost:11000`
+- Open the keycloak administration console accessible under `http://keycloak:11000/admin/master/console/` (also via `http://keycloak:11000`)
