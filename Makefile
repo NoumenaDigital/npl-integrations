@@ -73,3 +73,11 @@ iam:
 .PHONY: run-streamlit-ui
 run-streamlit-ui:
 	make -f paas.mk run-streamlit-ui
+
+.PHONY: integration-tests-local
+integration-tests-local:
+	make -f local.mk integration-tests
+
+.PHONY: integration-tests-paas
+integration-tests-paas:
+	make -f paas.mk integration-tests
