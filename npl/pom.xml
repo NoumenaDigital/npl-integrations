@@ -46,7 +46,7 @@
                         <configuration>
                             <inputSpec>${project.basedir}/target/generated-sources/openapi/iou-openapi.yml</inputSpec>
                             <generatorName>python</generatorName>
-                            <output>../python/generated</output>
+                            <output>../python-listener/generated</output>
                         </configuration>
                     </execution>
                     <execution>

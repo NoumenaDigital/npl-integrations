@@ -12,3 +12,10 @@ run-only:
 
 .PHONY:	run
 run: install run-only
+
+.PHONY: integration-tests
+integration-tests:
+	## Run all containers
+	## python: Call endpoint to create and pay iou
+	## python: Wait a few seconds
+	## python: Expect the python service to have updated the iou state

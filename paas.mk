@@ -107,3 +107,15 @@ iam:
 		TF_VAR_systemuser_secret=super-secret-system-security-safe \
 		TF_VAR_app_name=$(NC_APP_NAME_CLEAN) \
 		./local.sh
+
+.PHONY: integration-tests
+integration-tests:
+	## bash: run python service
+	## python OPS: create app & wait / first step is to have an app for integration-tests
+	## python OPS: check status
+	## python OPS: deploy sources
+	## python app-specific: create iou
+	## python app-specific: pay iou
+	## python app-specific: wait
+	## python app-specific: expect iou paid
+	## bring everything down
