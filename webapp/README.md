@@ -10,7 +10,7 @@ It solves a few compilation and setup errors.
 
 ## Authentication in the API service
 
-The authentication is done through the keycloak service.
+The Keycloak service is used for authentication.
 The keycloak service is configured in the `src/KeycloakProvider.tsx` file and is used to authenticate the user and get the access token.
 The access token is then used to authenticate the API service in the `src/services/BaseService.tsx` and attached as header to http requests.
 
