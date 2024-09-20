@@ -56,7 +56,7 @@ This setup includes running a python listener, python Streamlit UI & typescript 
 ### NPL and keycloak
 
 In this setup, NPL code runs on Noumena Cloud. Supporting services of the NPL Engine are deployed alongside the NPL Engine.
-Supporting services include Keycloak for authentication and authorization and databases.
+Supporting services include Keycloak for authentication and authorization, and databases.
 
 #### Option 1: Using the NPL CLI & terraform
 
