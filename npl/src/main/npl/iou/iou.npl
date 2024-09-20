@@ -22,7 +22,7 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
     var paymentToBeConfirmed: Optional<TimestampedAmount> = optionalOf<TimestampedAmount>();
     var amountOwed: Number = forAmount;
 
-    var files = listOf<Blob>();
+    var files: List<Blob> = listOf<Blob>();
 
     function getAmountOwed() returns Number -> forAmount - total(payments);
 
