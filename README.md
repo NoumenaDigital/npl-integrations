@@ -32,7 +32,7 @@ If the line is not present, follow the steps below to add it:
 To build and run the project, follow the steps below:
 
 1. Run `mvn clean install` to build and generate NPL-API and clients.
-2. Run `docker compose up --build -d` to ensure the python listener service, the python Streamlit UI and the typescript React frontend are build in addition to engine and engine dependencies, then create and start containers.
+2. Run `docker compose up --build -d` to ensure the Python listener service, the Python Streamlit UI and the Typescript React frontend are built in addition to the engine and its dependencies, then create and start the containers.
 
 ### Service endpoints
 
