@@ -36,7 +36,7 @@ To build and run the project, follow the steps below:
 
 ### Service endpoints
 
-Once the project is running, services run behind the following URLs:
+Once the project is running, services can be accessed with the following URLs:
 
 | Service                   | URL                                |
 |---------------------------|------------------------------------|
