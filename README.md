@@ -70,7 +70,7 @@ Supporting services include Keycloak for authentication and authorization, and d
     ```
 
 3. Run `make create-app` to create the application with the name defined in the Makefile.
-4. Run `make iam` to provision keycloak on the created application with terraform.
+4. Run `make iam` to provision keycloak on the created application using terraform.
 5. Run `make clear-deploy` to clear pre-existing packages in the app and upload current NPL and migration sources.
 
 #### Option 2: Using the maven plugin
