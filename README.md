@@ -101,7 +101,7 @@ In this setup, the python listener service runs locally and connects to the engi
 #### Setup
 
 1. In the root directory, set up & activate your Python venv
-2. run `mvn install` to generate the python client from the NPL code
+2. run `mvn install` to generate the Python client from the NPL code
 3. run `cd python-listener && pip install -r requirements.txt`
 
 Note: it is needed to install requirements every time NPL code is changed.
