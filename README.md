@@ -2,7 +2,7 @@
 
 The npl-integrations repo contains a sample project that demonstrates how to integrate with [Noumena's Operating Engine](https://documentation.noumenadigital.com/engine/applications/engine/) using
 different programming languages and frameworks.
-It includes a Python listener service, a typescript React webapp, and a python Streamlit UI.
+It includes a Python listener service, a typescript React web app, and a Python Streamlit UI.
 
 The underlying NPL code is an extension of the IOU, which can be found
 in the [npl-starter](https://github.com/NoumenaDigital/npl-starter) repository.
