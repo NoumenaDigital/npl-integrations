@@ -2,12 +2,18 @@
 
 The npl-integrations repo contains a sample project that demonstrates how to integrate with the NPL engine using
 different programming languages and frameworks.
-It includes a Python client, a webapp, and a streamlit UI.
+It includes a Python listener service, a typescript React webapp, and a python Streamlit UI.
 
 The underlying NPL code is an extension of the IOU, which can be found
 in the [npl-starter](https://github.com/NoumenaDigital/npl-starter) repository.
 
 ## Building and running with docker locally
+
+The first deployment possibility consists of running the NPL code and all services locally.
+To run the Noumena Engine, the corresponding docker image is required, which is available under license. 
+Please contact Noumena Digital for more information at [info@noumenadigital.com](mailto:info@noumenadigital.com)
+
+The npl-integrations project can be built and run locally using docker-compose.
 
 ### Pre-requisites
 
@@ -15,18 +21,18 @@ For OS X and linux systems, make sure the `/etc/hosts` file includes the line `1
 
 ![img.png](docs/img.png)
 
-If not
+If the line is not present, follow the steps below to add it:
 
-1. Use the `sudo nano /etc/hosts` command to open the file in a text editor.
-2. Navigate to the end of the file and add the line `127.0.0.1 keycloak`.
-3. Save by pressing `Ctrl + O` and then `Enter`.
+1. Use the `sudo vim /etc/hosts` command to open the file in a text editor. Enter your password when prompted for this admin command.
+2. Navigate to the end of the file, press `i` to enter insert mode and add the line `127.0.0.1 keycloak`.
+3. Save by pressing `Esc`, then type `:wq` and press `Enter`.
 
 ### Build & run
 
 To build and run the project, follow the steps below:
 
-1. Run `mvn clean install` to build and generate NPL-api and clients.
-2. Run `docker compose up --build -d` to ensure python and frontend are also build, then create and start containers.
+1. Run `mvn clean install` to build and generate NPL-API and clients.
+2. Run `docker compose up --build -d` to ensure the python listener service, the python Streamlit UI and the typescript React frontend are build in addition to engine and engine dependencies, then create and start containers.
 
 ### Service endpoints
 
@@ -40,9 +46,17 @@ Once the project is running, services run behind the following URLs:
 | Webapp                    | http://localhost:8090              |
 | Inspector                 | http://localhost:8070              |
 
-## Building, running python & webapp locally, NPL on PaaS
+## Running NPL on Noumena Cloud & local services
 
-### NPL and keyloack
+The second deployment possibility consists of running the NPL code on Noumena Cloud and local services.
+Noumena offers a cloud-based environment for running NPL code, which can be accessed at [portal.noumena.cloud](https://portal.noumena.cloud).
+
+This setup includes running a python listener, python Streamlit UI & typescript React webapp locally, and Noumena Engine on Noumena Cloud.
+
+### NPL and keycloak
+
+In this setup, NPL code runs on Noumena Cloud. Supporting services of the NPL Engine are deployed alongside the NPL Engine.
+Supporting services include Keycloak for authentication and authorization and databases.
 
 #### Option 1: Using the NPL CLI & terraform
 
@@ -56,53 +70,55 @@ Once the project is running, services run behind the following URLs:
     ```
 
 3. Run `make create-app` to create the application with name defined in Makefile.
-4. Run `make iam` to provision keycloak on the created PaaS application with terraform.
+4. Run `make iam` to provision keycloak on the created application with terraform.
 5. Run `make clear-deploy` to clear pre-existing packages in the app and upload current NPL and migration sources.
 
 #### Option 2: Using the maven plugin
 
 1. Edit run configurations by clicking on the three vertical dots icon at the top right of IntelliJ
-2. Add a new configuration by clicking on the `+` icon and selecting `Deploy to PaaS`
+2. Add a new configuration by clicking on the `+` icon and selecting `Deploy to Noumena Cloud`
 3. Input the following values:
     - `Server base URL`: https://portal.noumena.cloud
-    - `Application ID`: The application ID found on the settings page of your app in PaaS UI
-    - `Username`: Your email address for PaaS
-    - `Password`: Your password for PaaS
+    - `Application ID`: The application ID found on the settings page of your app in the Noumena Cloud UI
+    - `Username`: Your email address for Noumena Cloud
+    - `Password`: Your password for Noumena Cloud
     - `Source path`: Use the file navigator to navigate to `./npl/src/main` inside the project
 
 4. Click `Run` to save and run the configuration
 
-In addition, Keycloak can be configured from the `Services` tab in the PaaS UI.
+In addition, Keycloak can be configured from the `Services` tab in the Noumena Cloud UI.
 
-#### Option 3: Using the PaaS UI
+#### Option 3: Using the Noumena Cloud UI
 
 1. Create a zip file by running the `zip -r sources.zip npl/src/main/` command in the root directory.
-2. In PaaS UI, click on `Upload packages` and upload the zip file.
+2. In the Noumena Cloud UI, click on `Upload packages` and upload the zip file.
 
-### Python
+### Python-Listener
 
-The `./python` folder contains a python service interacting with the configured engine.
+The `./python-listener` folder contains a python service interacting with the configured engine.
+In this setup, the python listener service runs locally and connects to the engine on Noumena Cloud.
 
 #### Setup
 
-1. set up & activate your Python venv
-2. run `mvn install` to generate the python client
-3. run `cd python && pip install -r requirements.txt`
+1. In the root directory, set up & activate your Python venv
+2. run `mvn install` to generate the python client from the NPL code
+3. run `cd python-listener && pip install -r requirements.txt`
 
 Note: it is needed to install requirements every time NPL code is changed.
 This is because the generated code is installed as a package for easier use.
 
 #### Running
 
-run `cd python && python main.py`
+From the root directory, run `cd python-listener && python main.py`
 
 ### Webapp
 
 The `./webapp` folder contains a typescript frontend service interacting with the configured engine.
+In this setup, the webapp runs locally and connects to the engine on Noumena Cloud.
 
 #### Setup
 
-1. run `mvn install` to generate the webapp client (if not already done for python)
+1. run `mvn install` to generate the webapp client from the NPL code
 2. run `cd webapp && npm install`
 
 #### Running
@@ -111,13 +127,13 @@ run `cd webapp && npm run dev`
 
 ### Streamlit UI
 
-The `./streamlit-ui` folder contains a frontend implemented in python with the streamlit library.
-It connects to the engine and displays entries of the engine database.
+The `./streamlit-ui` folder contains a frontend implemented in python with the Streamlit library.
+In this setup, the Streamlit UI runs locally and connects to the engine on Noumena Cloud.
 
 #### Setup
 
 1. set up & activate your Python venv
-2. run `mvn install` to generate the python client
+2. run `mvn install` to generate the python client from the NPL code
 3. run `cd streamlit-ui && pip install -r requirements.txt`
 
 Note: it is needed to install requirements every time NPL code is changed.
@@ -137,10 +153,11 @@ Once the project is running, services run behind the following URLs:
 | Swagger UI of Engine APIs | `https://engine-$NC_ORG_NAME-$NC_APP_NAME.noumena.cloud/swagger-ui/` |
 | Keycloak admin console    | `https://keycloak-$NC_ORG_NAME-$NC_APP_NAME.noumena.cloud`           |
 | Webapp                    | http://localhost:5173                                                |
+| Streamlit UI              | http://localhost:8501                                                |
 
 ## Next steps
 
-You can now start developing your own application on top of the NPL engine in your preferred language.
+You now know everything about NPL deployment to start developing your own application on top of the NPL engine in your preferred language.
 
 For more information on the NPL engine, please refer to
 the [NPL documentation](https://documentation.noumenadigital.com/). 
