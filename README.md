@@ -9,11 +9,11 @@ in the [npl-starter](https://github.com/NoumenaDigital/npl-starter) repository.
 
 ## Building and running with docker locally
 
-The first deployment possibility consists of running the NPL code and all services locally.
+The project can be built and run locally using docker-compose.
 To run the Noumena Engine, the corresponding docker image is required, which is available under license. 
 Please contact Noumena Digital for more information at [info@noumenadigital.com](mailto:info@noumenadigital.com)
 
-The npl-integrations project can be built and run locally using docker-compose.
+The npl-integrations project can be locally built and all containers run locally using docker-compose.
 
 ### Pre-requisites
 
@@ -21,11 +21,7 @@ For OS X and linux systems, make sure the `/etc/hosts` file includes the line `1
 
 ![img.png](docs/img.png)
 
-If the line is not present, follow the steps below to add it:
-
-1. Use the `sudo vim /etc/hosts` command to open the file in a text editor. Enter your password when prompted for this admin command.
-2. Navigate to the end of the file, press `i` to enter insert mode and add the line `127.0.0.1 keycloak`.
-3. Save by pressing `Esc`, then type `:wq` and press `Enter`.
+If the line is not present, follow the steps below to add it by running `echo "127.0.0.1 keycloak" | sudo tee -a /etc/hosts` in the terminal.
 
 ### Build & run
 
@@ -48,10 +44,12 @@ Once the project is running, services can be accessed with the following URLs:
 
 ## Running NPL on Noumena Cloud & local services
 
-The second deployment possibility consists of running the NPL code on Noumena Cloud and local services.
+Alternative to the local setup, NPL can be deployed on Noumena Cloud.
 Noumena offers a cloud-based environment for running NPL code, which can be accessed at [portal.noumena.cloud](https://portal.noumena.cloud).
 
-This setup includes running a python listener, python Streamlit UI & typescript React webapp locally, and Noumena Engine on Noumena Cloud.
+In this setup, to allow a setup without docker-compose, the Python listener, Python Streamlit UI & typescript React webapp are not run in docker containers.
+
+This setup includes running a Python listener, Python Streamlit UI & typescript React webapp locally, and Noumena Engine on Noumena Cloud.
 
 ### NPL and keycloak
 
@@ -73,7 +71,7 @@ Supporting services include Keycloak for authentication and authorization, and d
 4. Run `make iam` to provision keycloak on the created application using terraform.
 5. Run `make clear-deploy` to clear pre-existing packages in the app and upload the current NPL and migration sources.
 
-#### Option 2: Using the maven plugin
+#### Option 2: Using the NPL-Dev plugin for IntelliJ
 
 1. Edit run configurations by clicking on the three vertical dots icon at the top right of IntelliJ
 2. Add a new configuration by clicking on the `+` icon and selecting `Deploy to Noumena Cloud`
@@ -95,8 +93,8 @@ In addition, Keycloak can be configured from the `Services` tab in the Noumena C
 
 ### Python-Listener
 
-The `./python-listener` folder contains a python service interacting with the configured engine.
-In this setup, the python listener service runs locally and connects to the engine on Noumena Cloud.
+The `./python-listener` folder contains a Python service interacting with the configured engine.
+In this setup, the Python listener service runs locally and connects to the engine on Noumena Cloud.
 
 #### Setup
 
@@ -127,13 +125,13 @@ run `cd webapp && npm run dev`
 
 ### Streamlit UI
 
-The `./streamlit-ui` folder contains a frontend implemented in python with the Streamlit library.
+The `./streamlit-ui` folder contains a frontend implemented in Python with the Streamlit library.
 In this setup, the Streamlit UI runs locally and connects to the engine on Noumena Cloud.
 
 #### Setup
 
 1. set up & activate your Python venv
-2. run `mvn install` to generate the python client from the NPL code
+2. run `mvn install` to generate the Python client from the NPL code
 3. run `cd streamlit-ui && pip install -r requirements.txt`
 
 Note: it is needed to install requirements every time NPL code is changed.

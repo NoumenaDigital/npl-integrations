@@ -5,8 +5,7 @@ It is built using Typescript and React. It allows users to create, read and perf
 
 ## Maven generator
 
-The selected maven generator for typescript is 'typescript-axios'.
-It solves a few compilation and setup errors.
+The selected maven generator for typescript is [typescript-axios](https://openapi-generator.tech/docs/generators/typescript-axios).
 
 ## Authentication in the API service
 
@@ -23,7 +22,7 @@ The access token is then used to authenticate the API service in `src/services/B
 ## API service
 
 The API service is implemented in `src/services/BaseService.tsx` and is used to interact with the Engine.
-It relies on the generated sources from the NPL engine to make requests to the engine.
+It relies on the generated sources from the project NPL code to make HTTP requests to the engine.
 
 ```typescript
     public getIouList: () => Promise<Iou[]> = async () =>
