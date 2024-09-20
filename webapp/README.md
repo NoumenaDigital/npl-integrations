@@ -22,7 +22,7 @@ The access token is then used to authenticate the API service in the `src/servic
 
 ## API service
 
-The API service is implemented in the `src/services/BaseService.tsx` file and is used to interact with the NPL engine.
+The API service is implemented in `src/services/BaseService.tsx` and is used to interact with the Engine.
 It relies on the generated sources from the NPL engine to make requests to the engine.
 
 ```typescript
