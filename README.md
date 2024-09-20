@@ -1,6 +1,6 @@
 # npl-integrations
 
-The npl-integrations repo contains a sample project that demonstrates how to integrate with the NPL engine using
+The npl-integrations repo contains a sample project that demonstrates how to integrate with [Noumena's Operating Engine](https://documentation.noumenadigital.com/engine/applications/engine/) using
 different programming languages and frameworks.
 It includes a Python listener service, a typescript React webapp, and a python Streamlit UI.
 
