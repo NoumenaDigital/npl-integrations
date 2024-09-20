@@ -157,7 +157,7 @@ Once the project is running, services run behind the following URLs:
 
 ## Next steps
 
-You now know everything about NPL deployment to start developing your own application on top of the NPL engine in your preferred language.
+You now know everything you need to know about NPL deployment in order to start developing your own applications on top of the Engine in your preferred language.
 
 For more information on the NPL engine, please refer to
 the [NPL documentation](https://documentation.noumenadigital.com/). 
