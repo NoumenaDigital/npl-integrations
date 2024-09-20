@@ -104,7 +104,7 @@ def iou_details():
             st.write(encoded_bytes_data)
             file = f"data:image/png;base64,{encoded_bytes_data}"
             response = get_api().iou_add_file(iou_id, IouAddFileCommand(
-                file=file
+                file="data:;base64,SGVsbG8="
             ))
             st.write(str(response))
 

@@ -150,6 +150,8 @@ services:
     depends_on:
       engine:
         condition: service_healthy
+      read-model:
+        condition: service_started
 
   inspector:
     image: ghcr.io/noumenadigital/packages/inspector:latest
