@@ -9,7 +9,7 @@ in the [npl-starter](https://github.com/NoumenaDigital/npl-starter) repository.
 
 ## Building and running with docker locally
 
-The project can be built and run locally using docker-compose.
+The project can be built and run locally using Docker Compose.
 To run the Noumena Engine, the corresponding docker image is required, which is available under license. 
 Please contact Noumena Digital for more information at [info@noumenadigital.com](mailto:info@noumenadigital.com)
 
