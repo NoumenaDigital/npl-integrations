@@ -113,7 +113,7 @@ From the root directory, run `cd python-listener && python main.py`
 
 ### Webapp
 
-The `./webapp` folder contains a typescript frontend service interacting with the configured engine.
+The `./webapp` folder contains a Typescript frontend service for interacting with the configured Engine.
 In this setup, the webapp runs locally and connects to the engine on Noumena Cloud.
 
 #### Setup
