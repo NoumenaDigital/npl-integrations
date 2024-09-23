@@ -15,6 +15,8 @@ from openapi_client.api.default_api import DefaultApi
 from openapi_client.api_client import ApiClient
 from openapi_client.configuration import Configuration
 
+if "uploader_key" not in st.session_state:
+    st.session_state.uploader_key = 0
 
 def get_api():
     api = DefaultApi(
@@ -92,7 +94,7 @@ def iou_details():
         st.write("Issuer:", selected_iou.parties.issuer)
         st.write("Payee:", selected_iou.parties.payee)
 
-        uploaded_file = st.file_uploader("Upload file here")
+        uploaded_file = st.file_uploader("Upload file here", key=f"uploader_{st.session_state.uploader_key}")
 
         if uploaded_file is not None:
             bytes_data = uploaded_file.getvalue()
@@ -101,8 +103,8 @@ def iou_details():
             mimetype = mimetypes.guess_type(uploaded_file.name)[0]
             file = f"data:{mimetype};filename={uploaded_file.name};base64,{encoded_bytes_data}"
             get_api().iou_add_file(iou_id, IouAddFileCommand(file=file))
-            st.write("File uploaded")
-            uploaded_file.clear()
+            st.session_state.uploader_key += 1
+            st.rerun()
 
         for i, f in enumerate(selected_iou.files):
             file = f.split(";")
