@@ -4,8 +4,8 @@ MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
 export PAAS_ENGINE_VERSION=2024.1.8
 export NPL_VERSION=1.0
 export NC_DOMAIN=noumena.cloud
-export NC_APP_NAME=test-jean
-export NC_ORG_NAME=pwctraining
+export NC_APP_NAME=nplintegrations
+export NC_ORG_NAME=training
 export NC_APP_NAME_CLEAN := $(shell echo $(NC_APP_NAME) | tr -d '-')
 export NC_ORG := $(shell ./cli org list | jq --arg NC_ORG_NAME "$(NC_ORG_NAME)" -r '.[] | select(.slug == $$NC_ORG_NAME) | .id')
 export NC_APP := $(shell ./cli app list -org $(NC_ORG) | jq --arg NC_APP_NAME "$(NC_APP_NAME)" '.[] | select(.name == $$NC_APP_NAME) | .id')
