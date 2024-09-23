@@ -206,6 +206,7 @@ services:
       - "8080:8501"
     environment:
       ENV: DOCKER
+      VITE_NC_APP_SLUG: nplintegrations
     depends_on:
       engine:
         condition: service_healthy
