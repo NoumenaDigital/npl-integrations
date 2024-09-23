@@ -43,7 +43,7 @@ Once the project is running, services can be accessed with the following URLs:
 |---------------------------|------------------------------------|
 | Engine APIs               | http://localhost:12000/            |
 | Swagger UI of Engine APIs | http://localhost:12000/swagger-ui/ |
-| Keycloak admin console    | http://localhost:11000             |
+| Keycloak admin console    | http://keycloak:11000              |
 | Webapp                    | http://localhost:8090              |
 | Inspector                 | http://localhost:8070              |
 
