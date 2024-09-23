@@ -1,13 +1,12 @@
 import base64
+import mimetypes
 
 import jwt
-import requests
 
 import pandas as pd
 import streamlit as st
 
 from openapi_client.models.iou_add_file_command import IouAddFileCommand
-from pydantic import StrictBytes
 
 from src import iou
 from src import config
@@ -74,7 +73,6 @@ def print_iou(iou_to_print):
 
 def iou_select():
     iou_list = get_api().get_iou_list().items
-    st.write(st.session_state['access_token'])
     selected_iou = st.selectbox("Select IOU", iou_list, format_func=print_iou) # [iou_i.id for iou_i in iou_list.items])
     st.session_state["selected_iou"] = selected_iou.id
     iou_details()
@@ -97,23 +95,42 @@ def iou_details():
         uploaded_file = st.file_uploader("Upload file here")
 
         if uploaded_file is not None:
-            # To read file as bytes:
             bytes_data = uploaded_file.getvalue()
-            # st.write(bytes_data)
             encoded_bytes_data = base64.b64encode(bytes_data).decode('utf-8')
-            st.write(encoded_bytes_data)
-            file = f"data:image/png;base64,{encoded_bytes_data}"
-            response = get_api().iou_add_file(iou_id, IouAddFileCommand(
-                file="data:;base64,SGVsbG8="
-            ))
-            st.write(str(response))
 
-        # st.button("Upload file", on_click=upload_file, args=(selected_iou.id))
-        st.write(selected_iou.actions)
-        for (action, url) in selected_iou.actions:
-            if url is not None:
-                # st.button(action, on_click=request, args=(action, url))
-                st.write(f"{action}: {url}")
+            mimetype = mimetypes.guess_type(uploaded_file.name)[0]
+            file = f"data:{mimetype};filename={uploaded_file.name};base64,{encoded_bytes_data}"
+            get_api().iou_add_file(iou_id, IouAddFileCommand(file=file))
+            st.write("File uploaded")
+            uploaded_file.clear()
+
+        for i, f in enumerate(selected_iou.files):
+            file = f.split(";")
+
+            if len(file) == 3:
+                filename = file[1].split("=")[1]
+                st.write("File name:", filename)
+            else:
+                filename = None
+                st.write("File:")
+
+            file_data = file[-1].split(",")
+            if file_data[0] == "base64":
+                file_bytes = base64.b64decode(file_data[1])
+            else:
+                file_bytes = file_data[1].encode('utf-8')
+            filetype = file[0].split(":")[1]
+            if "image" in filetype:
+                st.image(file_bytes)
+            else:
+                st.write(file_bytes)
+            st.download_button(
+                label='Download file',
+                data=file_bytes,
+                file_name=filename,
+                mime=filetype,
+                key=i,
+            )
 
 def app_page():
     page_names_to_funcs = {
