@@ -27,3 +27,4 @@ node_modules
 cli
 .vite
 generated
+*.zip

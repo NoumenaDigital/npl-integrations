@@ -6,11 +6,12 @@ export NPL_VERSION=1.0
 export NC_DOMAIN=noumena.cloud
 export NC_APP_NAME=nplintegrations
 export NC_ORG_NAME=training
+export NC_APP_NAME_CLEAN := $(shell echo $(NC_APP_NAME) | tr -d '-')
 export NC_ORG := $(shell ./cli org list | jq --arg NC_ORG_NAME "$(NC_ORG_NAME)" -r '.[] | select(.slug == $$NC_ORG_NAME) | .id')
 export NC_APP := $(shell ./cli app list -org $(NC_ORG) | jq --arg NC_APP_NAME "$(NC_APP_NAME)" '.[] | select(.name == $$NC_APP_NAME) | .id')
 export NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) | jq  -r '.iam_username')
 export NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) | jq -r '.iam_password' )
-export KEYCLOAK_URL=https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)
+export KEYCLOAK_URL=https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMAIN)
 export ENGINE_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)
 export READ_MODEL_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/graphql
 
@@ -90,7 +91,7 @@ status-app:
 .PHONY: iam
 iam:
 	# echo $(NC_KEYCLOAK_USERNAME) $(NC_KEYCLOAK_PASSWORD)
-	-curl --location --request DELETE '$(KEYCLOAK_URL)/admin/realms/$(NC_APP_NAME)' \
+	-curl --location --request DELETE '$(KEYCLOAK_URL)/admin/realms/$(NC_APP_NAME_CLEAN)' \
 		--header 'Content-Type: application/x-www-form-urlencoded' \
 		--header 'Authorization: Bearer $(shell curl --location --request POST --header 'Content-Type: application/x-www-form-urlencoded' \
 			--data-urlencode 'username=$(NC_KEYCLOAK_USERNAME)' \
@@ -104,5 +105,5 @@ iam:
 		KEYCLOAK_URL=$(KEYCLOAK_URL) \
 		TF_VAR_default_password=welcome \
 		TF_VAR_systemuser_secret=super-secret-system-security-safe \
-		TF_VAR_app_name=$(NC_APP_NAME) \
+		TF_VAR_app_name=$(NC_APP_NAME_CLEAN) \
 		./local.sh
