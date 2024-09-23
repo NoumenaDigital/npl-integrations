@@ -1,27 +1,32 @@
 # npl-integrations
 
-The npl-integrations repo contains a sample project that demonstrates how to integrate with [Noumena's Operating Engine](https://documentation.noumenadigital.com/engine/applications/engine/) using
+The npl-integrations repo contains a sample project that demonstrates how to integrate with [Noumena's Engine](https://documentation.noumenadigital.com/engine/applications/engine/) using
 different programming languages and frameworks.
-It includes a Python listener service, a typescript React web app, and a Python Streamlit UI.
+It includes a Python listener service, a Typescript React web app, and a Python Streamlit UI.
 
 The underlying NPL code is an extension of the IOU, which can be found
 in the [npl-starter](https://github.com/NoumenaDigital/npl-starter) repository.
 
-## Building and running with docker locally
+## Building and running with Docker locally
 
 The project can be built and run locally using Docker Compose.
-To run the Noumena Engine, the corresponding docker image is required, which is available under license. 
+To run the Noumena Engine, the corresponding Docker image is required, which is available under license. 
 Please contact Noumena Digital for more information at [info@noumenadigital.com](mailto:info@noumenadigital.com)
 
-The npl-integrations project can be locally built and all containers run locally using docker-compose.
+The npl-integrations project can be locally built and all containers run locally using Docker Compose.
 
 ### Pre-requisites
 
-For OS X and linux systems, make sure the `/etc/hosts` file includes the line `127.0.0.1 keycloak`
+#### OS X and linux systems
+Make sure the `/etc/hosts` file includes the line `127.0.0.1 keycloak`
 
 ![img.png](docs/img.png)
 
-If the line is not present, follow the steps below to add it by running `echo "127.0.0.1 keycloak" | sudo tee -a /etc/hosts` in the terminal.
+If the line is not present, add it by running `echo "127.0.0.1 keycloak" | sudo tee -a /etc/hosts` in the terminal.
+
+#### Windows systems
+
+Make sure the `c:\Windows\System32\Drivers\etc\hosts` file includes the line `127.0.0.1 keycloak` and add it if missing.
 
 ### Build & run
 
@@ -47,9 +52,9 @@ Once the project is running, services can be accessed with the following URLs:
 Alternative to the local setup, NPL can be deployed on Noumena Cloud.
 Noumena offers a cloud-based environment for running NPL code, which can be accessed at [portal.noumena.cloud](https://portal.noumena.cloud).
 
-In this setup, to allow a setup without docker-compose, the Python listener, Python Streamlit UI & typescript React webapp are not run in docker containers.
+In this setup, to allow a setup without Docker Compose, the Python listener, Python Streamlit UI & Typescript React webapp are not run in Docker containers.
 
-This setup includes running a Python listener, Python Streamlit UI & typescript React webapp locally, and Noumena Engine on Noumena Cloud.
+This setup includes running a Python listener, Python Streamlit UI & Typescript React webapp locally, and Noumena Engine on Noumena Cloud.
 
 ### NPL and keycloak
 
@@ -93,8 +98,8 @@ In addition, Keycloak can be configured from the `Services` tab in the Noumena C
 
 ### Python-Listener
 
-The `./python-listener` folder contains a Python service interacting with the configured engine.
-In this setup, the Python listener service runs locally and connects to the engine on Noumena Cloud.
+The `./python-listener` folder contains a Python service interacting with the configured Engine.
+In this setup, the Python listener service runs locally and connects to the Engine on Noumena Cloud.
 
 #### Setup
 
@@ -112,7 +117,7 @@ From the root directory, run `cd python-listener && python main.py`
 ### Webapp
 
 The `./webapp` folder contains a Typescript frontend service for interacting with the configured Engine.
-In this setup, the webapp runs locally and connects to the engine on Noumena Cloud.
+In this setup, the webapp runs locally and connects to the Engine on Noumena Cloud.
 
 #### Setup
 
@@ -126,7 +131,7 @@ run `cd webapp && npm run dev`
 ### Streamlit UI
 
 The `./streamlit-ui` folder contains a frontend implemented in Python with the Streamlit library.
-In this setup, the Streamlit UI runs locally and connects to the engine on Noumena Cloud.
+In this setup, the Streamlit UI runs locally and connects to the Engine on Noumena Cloud.
 
 #### Setup
 
