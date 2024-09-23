@@ -85,7 +85,8 @@ Supporting services include Keycloak for authentication and authorization, and d
     - `Application ID`: The application ID found on the settings page of your app in the Noumena Cloud UI
     - `Username`: Your email address for Noumena Cloud
     - `Password`: Your password for Noumena Cloud
-    - `Source path`: Use the file navigator to navigate to `./npl/src/main` inside the project
+    - `Source path`: Use the file navigator to navigate to `./npl/src/main` inside the project (this populates the run 
+configuration with the full path to `./npl/src/main`)
 
 4. Click `Run` to save and run the configuration
 
