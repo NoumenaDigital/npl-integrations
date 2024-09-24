@@ -27,3 +27,9 @@ jobs:
 
       - name: "Verify"
         run: "mvn $MAVEN_CLI_OPTS clean verify"
+
+      - name: "Python listener unit tests"
+        run: "cd python-listener && make tests"
+
+      - name: "Docker build"
+        run: "make build-images"

@@ -1,8 +1,2 @@
-
-
-unittests:
-	python -m unittest
-
-
-nosetests:
+tests:
 	PYTHONPATH=$(shell pwd) nosetests --verbosity=2 .
