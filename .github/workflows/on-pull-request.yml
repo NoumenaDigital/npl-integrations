@@ -33,3 +33,6 @@ jobs:
 
       - name: "Docker build"
         run: "make build-images"
+
+      - name: "integration tests"
+        run: "make integration-tests"
