@@ -71,6 +71,17 @@
                             <output>../webapp/generated</output>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>bash</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/target/generated-sources/openapi/iou-openapi.yml</inputSpec>
+                            <generatorName>bash</generatorName>
+                            <output>../bash</output>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

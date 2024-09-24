@@ -28,3 +28,4 @@ cli
 .vite
 generated
 *.zip
+bash

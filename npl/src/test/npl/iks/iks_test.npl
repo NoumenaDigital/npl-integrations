@@ -1,0 +1,6 @@
+package iks;
+
+@test
+function iks_testing(test: Test) -> {
+
+};
