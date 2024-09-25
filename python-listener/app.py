@@ -1,5 +1,5 @@
-from main.src.auth import AuthService
-from main.src import config, stream
+from src.auth import AuthService
+from src import config, stream
 
 from openapi_client.api.default_api import DefaultApi
 from openapi_client.api_client import ApiClient
