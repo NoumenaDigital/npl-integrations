@@ -81,3 +81,6 @@ integration-tests-local:
 .PHONY: integration-tests-paas
 integration-tests-paas:
 	make -f paas.mk integration-tests
+
+python-listener-tests:
+	cd python-listener && source ../venv/bin/activate && PYTHONPATH=$(shell pwd) nosetests --verbosity=2 .
