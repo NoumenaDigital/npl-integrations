@@ -21,7 +21,6 @@ escape_dollar = $(subst $$,\$$,$1)
 first-install:
 	brew install jq python
 	make download-cli
-	make create-app
 	python3 -m venv venv
 	source venv/bin/activate
 	make install
@@ -29,19 +28,19 @@ first-install:
 .PHONY: install
 install:
 	mvn $(MAVEN_CLI_OPTS) install
-	cd python-listener && python3 -m pip install -r requirements.txt
-	cd streamlit-ui && python3 -m pip install -r requirements.txt
+	source venv/bin/activate && cd python-listener && python3 -m pip install -r requirements.txt
+	source venv/bin/activate && cd streamlit-ui && python3 -m pip install -r requirements.txt
 	cd webapp && npm install
 
 .PHONY: install-python
 install-python:
 	mvn $(MAVEN_CLI_OPTS) install
-	cd python-listener && python3 -m pip install -r requirements.txt
-	cd streamlit-ui && python3 -m pip install -r requirements.txt
+	source venv/bin/activate cd python-listener && python3 -m pip install -r requirements.txt
+	source venv/bin/activate cd streamlit-ui && python3 -m pip install -r requirements.txt
 
 .PHONY:	run-only
 run-only:
-	make run-webapp & make run-python-listener & run-streamlit-ui
+	make run-webapp & make run-python-listener & make run-streamlit-ui
 
 .PHONY: run-webapp
 run-webapp:
@@ -49,11 +48,11 @@ run-webapp:
 
 .PHONY: run-python-listener
 run-python-listener:
-	cd python-listener && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) python main.py
+	source venv/bin/activate && cd python-listener && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) python main.py
 
 .PHONY: run-streamlit-ui
 run-streamlit-ui:
-	cd streamlit-ui && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) streamlit run main.py
+	source venv/bin/activate && cd streamlit-ui && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) streamlit run main.py
 
 .PHONY:	run
 run: install run-only
@@ -110,6 +109,7 @@ iam:
 
 .PHONY: integration-tests
 integration-tests:
+	echo "TODO"
 	## bash: run python service
 	## python OPS: create app & wait / first step is to have an app for integration-tests
 	## python OPS: check status
