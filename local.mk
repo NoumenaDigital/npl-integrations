@@ -41,10 +41,4 @@ integration-tests: install up
 	sleep 10; \
 	IOU_STATE=$$( ./bash/client.sh --host localhost:12000 getIouByID id="$$IOU_ID" Authorization:"Bearer $$ACCESS_TOKEN" | jq -r '.["@state"]'); \
 	if [[ $${IOU_STATE} = "payment_confirmation_required" ]]; then echo "IOU not unpaid"; exit 1; fi
-	echo "IOU paid";
 	make -f local.mk down
-
-# @if [ "$(NPL_VERSION)" = "" ]; then echo "NPL_VERSION not set"; exit 1; fi
-## python: Wait a few seconds
-## python: Expect the python service to have updated the iou state
-# make -f local.mk down
