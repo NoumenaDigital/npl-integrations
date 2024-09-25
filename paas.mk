@@ -19,10 +19,11 @@ escape_dollar = $(subst $$,\$$,$1)
 
 .PHONY: first-install
 first-install:
-	-brew install jq python3.12
-	-sudo apt-get install jq python3.12
+	-brew install jq python3
+	-sudo apt install python3
+	-sudo apt-get install jq
 	make download-cli
-	python3.12 -m venv ./venv; \
+	python3 -m venv ./venv; \
 	source ./venv/bin/activate
 	make install
 
