@@ -19,7 +19,8 @@ escape_dollar = $(subst $$,\$$,$1)
 
 .PHONY: first-install
 first-install:
-	brew install jq python
+	-brew install jq python3.12
+	-apt-get install jq python3.12
 	make download-cli
 	python3 -m venv venv
 	source venv/bin/activate
@@ -89,7 +90,6 @@ status-app:
 
 .PHONY: iam
 iam:
-	# echo $(NC_KEYCLOAK_USERNAME) $(NC_KEYCLOAK_PASSWORD)
 	-curl --location --request DELETE '$(KEYCLOAK_URL)/admin/realms/$(NC_APP_NAME_CLEAN)' \
 		--header 'Content-Type: application/x-www-form-urlencoded' \
 		--header 'Authorization: Bearer $(shell curl --location --request POST --header 'Content-Type: application/x-www-form-urlencoded' \
