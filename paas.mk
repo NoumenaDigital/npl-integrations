@@ -27,18 +27,24 @@ first-install:
 	source ./venv/bin/activate
 	make install
 
+.PHONY: pipeline-setup
+pipeline-setup:
+	-sudo apt-get install jq
+	make download-cli
+	make install
+
 .PHONY: install
 install:
 	mvn $(MAVEN_CLI_OPTS) install
-	source venv/bin/activate && cd python-listener && python3 -m pip install -r requirements.txt
-	source venv/bin/activate && cd streamlit-ui && python3 -m pip install -r requirements.txt
+	cd python-listener && python3 -m pip install -r requirements.txt
+	cd streamlit-ui && python3 -m pip install -r requirements.txt
 	cd webapp && npm install
 
 .PHONY: install-python
 install-python:
 	mvn $(MAVEN_CLI_OPTS) install
-	source venv/bin/activate cd python-listener && python3 -m pip install -r requirements.txt
-	source venv/bin/activate cd streamlit-ui && python3 -m pip install -r requirements.txt
+	cd python-listener && python3 -m pip install -r requirements.txt
+	cd streamlit-ui && python3 -m pip install -r requirements.txt
 
 .PHONY:	run-only
 run-only:
@@ -50,11 +56,11 @@ run-webapp:
 
 .PHONY: run-python-listener
 run-python-listener:
-	source venv/bin/activate && cd python-listener && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) python main.py
+	cd python-listener && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) python main.py
 
 .PHONY: run-streamlit-ui
 run-streamlit-ui:
-	source venv/bin/activate && cd streamlit-ui && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) streamlit run main.py
+	cd streamlit-ui && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) streamlit run main.py
 
 .PHONY:	run
 run: install run-only

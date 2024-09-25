@@ -29,7 +29,7 @@ jobs:
         run: "mvn $MAVEN_CLI_OPTS clean verify"
 
       - name: "Install & setup"
-        run: "make -f paas.mk first-install && make -f paas.mk install"
+        run: "make -f paas.mk pipeline-setup && make -f paas.mk install"
 
       - name: "Python listener unit tests"
         run: "cd python-listener && make tests"
