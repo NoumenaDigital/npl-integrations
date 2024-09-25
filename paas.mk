@@ -22,8 +22,9 @@ first-install:
 	-brew install jq python3.12
 	-apt-get install jq python3.12
 	make download-cli
-	python3 -m venv venv
-	source venv/bin/activate
+	python3.12 -m venv ./venv; \
+	which source; \
+	source ./venv/bin/activate
 	make install
 
 .PHONY: install
@@ -69,9 +70,9 @@ download-cli: export CLI_OS_ARCH=npl_darwin_amd64
 download-cli: export RELEASE_TAG=1.3.0
 download-cli: export API_URL=https://api.github.com/repos/NoumenaDigital/npl-cli/releases/tags/$(RELEASE_TAG)
 download-cli:
-	curl -s -H "Authorization: token $(GITHUB_USER_PASS)" $(API_URL) \
+	curl -s $(API_URL) \
 		| jq --arg CLI_OS_ARCH "$(CLI_OS_ARCH)" '.assets[] | select(.name == $$CLI_OS_ARCH) | .url' -r \
-		| xargs -t -n 2 -P 3 curl -sG -H "Authorization: token $(GITHUB_USER_PASS)" -H "Accept: application/octet-stream" -Lo cli
+		| xargs -t -n 2 -P 3 curl -sG -H "Accept: application/octet-stream" -Lo cli
 	chmod +x cli
 
 .PHONY: create-app
