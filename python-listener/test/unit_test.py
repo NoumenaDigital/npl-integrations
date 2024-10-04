@@ -31,4 +31,3 @@ def test_auth(mock_post):
 
     assert_is_not_none(access_token)
     assert_equal(access_token, my_access_token)
-

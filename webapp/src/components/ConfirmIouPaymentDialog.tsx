@@ -15,7 +15,7 @@ import { Iou } from '../../generated/api.ts'
 export const ConfirmIouPaymentDialog: React.FC<{
     iouId: string
     open: boolean
-    onClose: (subscribed: boolean) => void
+    onClose: (_: boolean) => void
 }> = ({ iouId, open, onClose }) => {
     const { getIou, confirmPayment } = useServices()
 
