@@ -17,6 +17,14 @@ clean:
 	docker compose down -v
 	mvn $(MAVEN_CLI_OPTS) clean
 
+.PHONY:	format-check
+format-check:
+	cd webapp && npm run format:ci
+
+.PHONY:	format
+format:
+	cd webapp && npm run format
+
 .PHONY:	bump-platform-version
 bump-platform-version:
 	@if [ "$(PLATFORM_VERSION)" = "" ]; then echo "PLATFORM_VERSION not set"; exit 1; fi
