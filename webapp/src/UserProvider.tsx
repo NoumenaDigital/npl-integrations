@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useRuntimeConfiguration } from './RuntimeConfigurationProvider.tsx'
 import { useKeycloak } from '@react-keycloak/web'
 import { Box, CircularProgress } from '@mui/material'
+import { KeycloakTokenParsed } from 'keycloak-js'
 
 export interface User {
     name: string
@@ -53,7 +54,9 @@ const Loading = () => {
     )
 }
 
-const internalizeUser = async (tokenParsed: any): Promise<User> => {
+const internalizeUser = async (
+    tokenParsed: KeycloakTokenParsed
+): Promise<User> => {
     if (tokenParsed.name && tokenParsed.email) {
         return {
             name: tokenParsed.name as string,

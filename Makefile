@@ -20,6 +20,8 @@ clean:
 .PHONY:	format-check
 format-check:
 	cd webapp && npm run format:ci
+	cd webapp && npm run lint
+	cd python-listener && flake8
 
 .PHONY:	format
 format:
