@@ -9,8 +9,8 @@ export NC_ORG_NAME=training
 export NC_APP_NAME_CLEAN := $(shell echo $(NC_APP_NAME) | tr -d '-')
 export NC_ORG := $(shell ./cli org list | jq --arg NC_ORG_NAME "$(NC_ORG_NAME)" -r '.[] | select(.slug == $$NC_ORG_NAME) | .id')
 export NC_APP := $(shell ./cli app list -org $(NC_ORG) | jq --arg NC_APP_NAME "$(NC_APP_NAME)" '.[] | select(.name == $$NC_APP_NAME) | .id')
-export NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) | jq  -r '.iam_username')
-export NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) | jq -r '.iam_password' )
+export NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null || echo '{"iam_username":""}'| jq -r '.iam_username')
+export NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null || echo '{"iam_password":""}' | jq -r '.iam_password' )
 export KEYCLOAK_URL=https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMAIN)
 export ENGINE_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)
 export READ_MODEL_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/graphql
