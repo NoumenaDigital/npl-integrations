@@ -42,6 +42,7 @@ The state streaming is implemented in the `src/services/BaseService.tsx` file an
 The demonstration implementation refreshes the data when the state of the IOU protocol instance changes.
 
 From the `src/services/BaseService.tsx` file:
+
 ```typescript
     public useStateStream = (requestRefresh: () => void) => {
         // ...
@@ -49,12 +50,13 @@ From the `src/services/BaseService.tsx` file:
 ```
 
 And used in the `src/components/HomePage.tsx` file:
-```typescript
-    const active = useStateStream(() => getIouList().then((it) => setIouList(it)))
 
-    useEffect(() => {
-        if (!createIouDialogOpen && !repayIouDialogOpen.open) {
-            getIouList().then((it) => setIouList(it))
-        }
-    }, [active])
+```typescript
+const active = useStateStream(() => getIouList().then((it) => setIouList(it)))
+
+useEffect(() => {
+    if (!createIouDialogOpen && !repayIouDialogOpen.open) {
+        getIouList().then((it) => setIouList(it))
+    }
+}, [active])
 ```

@@ -42,6 +42,9 @@ jobs:
       - name: "Install & setup"
         run: "make -f paas.mk pipeline-setup && make -f paas.mk install"
 
+      - name: "Formatting & prettifing"
+        run: "make format-check"
+
       - name: "Python listener unit tests"
         run: "cd python-listener && make tests"
 
