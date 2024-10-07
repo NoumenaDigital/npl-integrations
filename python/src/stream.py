@@ -111,6 +111,14 @@ class StreamReader:
                 and payload.currentState == IouStates.UNPAID:
             # No action according to the business use-case
             pass
+        elif payload.prototypeId == IOU_PROTOTYPE_ID \
+                and payload.currentState == IouStates.REPAID:
+            # No action according to the business use-case
+            pass
+        elif payload.prototypeId == IOU_PROTOTYPE_ID \
+                and payload.currentState == IouStates.FORGIVEN:
+            # No action according to the business use-case
+            pass
         else:
             print("Unrecognized state event", event)
 
