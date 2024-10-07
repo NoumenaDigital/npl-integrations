@@ -76,7 +76,7 @@ class StreamReader:
                     elif event.type in ["command"]:
                         continue  # no action on command according to the business use-case
                     else:
-                        print("unrecognized message event", event)
+                        print("Unrecognized message event", event)
             except KeyboardInterrupt:
                 exit()
 
@@ -94,7 +94,7 @@ class StreamReader:
         payment_amount = notification.arguments[0].value
         remainder_amount = notification.arguments[1].value
 
-        print(f"""Received{' full' if remainder_amount == 0 else ''}""", notification.name.split('/')[-1])
+        print(f"""Received notification of{' full' if remainder_amount == 0 else ''}""", notification.name.split('/')[-1])
 
         sleep(5)  # Sleeping for allowing time to see the state before confirming the payment
 
