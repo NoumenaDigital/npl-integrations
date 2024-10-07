@@ -81,13 +81,12 @@ class StreamReader:
                 exit()
 
     def manage_notification(self, event: dict):
-        print(event)
         notification = Notification(**event)  # type: ignore
         if notification.name == REPAYMENT_OCCURRENCE_NAME:
             self.manage_repayment_occurrence(notification)
             print("Acted on notification RepaymentOccurrence")
         else:
-            print("unrecognized notification event", event)
+            print("Unrecognized notification event", event)
             print("No action in this notification")
 
     def manage_repayment_occurrence(self, notification: Notification):
@@ -113,8 +112,8 @@ class StreamReader:
             # No action according to the business use-case
             pass
         else:
-            print("unrecognized state event", event)
+            print("Unrecognized state event", event)
 
     def manage_payment_confirmation_required_state_change(self, payload: Payload):
-        print("TODO complete implementation according to the business use-case")
+        # Business logic currently implemented as notification handling
         pass
