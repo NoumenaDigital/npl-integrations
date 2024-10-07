@@ -1,6 +1,4 @@
 import time
-import os
-import time
 import requests
 from src import config
 

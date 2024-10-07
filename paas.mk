@@ -7,10 +7,10 @@ export NC_DOMAIN=noumena.cloud
 export NC_APP_NAME=nplintegrations
 export NC_ORG_NAME=training
 export NC_APP_NAME_CLEAN := $(shell echo $(NC_APP_NAME) | tr -d '-')
-export NC_ORG := $(shell ./cli org list | jq --arg NC_ORG_NAME "$(NC_ORG_NAME)" -r '.[] | select(.slug == $$NC_ORG_NAME) | .id')
-export NC_APP := $(shell ./cli app list -org $(NC_ORG) | jq --arg NC_APP_NAME "$(NC_APP_NAME)" '.[] | select(.name == $$NC_APP_NAME) | .id')
-export NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) | jq  -r '.iam_username')
-export NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) | jq -r '.iam_password' )
+export NC_ORG := $(shell ./cli org list 2>/dev/null | jq --arg NC_ORG_NAME "$(NC_ORG_NAME)" -r '.[] | select(.slug == $$NC_ORG_NAME) | .id')
+export NC_APP := $(shell ./cli app list -org $(NC_ORG) 2>/dev/null | jq --arg NC_APP_NAME "$(NC_APP_NAME)" '.[] | select(.name == $$NC_APP_NAME) | .id')
+export NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_username' 2>/dev/null )
+export NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_password' 2>/dev/null )
 export KEYCLOAK_URL=https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMAIN)
 export ENGINE_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)
 export READ_MODEL_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/graphql
@@ -19,37 +19,43 @@ escape_dollar = $(subst $$,\$$,$1)
 
 .PHONY: first-install
 first-install:
-	brew install jq python
+	-brew install jq python3
+	-sudo apt-get install jq
 	make download-cli
-	make create-app
-	python3 -m venv venv
-	source venv/bin/activate
+	python3 -m venv ./venv; \
+	source ./venv/bin/activate
+	make install
+
+.PHONY: pipeline-setup
+pipeline-setup:
+	-sudo apt-get install jq
+	make download-cli
 	make install
 
 .PHONY: install
 install:
 	mvn $(MAVEN_CLI_OPTS) install
-	cd python && python3 -m pip install -r requirements.txt
+	cd python-listener && python3 -m pip install -r requirements.txt
 	cd streamlit-ui && python3 -m pip install -r requirements.txt
 	cd webapp && npm install
 
 .PHONY: install-python
 install-python:
 	mvn $(MAVEN_CLI_OPTS) install
-	cd python && python3 -m pip install -r requirements.txt
+	cd python-listener && python3 -m pip install -r requirements.txt
 	cd streamlit-ui && python3 -m pip install -r requirements.txt
 
 .PHONY:	run-only
 run-only:
-	make run-webapp & make run-python & run-streamlit-ui
+	make run-webapp & make run-python-listener & make run-streamlit-ui
 
 .PHONY: run-webapp
 run-webapp:
 	cd webapp && npm run dev
 
-.PHONY: run-python
-run-python:
-	cd python && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) streamlit run main.py
+.PHONY: run-python-listener
+run-python-listener:
+	cd python-listener && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) python main.py
 
 .PHONY: run-streamlit-ui
 run-streamlit-ui:
@@ -69,28 +75,27 @@ download-cli: export CLI_OS_ARCH=npl_darwin_amd64
 download-cli: export RELEASE_TAG=1.3.0
 download-cli: export API_URL=https://api.github.com/repos/NoumenaDigital/npl-cli/releases/tags/$(RELEASE_TAG)
 download-cli:
-	curl -s -H "Authorization: token $(GITHUB_USER_PASS)" $(API_URL) \
+	curl -s $(API_URL) \
 		| jq --arg CLI_OS_ARCH "$(CLI_OS_ARCH)" '.assets[] | select(.name == $$CLI_OS_ARCH) | .url' -r \
-		| xargs -t -n 2 -P 3 curl -sG -H "Authorization: token $(GITHUB_USER_PASS)" -H "Accept: application/octet-stream" -Lo cli
+		| xargs -t -n 2 -P 3 curl -sG -H "Accept: application/octet-stream" -Lo cli
 	chmod +x cli
 
 .PHONY: create-app
-create-app:
+create-app: download-cli
 	./cli app create -org $(NC_ORG) -engine $(PAAS_ENGINE_VERSION) -name $(NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/realms/$(NC_APP_NAME)"]'
 
-clear-deploy: zip
+clear-deploy: zip download-cli
 	@if [ "$(NC_APP)" = "" ] ; then echo "App $(NC_APP_NAME) not found"; exit 1; fi
 	@if [ "$(NPL_VERSION)" = "" ]; then echo "NPL_VERSION not set"; exit 1; fi
 	./cli app clear -app $(NC_APP)
 	./cli app deploy -app $(NC_APP) -binary ./target/npl-integrations-$(NPL_VERSION).zip
 
 .PHONY: status-app
-status-app:
+status-app: download-cli
 	./cli app detail -org $(NC_ORG) -app $(NC_APP)
 
 .PHONY: iam
 iam:
-	# echo $(NC_KEYCLOAK_USERNAME) $(NC_KEYCLOAK_PASSWORD)
 	-curl --location --request DELETE '$(KEYCLOAK_URL)/admin/realms/$(NC_APP_NAME_CLEAN)' \
 		--header 'Content-Type: application/x-www-form-urlencoded' \
 		--header 'Authorization: Bearer $(shell curl --location --request POST --header 'Content-Type: application/x-www-form-urlencoded' \
@@ -107,3 +112,16 @@ iam:
 		TF_VAR_systemuser_secret=super-secret-system-security-safe \
 		TF_VAR_app_name=$(NC_APP_NAME_CLEAN) \
 		./local.sh
+
+.PHONY: integration-tests
+integration-tests: download-cli
+	echo "TODO"
+	## bash: run python service
+	## python OPS: create app & wait / first step is to have an app for integration-tests
+	## python OPS: check status
+	## python OPS: deploy sources
+	## python app-specific: create iou
+	## python app-specific: pay iou
+	## python app-specific: wait
+	## python app-specific: expect iou paid
+	## bring everything down
