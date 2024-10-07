@@ -142,7 +142,6 @@ services:
   nginx-proxy:
     image: nginx:latest
     ports:
-      - "15001:15001"
       - "12001:12001"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
@@ -150,8 +149,6 @@ services:
     depends_on:
       engine:
         condition: service_healthy
-      read-model:
-        condition: service_started
 
   inspector:
     image: ghcr.io/noumenadigital/packages/inspector:latest
