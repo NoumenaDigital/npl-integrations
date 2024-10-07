@@ -27,11 +27,13 @@
                             <goal>npl-test</goal>
                             <goal>npl-api</goal>
                         </goals>
-                        <configuration>
-                            <enableCompilerOptimisations>true</enableCompilerOptimisations>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <sources>${project.basedir}/src/main/npl-1.0</sources>
+                    <testSources>${project.basedir}/src/test/npl</testSources>
+                    <enableCompilerOptimisations>false</enableCompilerOptimisations>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.openapitools</groupId>

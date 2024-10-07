@@ -9,8 +9,8 @@ export NC_ORG_NAME=training
 export NC_APP_NAME_CLEAN := $(shell echo $(NC_APP_NAME) | tr -d '-')
 export NC_ORG := $(shell ./cli org list 2>/dev/null | jq --arg NC_ORG_NAME "$(NC_ORG_NAME)" -r '.[] | select(.slug == $$NC_ORG_NAME) | .id')
 export NC_APP := $(shell ./cli app list -org $(NC_ORG) 2>/dev/null | jq --arg NC_APP_NAME "$(NC_APP_NAME)" '.[] | select(.name == $$NC_APP_NAME) | .id')
-export NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null || echo '{"iam_username":""}'| jq -r '.iam_username')
-export NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null || echo '{"iam_password":""}' | jq -r '.iam_password' )
+export NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_username' 2>/dev/null )
+export NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_password' 2>/dev/null )
 export KEYCLOAK_URL=https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMAIN)
 export ENGINE_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)
 export READ_MODEL_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/graphql
@@ -81,17 +81,17 @@ download-cli:
 	chmod +x cli
 
 .PHONY: create-app
-create-app:
+create-app: download-cli
 	./cli app create -org $(NC_ORG) -engine $(PAAS_ENGINE_VERSION) -name $(NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/realms/$(NC_APP_NAME)"]'
 
-clear-deploy: zip
+clear-deploy: zip download-cli
 	@if [ "$(NC_APP)" = "" ] ; then echo "App $(NC_APP_NAME) not found"; exit 1; fi
 	@if [ "$(NPL_VERSION)" = "" ]; then echo "NPL_VERSION not set"; exit 1; fi
 	./cli app clear -app $(NC_APP)
 	./cli app deploy -app $(NC_APP) -binary ./target/npl-integrations-$(NPL_VERSION).zip
 
 .PHONY: status-app
-status-app:
+status-app: download-cli
 	./cli app detail -org $(NC_ORG) -app $(NC_APP)
 
 .PHONY: iam
@@ -114,7 +114,7 @@ iam:
 		./local.sh
 
 .PHONY: integration-tests
-integration-tests:
+integration-tests: download-cli
 	echo "TODO"
 	## bash: run python service
 	## python OPS: create app & wait / first step is to have an app for integration-tests
