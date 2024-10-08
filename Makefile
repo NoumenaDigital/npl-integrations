@@ -24,13 +24,6 @@ bump-platform-version:
 	perl -p -i -e's/FROM ghcr.io\/noumenadigital\/packages\/engine:.*/FROM ghcr.io\/noumenadigital\/packages\/engine:$(PLATFORM_VERSION)/' npl/Dockerfile
 	mvn -pl parent-pom versions:set-property -Dproperty=noumena.platform.version -DnewVersion="$(PLATFORM_VERSION)"
 
-.PHONY: zip
-zip:
-	@if [ "$(NPL_VERSION)" = "" ]; then echo "NPL_VERSION not set"; exit 1; fi
-	@mkdir -p target && cd target && \
-		cp -r ../npl/src/main/npl-* . && cp -r ../npl/src/main/yaml . && cp -r ../npl/src/main/kotlin-script . && \
-		zip -r npl-integrations-$(NPL_VERSION).zip *
-
 ## Local commands
 .PHONY: install
 install:
@@ -66,7 +59,7 @@ download-cli:
 create-app:
 	make -f paas.mk create-app
 
-clear-deploy: zip
+clear-deploy:
 	make -f paas.mk clear-deploy
 
 .PHONY: status-app
