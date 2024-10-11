@@ -30,16 +30,12 @@ export class BaseService {
                 this.withAuthorizationHeader()
             )
 
-            // _: event-source-polyfill MessageEvent
-            source.onmessage = function () {
-                requestRefresh()
-            }
+            // available param: event-source-polyfill.MessageEvent
+            source.onmessage = () => requestRefresh()
 
-            source.onopen = function () {
-                setActive(true)
-            }
+            source.onopen = () => setActive(true)
 
-            source.onerror = function () {
+            source.onerror = () => {
                 source.close()
                 setActive(false)
             }
@@ -47,6 +43,7 @@ export class BaseService {
             source.addEventListener('state', requestRefresh)
 
             return () => {
+                source.removeEventListener('state', requestRefresh)
                 source.close()
                 setActive(false)
             }

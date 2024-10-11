@@ -11,6 +11,11 @@ module.exports = {
     plugins: ['react-refresh'],
     rules: {
         'react-refresh/only-export-components': 'off',
-        'no-unused-vars': ['error', { argsIgnorePattern: '^_' }]
+        'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+        quotes: [
+            'error',
+            'single',
+            { avoidEscape: true, allowTemplateLiterals: true }
+        ]
     }
 }
