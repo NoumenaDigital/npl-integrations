@@ -1,7 +1,9 @@
 name: "Verify PR"
 
 on:
-  pull_request
+  schedule:
+    - cron: "0 1 * * *"
+  pull_request:
 
 env:
   MAVEN_CLI_OPTS: "--batch-mode"
@@ -9,6 +11,10 @@ env:
     -Dorg.slf4j.simpleLogger.showDateTime=true 
     -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss.SSS
     -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
+  GITHUB_USER_NAME: "${{ secrets.GH_USERNAME_PUBLIC_REPOS }}"
+  GITHUB_USER_PASS: "${{ secrets.GH_PASSWORD_PUBLIC_REPOS }}"
+  NC_EMAIL: "${{ secrets.NC_EMAIL }}"
+  NC_PASSWORD: "${{ secrets.NC_PASSWORD }}"
 
 jobs:
   build-test-verify:
@@ -18,6 +24,13 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v4
 
+      - name: "GitHub Login"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GH_USERNAME_PUBLIC_REPOS }}
+          password: ${{ secrets.GH_PASSWORD_PUBLIC_REPOS }}
+
       - name: "Set up Java"
         uses: actions/setup-java@v4
         with:
@@ -25,5 +38,17 @@ jobs:
           java-version: "17"
           cache: "maven"
 
-      - name: "Verify"
-        run: "mvn $MAVEN_CLI_OPTS clean verify"
+      - name: "Install & setup"
+        run: "make cloud-install"
+
+      - name: "Formatting & prettifying"
+        run: "make format-check"
+
+      - name: "Python listener unit tests"
+        run: "make unit-tests-python-listener"
+
+      - name: "local integration tests"
+        run: "make integration-test-local"
+
+      - name: "Noumena Cloud integration tests"
+        run: "NC_ENV=DEV make integration-test-cloud"
