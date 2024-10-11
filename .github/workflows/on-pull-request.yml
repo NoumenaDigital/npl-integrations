@@ -1,7 +1,9 @@
 name: "Verify PR"
 
 on:
-  pull_request
+  schedule:
+    - cron: "0 1 * * *"
+  pull_request:
 
 env:
   MAVEN_CLI_OPTS: "--batch-mode"
@@ -9,6 +11,8 @@ env:
     -Dorg.slf4j.simpleLogger.showDateTime=true 
     -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss.SSS
     -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
+  GITHUB_USER_NAME: "${{ secrets.GH_USERNAME }}"
+  GITHUB_USER_PASS: "${{ secrets.GH_PASSWORD }}"
 
 jobs:
   build-test-verify:
@@ -17,6 +21,13 @@ jobs:
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
+
+      - name: "GitHub Login"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GH_USERNAME }}
+          password: ${{ secrets.GH_PASSWORD }}
 
       - name: "Set up Java"
         uses: actions/setup-java@v4
@@ -27,3 +38,21 @@ jobs:
 
       - name: "Verify"
         run: "mvn $MAVEN_CLI_OPTS clean verify"
+
+      - name: "Install & setup"
+        run: "make -f paas.mk pipeline-setup && make -f paas.mk install"
+
+      - name: "Formatting & prettifing"
+        run: "make format-check"
+
+      - name: "Python listener unit tests"
+        run: "cd python-listener && make tests"
+
+      - name: "Docker build"
+        run: "make build-images"
+
+      - name: "local integration tests"
+        run: "make integration-test-local"
+
+      - name: "Noumena Cloud integration tests"
+        run: "make integration-test-paas"
