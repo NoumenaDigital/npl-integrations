@@ -208,7 +208,7 @@ export default function Shell() {
 }
 
 const toMenuItem = (path: string): MenuItem => {
-    const [_, firstPath] = path.split('/')
+    const firstPath = path.split('/')[1]
     const item = allMenuItems.find(
         (it) => it.label.toLowerCase() === firstPath.toLowerCase()
     )

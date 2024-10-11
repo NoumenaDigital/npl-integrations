@@ -1,5 +1,5 @@
 import { Configuration, DefaultApi, Iou, Party } from '../../generated'
-import { EventSourcePolyfill, MessageEvent } from 'event-source-polyfill'
+import { EventSourcePolyfill } from 'event-source-polyfill'
 import Keycloak from 'keycloak-js'
 import { useEffect, useState } from 'react'
 
@@ -30,15 +30,16 @@ export class BaseService {
                 this.withAuthorizationHeader()
             )
 
-            source.onmessage = function (_: MessageEvent) {
+            // _: event-source-polyfill MessageEvent
+            source.onmessage = function () {
                 requestRefresh()
             }
 
-            source.onopen = function (_: any) {
+            source.onopen = function () {
                 setActive(true)
             }
 
-            source.onerror = function (_: any) {
+            source.onerror = function () {
                 source.close()
                 setActive(false)
             }
@@ -49,7 +50,7 @@ export class BaseService {
                 source.close()
                 setActive(false)
             }
-        }, [])
+        }, [requestRefresh])
 
         return active
     }
