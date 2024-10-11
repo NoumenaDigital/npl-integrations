@@ -13,6 +13,7 @@ NPL_PREFIX = '/nplintegrations-1.0?'
 IOU_PROTOTYPE_ID = NPL_PREFIX + '/iou/Iou'
 REPAYMENT_OCCURRENCE_NAME = NPL_PREFIX + '/iou/RepaymentOccurrence'
 
+
 @dataclass
 class Agent:
     id: str
@@ -56,14 +57,14 @@ class Payload:
 
 class StreamReader:
 
-    def __init__(self, defaultApi: DefaultApi) -> None:
-        self.api = defaultApi
+    def __init__(self, default_api: DefaultApi) -> None:
+        self.api = default_api
 
     def read_stream(self, access_token: str):
         with EventSource(
-            config.ROOT_URL + "/api/streams",
-            timeout=30,
-            headers={'Authorization': 'Bearer ' + access_token}
+                config.ROOT_URL + "/api/streams",
+                timeout=30,
+                headers={'Authorization': 'Bearer ' + access_token}
         ) as event_source:
             try:
                 for event in event_source:
