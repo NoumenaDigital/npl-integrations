@@ -84,13 +84,15 @@ iam:
 run-streamlit-ui:
 	make -f paas.mk run-streamlit-ui
 
-.PHONY: integration-tests-local
-integration-tests-local:
-	make -f local.mk integration-tests
+.PHONY: integration-test-local
+integration-test-local:
+	make -f local.mk integration-test
 
+# PaaS credentials?
+# Integration test tenant?
 .PHONY: integration-tests-paas
-integration-tests-paas:
-	make -f paas.mk integration-tests
+integration-test-paas:
+	./it-cloud.sh
 
 python-listener-tests:
 	cd python-listener && source ../venv/bin/activate && PYTHONPATH=$(shell pwd) nosetests --verbosity=2 .

@@ -1,19 +1,19 @@
 GITHUB_SHA=HEAD
 MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
 
-export PAAS_ENGINE_VERSION=2024.1.8
-export NPL_VERSION=1.0
-export NC_DOMAIN=noumena.cloud
-export NC_APP_NAME=nplintegrations
-export NC_ORG_NAME=training
-export NC_APP_NAME_CLEAN := $(shell echo $(NC_APP_NAME) | tr -d '-')
-export NC_ORG := $(shell ./cli org list 2>/dev/null | jq --arg NC_ORG_NAME "$(NC_ORG_NAME)" -r '.[] | select(.slug == $$NC_ORG_NAME) | .id')
-export NC_APP := $(shell ./cli app list -org $(NC_ORG) 2>/dev/null | jq --arg NC_APP_NAME "$(NC_APP_NAME)" '.[] | select(.name == $$NC_APP_NAME) | .id')
-export NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_username' 2>/dev/null )
-export NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_password' 2>/dev/null )
-export KEYCLOAK_URL=https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMAIN)
-export ENGINE_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)
-export READ_MODEL_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/graphql
+PAAS_ENGINE_VERSION=2024.1.8
+NPL_VERSION=1.0
+NC_DOMAIN=noumena.cloud
+NC_APP_NAME=nplintegrations
+NC_ORG_NAME=training
+NC_APP_NAME_CLEAN := $(shell echo $(NC_APP_NAME) | tr -d '-' | tr -d '_')
+NC_ORG := $(shell ./cli org list 2>/dev/null | jq --arg NC_ORG_NAME "$(NC_ORG_NAME)" -r '.[] | select(.slug == $$NC_ORG_NAME) | .id' 2>/dev/null)
+NC_APP := $(shell ./cli app list -org $(NC_ORG) 2>/dev/null | jq --arg NC_APP_NAME "$(NC_APP_NAME)" '.[] | select(.name == $$NC_APP_NAME) | .id' 2>/dev/null)
+NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_username' 2>/dev/null )
+NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_password' 2>/dev/null )
+KEYCLOAK_URL=https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMAIN)
+ENGINE_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)
+READ_MODEL_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/graphql
 
 escape_dollar = $(subst $$,\$$,$1)
 
@@ -71,6 +71,7 @@ zip:
 		cp -r ../npl/src/main/npl-* . && cp -r ../npl/src/main/yaml . && cp -r ../npl/src/main/kotlin-script . && \
 		zip -r npl-integrations-$(NPL_VERSION).zip *
 
+.PHONY: download-cli
 download-cli: export CLI_OS_ARCH=npl_darwin_amd64
 download-cli: export RELEASE_TAG=1.3.0
 download-cli: export API_URL=https://api.github.com/repos/NoumenaDigital/npl-cli/releases/tags/$(RELEASE_TAG)
@@ -81,18 +82,24 @@ download-cli:
 	chmod +x cli
 
 .PHONY: create-app
-create-app: download-cli
+create-app:
 	./cli app create -org $(NC_ORG) -engine $(PAAS_ENGINE_VERSION) -name $(NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/realms/$(NC_APP_NAME)"]'
 
-clear-deploy: zip download-cli
+clear-deploy: zip
 	@if [ "$(NC_APP)" = "" ] ; then echo "App $(NC_APP_NAME) not found"; exit 1; fi
 	@if [ "$(NPL_VERSION)" = "" ]; then echo "NPL_VERSION not set"; exit 1; fi
 	./cli app clear -app $(NC_APP)
 	./cli app deploy -app $(NC_APP) -binary ./target/npl-integrations-$(NPL_VERSION).zip
 
 .PHONY: status-app
-status-app: download-cli
+status-app:
 	./cli app detail -org $(NC_ORG) -app $(NC_APP)
+
+.PHONY: delete
+delete:
+	@echo "Deleting app $(NC_APP_NAME) with id $(NC_APP)"
+	make -f paas.mk status-app
+	@./cli app delete -app $(NC_APP)
 
 .PHONY: iam
 iam:
@@ -112,16 +119,3 @@ iam:
 		TF_VAR_systemuser_secret=super-secret-system-security-safe \
 		TF_VAR_app_name=$(NC_APP_NAME_CLEAN) \
 		./local.sh
-
-.PHONY: integration-tests
-integration-tests: download-cli
-	echo "TODO"
-	## bash: run python service
-	## python OPS: create app & wait / first step is to have an app for integration-tests
-	## python OPS: check status
-	## python OPS: deploy sources
-	## python app-specific: create iou
-	## python app-specific: pay iou
-	## python app-specific: wait
-	## python app-specific: expect iou paid
-	## bring everything down

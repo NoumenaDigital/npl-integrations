@@ -25,14 +25,14 @@ up:
 down:
 	docker compose down -v
 
-.PHONY: integration-tests
-integration-tests: export ACCESS_TOKEN=$(shell curl -s 'http://localhost:11000/realms/nplintegrations/protocol/openid-connect/token' \
+.PHONY: integration-test
+integration-test: export ACCESS_TOKEN=$(shell curl -s 'http://localhost:11000/realms/nplintegrations/protocol/openid-connect/token' \
 		 -H 'Content-Type: application/x-www-form-urlencoded' \
 		 -d 'username=alice' \
 		 -d 'password=alice' \
 		 -d 'grant_type=password' \
 		 -d 'client_id=nplintegrations' | jq -r .access_token)
-integration-tests: install up
+integration-test: install up
 	IOU_ID=$(shell ./bash/client.sh --host localhost:12000 createIou Authorization:"Bearer ${ACCESS_TOKEN}" \
 		description=="IOU from integration-test on $(shell date +%d.%m.%y) at $(shell date +%H:%M:%S)" \
 		forAmount:=100 \

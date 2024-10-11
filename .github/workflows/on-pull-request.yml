@@ -52,7 +52,7 @@ jobs:
         run: "make build-images"
 
       - name: "local integration tests"
-        run: "make integration-tests-local"
+        run: "make integration-test-local"
 
       - name: "Noumena Cloud integration tests"
-        run: "make integration-tests-paas"
+        run: "make integration-test-paas"
