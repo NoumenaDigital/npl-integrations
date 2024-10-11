@@ -17,6 +17,16 @@ clean:
 	docker compose down -v
 	mvn $(MAVEN_CLI_OPTS) clean
 
+.PHONY:	format-check
+format-check:
+	cd webapp && npm run format:ci
+	cd webapp && npm run lint
+	cd python-listener && flake8
+
+.PHONY:	format
+format:
+	cd webapp && npm run format
+
 .PHONY:	bump-platform-version
 bump-platform-version:
 	@if [ "$(PLATFORM_VERSION)" = "" ]; then echo "PLATFORM_VERSION not set"; exit 1; fi
@@ -73,3 +83,16 @@ iam:
 .PHONY: run-streamlit-ui
 run-streamlit-ui:
 	make -f paas.mk run-streamlit-ui
+
+.PHONY: integration-test-local
+integration-test-local:
+	make -f local.mk integration-test
+
+# PaaS credentials?
+# Integration test tenant?
+.PHONY: integration-tests-paas
+integration-test-paas:
+	./it-cloud.sh
+
+python-listener-tests:
+	cd python-listener && source ../venv/bin/activate && PYTHONPATH=$(shell pwd) nosetests --verbosity=2 .

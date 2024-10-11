@@ -1,29 +1,35 @@
 GITHUB_SHA=HEAD
 MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
 
-export PAAS_ENGINE_VERSION=2024.1.8
-export NPL_VERSION=1.0
-export NC_DOMAIN=noumena.cloud
-export NC_APP_NAME=nplintegrations
-export NC_ORG_NAME=training
-export NC_APP_NAME_CLEAN := $(shell echo $(NC_APP_NAME) | tr -d '-')
-export NC_ORG := $(shell ./cli org list | jq --arg NC_ORG_NAME "$(NC_ORG_NAME)" -r '.[] | select(.slug == $$NC_ORG_NAME) | .id')
-export NC_APP := $(shell ./cli app list -org $(NC_ORG) | jq --arg NC_APP_NAME "$(NC_APP_NAME)" '.[] | select(.name == $$NC_APP_NAME) | .id')
-export NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) | jq  -r '.iam_username')
-export NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) | jq -r '.iam_password' )
-export KEYCLOAK_URL=https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMAIN)
-export ENGINE_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)
-export READ_MODEL_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/graphql
+PAAS_ENGINE_VERSION=2024.1.8
+NPL_VERSION=1.0
+NC_DOMAIN=noumena.cloud
+NC_APP_NAME=nplintegrations
+NC_ORG_NAME=training
+NC_APP_NAME_CLEAN := $(shell echo $(NC_APP_NAME) | tr -d '-' | tr -d '_')
+NC_ORG := $(shell ./cli org list 2>/dev/null | jq --arg NC_ORG_NAME "$(NC_ORG_NAME)" -r '.[] | select(.slug == $$NC_ORG_NAME) | .id' 2>/dev/null)
+NC_APP := $(shell ./cli app list -org $(NC_ORG) 2>/dev/null | jq --arg NC_APP_NAME "$(NC_APP_NAME)" '.[] | select(.name == $$NC_APP_NAME) | .id' 2>/dev/null)
+NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_username' 2>/dev/null )
+NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_password' 2>/dev/null )
+KEYCLOAK_URL=https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMAIN)
+ENGINE_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)
+READ_MODEL_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/graphql
 
 escape_dollar = $(subst $$,\$$,$1)
 
 .PHONY: first-install
 first-install:
-	brew install jq python
+	-brew install jq python3
+	-sudo apt-get install jq
 	make download-cli
-	make create-app
-	python3 -m venv venv
-	source venv/bin/activate
+	python3 -m venv ./venv; \
+	source ./venv/bin/activate
+	make install
+
+.PHONY: pipeline-setup
+pipeline-setup:
+	-sudo apt-get install jq
+	make download-cli
 	make install
 
 .PHONY: install
@@ -41,15 +47,15 @@ install-python:
 
 .PHONY:	run-only
 run-only:
-	make run-webapp & make run-python & run-streamlit-ui
+	make run-webapp & make run-python-listener & make run-streamlit-ui
 
 .PHONY: run-webapp
 run-webapp:
 	cd webapp && npm run dev
 
-.PHONY: run-python
-run-python:
-	cd python-listener && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) python3 app.py
+.PHONY: run-python-listener
+run-python-listener:
+	cd python-listener && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) python app.py
 
 .PHONY: run-streamlit-ui
 run-streamlit-ui:
@@ -65,13 +71,14 @@ zip:
 		cp -r ../npl/src/main/npl-* . && cp -r ../npl/src/main/yaml . && cp -r ../npl/src/main/kotlin-script . && \
 		zip -r npl-integrations-$(NPL_VERSION).zip *
 
+.PHONY: download-cli
 download-cli: export CLI_OS_ARCH=npl_darwin_amd64
 download-cli: export RELEASE_TAG=1.3.0
 download-cli: export API_URL=https://api.github.com/repos/NoumenaDigital/npl-cli/releases/tags/$(RELEASE_TAG)
 download-cli:
-	curl -s -H "Authorization: token $(GITHUB_USER_PASS)" $(API_URL) \
+	curl -s $(API_URL) \
 		| jq --arg CLI_OS_ARCH "$(CLI_OS_ARCH)" '.assets[] | select(.name == $$CLI_OS_ARCH) | .url' -r \
-		| xargs -t -n 2 -P 3 curl -sG -H "Authorization: token $(GITHUB_USER_PASS)" -H "Accept: application/octet-stream" -Lo cli
+		| xargs -t -n 2 -P 3 curl -sG -H "Accept: application/octet-stream" -Lo cli
 	chmod +x cli
 
 .PHONY: create-app
@@ -88,9 +95,14 @@ clear-deploy: zip
 status-app:
 	./cli app detail -org $(NC_ORG) -app $(NC_APP)
 
+.PHONY: delete
+delete:
+	@echo "Deleting app $(NC_APP_NAME) with id $(NC_APP)"
+	make -f paas.mk status-app
+	@./cli app delete -app $(NC_APP)
+
 .PHONY: iam
 iam:
-	# echo $(NC_KEYCLOAK_USERNAME) $(NC_KEYCLOAK_PASSWORD)
 	-curl --location --request DELETE '$(KEYCLOAK_URL)/admin/realms/$(NC_APP_NAME_CLEAN)' \
 		--header 'Content-Type: application/x-www-form-urlencoded' \
 		--header 'Authorization: Bearer $(shell curl --location --request POST --header 'Content-Type: application/x-www-form-urlencoded' \
