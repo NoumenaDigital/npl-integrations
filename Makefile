@@ -92,7 +92,7 @@ integration-test-local:
 # Integration test tenant?
 .PHONY: integration-tests-paas
 integration-test-paas:
-	./it-cloud.sh
+	./tasks/it-cloud.sh
 
 python-listener-tests:
 	cd python-listener && source ../venv/bin/activate && PYTHONPATH=$(shell pwd) nosetests --verbosity=2 .
