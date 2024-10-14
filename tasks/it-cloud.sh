@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# run script from the npl-integration repository
+
 set -e
 
 get_paas_engine_version() {
@@ -114,16 +116,22 @@ check_app_status() {
 	get_app_details $app_id | jq -r '.state'
 }
 
+# export ABC="ABCD"
+export NC_BASE_URL="https://$(get_nc_domain)"
+
 ## Creating app
-# app_name=it241014_083552
 app_name=$(get_nc_app_name)
 app_name_clean=$(get_nc_app_name_clean $app_name)
 echo "Creating app $app_name"
 realm_url=$(get_keycloak_url $app_name)/realms/$app_name_clean
-result=$(./cli app create -org $(get_nc_org) -engine $(get_paas_engine_version) -name $app_name -provider MicrosoftAzure -trusted_issuers "[\"$realm_url\"]")
-# app_id=d1a18aa9-17de-4d8e-ad6c-11d536762cd4
-app_id=$(echo "$result" | jq -r '.id')
-echo "App created with ID $app_id"
+app_id=$(./cli app create -org $(get_nc_org) -engine $(get_paas_engine_version) -name $app_name -provider MicrosoftAzure -trusted_issuers "[\"$realm_url\"]" | jq -r '.id')
+
+if [ -z "$app_id" ]; then
+	echo "App creation failed"
+	exit 1
+else
+	echo "App created with ID $app_id"
+fi
 
 ## Waiting for app to be active
 sleep_amount=0
