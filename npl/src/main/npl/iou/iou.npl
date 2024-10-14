@@ -22,7 +22,21 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
     var paymentToBeConfirmed: Optional<TimestampedAmount> = optionalOf<TimestampedAmount>();
     var amountOwed: Number = forAmount;
 
+    var files: List<Blob> = listOf<Blob>();
+
     function getAmountOwed() returns Number -> forAmount - total(payments);
+
+    @api
+    permission[issuer | payee] addFile(file: Blob) {
+        files = files.with(file);
+    };
+
+    @api
+    permission[issuer | payee] getFilenames() returns List<Text> {
+        return files.map(
+            function(file: Blob) returns Text -> file.filename()
+        );
+    };
 
     @api
     permission[issuer] pay(amount: Number) | unpaid {
