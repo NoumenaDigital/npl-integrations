@@ -54,7 +54,8 @@ export const HomePage = () => {
         createIouDialogOpen,
         repayIouDialogOpen.open,
         confirmIouPaymentDialogOpen.open,
-        active
+        active,
+        getIouList
     ])
 
     return (

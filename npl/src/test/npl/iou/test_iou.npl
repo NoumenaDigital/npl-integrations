@@ -32,8 +32,6 @@ function test_amount_owed_after_pay(test: Test) -> {
     test.assertEquals(100, iou.amountOwed, "Amount owed unchanged after yet unconfirmed payment");
 };
 
-
-
 @test
 function test_amount_owed_after_confirmation(test: Test) -> {
     var iou = Iou[ISSUER, PAYEE]("iou 2", 100);
@@ -42,5 +40,3 @@ function test_amount_owed_after_confirmation(test: Test) -> {
 
     test.assertEquals(50, iou.amountOwed, "Amount owed changed after payment confirmation");
 };
-
-
