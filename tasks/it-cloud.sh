@@ -108,23 +108,25 @@ populate_iam() {
 
 get_app_details() {
 	local app_id=$1
-	./cli app detail -org $(get_nc_org) -app $app_id
+	local nc_org=$2
+	./cli app detail -org $nc_org -app $app_id
 }
 
 check_app_status() {
 	local app_id=$1
-	get_app_details $app_id | jq -r '.state'
+	local nc_org=$2
+	get_app_details $app_id $nc_org | jq -r '.state'
 }
 
 # export ABC="ABCD"
-export NC_BASE_URL="https://$(get_nc_domain)"
-
+export NC_BASE_URL="https://portal.$(get_nc_domain)"
+nc_org=$(get_nc_org)
 ## Creating app
 app_name=$(get_nc_app_name)
 app_name_clean=$(get_nc_app_name_clean $app_name)
 echo "Creating app $app_name"
 realm_url=$(get_keycloak_url $app_name)/realms/$app_name_clean
-app_id=$(./cli app create -org $(get_nc_org) -engine $(get_paas_engine_version) -name $app_name -provider MicrosoftAzure -trusted_issuers "[\"$realm_url\"]" | jq -r '.id')
+app_id=$(./cli app create -org $nc_org -engine $(get_paas_engine_version) -name $app_name -provider MicrosoftAzure -trusted_issuers "[\"$realm_url\"]" | jq -r '.id')
 
 if [ -z "$app_id" ]; then
 	echo "App creation failed"
@@ -138,7 +140,7 @@ sleep_amount=0
 check_interval=10
 sleep $sleep_amount
 
-status=$(check_app_status $app_id)
+status=$(check_app_status $app_id $nc_org)
 
 if [ -z "$status" ]; then
 	echo "App not found"
@@ -149,7 +151,7 @@ while [ "$status" != "active" ]; do
 	echo "App status: $status. Waiting for $check_interval seconds"
 	sleep $check_interval
 	sleep_amount=$((sleep_amount + $check_interval))
-	status=$(check_app_status $app_id)
+	status=$(check_app_status $app_id $nc_org)
 done
 
 echo "App active in less than $sleep_amount seconds."
