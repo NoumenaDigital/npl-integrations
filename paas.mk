@@ -67,9 +67,9 @@ run: install run-only
 .PHONY: zip
 zip:
 	@if [ "$(NPL_VERSION)" = "" ]; then echo "NPL_VERSION not set"; exit 1; fi
-	@mkdir -p target && cd target && \
-		cp -r ../npl/src/main/npl-* . && cp -r ../npl/src/main/yaml . && cp -r ../npl/src/main/kotlin-script . && \
-		zip -r npl-integrations-$(NPL_VERSION).zip *
+	@mkdir -p target && cd target && mkdir -p src && cd src && \
+		cp -r ../../npl/src/main/npl-* . && cp -r ../../npl/src/main/yaml . && cp -r ../../npl/src/main/kotlin-script . && \
+		zip -r ../npl-integrations-$(NPL_VERSION).zip *
 
 .PHONY: download-cli
 download-cli: export CLI_OS_ARCH=npl_darwin_amd64

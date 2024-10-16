@@ -80,6 +80,10 @@ status-app:
 iam:
 	make -f paas.mk iam
 
+.PHONY: zip
+zip:
+	make -f paas.mk zip
+
 .PHONY: run-streamlit-ui
 run-streamlit-ui:
 	make -f paas.mk run-streamlit-ui
