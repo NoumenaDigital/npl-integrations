@@ -1,6 +1,8 @@
 GITHUB_SHA=HEAD
 MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
 
+CLI_OS_ARCH=npl_darwin_amd64
+CLI_RELEASE_TAG=1.3.0
 PAAS_ENGINE_VERSION=2024.1.8
 NPL_VERSION=1.0
 NC_DOMAIN=noumena.cloud
@@ -29,7 +31,7 @@ first-install:
 .PHONY: pipeline-setup
 pipeline-setup:
 	-sudo apt-get install jq
-	make download-cli
+	CLI_OS_ARCH=npl_linux_arm64 make -e -f paas.mk download-cli
 	make install
 	-python3 -m venv ./venv
 
@@ -73,11 +75,8 @@ zip:
 		zip -r ../npl-integrations-$(NPL_VERSION).zip *
 
 .PHONY: download-cli
-download-cli: export CLI_OS_ARCH=npl_darwin_amd64
-download-cli: export RELEASE_TAG=1.3.0
-download-cli: export API_URL=https://api.github.com/repos/NoumenaDigital/npl-cli/releases/tags/$(RELEASE_TAG)
 download-cli:
-	curl -s $(API_URL) \
+	curl -s "https://api.github.com/repos/NoumenaDigital/npl-cli/releases/tags/$(CLI_RELEASE_TAG)" \
 		| jq --arg CLI_OS_ARCH "$(CLI_OS_ARCH)" '.assets[] | select(.name == $$CLI_OS_ARCH) | .url' -r \
 		| xargs -t -n 2 -P 3 curl -sG -H "Accept: application/octet-stream" -Lo cli
 	chmod +x cli
