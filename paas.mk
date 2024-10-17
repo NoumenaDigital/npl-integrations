@@ -31,7 +31,7 @@ first-install:
 .PHONY: pipeline-setup
 pipeline-setup:
 	-sudo apt-get install jq
-	CLI_OS_ARCH=npl_linux_arm64 make -e -f paas.mk download-cli
+	CLI_OS_ARCH=npl_linux_amd64 make -e -f paas.mk download-cli
 	make install
 	-python3 -m venv ./venv
 
