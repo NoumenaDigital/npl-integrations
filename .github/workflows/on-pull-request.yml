@@ -46,7 +46,7 @@ jobs:
         run: "make format-check"
 
       - name: "Python listener unit tests"
-        run: "make python-listener-tests"
+        run: "make unit-tests-python-listener"
 
       - name: "local integration tests"
         run: "make integration-test-local"
