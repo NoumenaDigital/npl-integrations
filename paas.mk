@@ -31,6 +31,7 @@ pipeline-setup:
 	-sudo apt-get install jq
 	make download-cli
 	make install
+	-python3 -m venv ./venv
 
 .PHONY: install
 install:

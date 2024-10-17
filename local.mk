@@ -27,7 +27,7 @@ down:
 
 .PHONY: unit-tests-python-listener
 unit-tests-python-listener:
-	. venv/bin/activate && cd python-listener && PYTHONPATH=$(shell pwd) nosetests --verbosity=2 .
+	cd python-listener && PYTHONPATH=$(shell pwd) nosetests --verbosity=2 .
 
 .PHONY: integration-test
 integration-test: export ACCESS_TOKEN=$(shell curl -s 'http://localhost:11000/realms/nplintegrations/protocol/openid-connect/token' \
