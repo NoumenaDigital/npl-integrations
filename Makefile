@@ -100,4 +100,4 @@ integration-test-paas:
 	./tasks/it-cloud.sh
 
 python-listener-tests:
-	cd python-listener && source ../venv/bin/activate && PYTHONPATH=$(shell pwd) nosetests --verbosity=2 .
+	. venv/bin/activate && cd python-listener && PYTHONPATH=$(shell pwd) nosetests --verbosity=2 .

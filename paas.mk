@@ -23,7 +23,7 @@ first-install:
 	-sudo apt-get install jq
 	make download-cli
 	python3 -m venv ./venv; \
-	source ./venv/bin/activate
+	. venv/bin/activate
 	make install
 
 .PHONY: pipeline-setup
