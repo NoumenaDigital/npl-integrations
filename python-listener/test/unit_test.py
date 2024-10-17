@@ -120,7 +120,11 @@ def test_main(mock_auth, mock_get_stream, mock_manage_repayment_occurrence):
         mock_get_stream,
         [
             ("notify", json.dumps({
-                "notification": {k: [arg.__dict__ for arg in v] if (k == "arguments") else v for k, v in notification.__dict__.items()}
+                "notification": {
+                    k: [arg.__dict__ for arg in v]
+                    if (k == "arguments") else v for k, v
+                    in notification.__dict__.items()
+                }
             }))
         ]
     )
