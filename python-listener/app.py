@@ -5,6 +5,7 @@ from openapi_client.api.default_api import DefaultApi
 from openapi_client.api_client import ApiClient
 from openapi_client.configuration import Configuration
 
+
 def main():
     auth_service = AuthService()
 
@@ -38,6 +39,7 @@ def main():
             stream_reader.manage_notification(event["notification"])
         else:
             print("Unrecognised stream event", event)
+
 
 if __name__ == '__main__':
     main()
