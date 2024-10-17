@@ -99,5 +99,5 @@ integration-test-local:
 integration-test-paas:
 	./tasks/it-cloud.sh
 
-python-listener-tests:
-	. venv/bin/activate && cd python-listener && PYTHONPATH=$(shell pwd) nosetests --verbosity=2 .
+unit-tests-python-listener:
+	make -f local.mk unit-tests-python-listener
