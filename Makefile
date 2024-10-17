@@ -22,6 +22,7 @@ format-check:
 	cd webapp && npm run format:ci
 	cd webapp && npm run lint
 	cd python-listener && flake8
+	cd streamlit-ui && flake8
 
 .PHONY:	format
 format:

@@ -46,10 +46,7 @@ jobs:
         run: "make format-check"
 
       - name: "Python listener unit tests"
-        run: "cd python-listener && make tests"
-
-      - name: "Docker build"
-        run: "make build-images"
+        run: "make python-listener-tests"
 
       - name: "local integration tests"
         run: "make integration-test-local"
