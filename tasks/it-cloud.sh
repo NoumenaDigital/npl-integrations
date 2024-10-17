@@ -118,10 +118,9 @@ check_app_status() {
 	get_app_details $app_id $nc_org | jq -r '.state'
 }
 
-# export ABC="ABCD"
+## Creating app
 export NC_BASE_URL="https://portal.$(get_nc_domain)"
 nc_org=$(get_nc_org)
-## Creating app
 app_name=$(get_nc_app_name)
 app_name_clean=$(get_nc_app_name_clean $app_name)
 echo "Creating app $app_name"
