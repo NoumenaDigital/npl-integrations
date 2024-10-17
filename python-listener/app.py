@@ -1,17 +1,15 @@
-import os
-
 from src.auth import AuthService
-from src import config
-from src import stream
+from src import config, stream
 
 from openapi_client.api.default_api import DefaultApi
 from openapi_client.api_client import ApiClient
 from openapi_client.configuration import Configuration
 
-if __name__ == '__main__':
-    authService = AuthService()
 
-    access_token = authService.auth(
+def main():
+    auth_service = AuthService()
+
+    access_token = auth_service.auth(
         config.USERNAME,
         config.PASSWORD
     )
@@ -31,13 +29,17 @@ if __name__ == '__main__':
         )
     )
 
-    streamReader = stream.StreamReader(api)
-    for event in streamReader.read_stream(access_token):
-        api.api_client.configuration.access_token = authService.get_access_token()
+    stream_reader = stream.StreamReader(api)
+    for event in stream_reader.read_stream(access_token):
+        api.api_client.configuration.access_token = auth_service.get_access_token()
 
         if "payload" in event:
-            streamReader.manage_state_change(event["payload"])
+            stream_reader.manage_state_change(event["payload"])
         elif "notification" in event:
-            streamReader.manage_notification(event["notification"])
+            stream_reader.manage_notification(event["notification"])
         else:
             print("Unrecognised stream event", event)
+
+
+if __name__ == '__main__':
+    main()

@@ -35,8 +35,19 @@ def create_iou():
         submitted = st.form_submit_button("Submit")
         if submitted:
             try:
-                decoded_token = jwt.decode(st.session_state['access_token'], algorithms=["RS256"], key=None, options={"verify_signature":False})
-                created_iou = iou.create_iou(get_api(), description_val, amount_val, recipient, str(decoded_token['email']))
+                decoded_token = jwt.decode(
+                    st.session_state['access_token'],
+                    algorithms=["RS256"],
+                    key=None,
+                    options={"verify_signature": False}
+                )
+                created_iou = iou.create_iou(
+                    get_api(),
+                    description_val,
+                    amount_val,
+                    recipient,
+                    str(decoded_token['email'])
+                )
                 st.write("Iou created:")
                 st.write("ID:", created_iou.id)
                 st.write("State:", str(created_iou.state))

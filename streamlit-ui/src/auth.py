@@ -40,9 +40,9 @@ def login_page():
                 token_response = get_token(username, password)
                 access_token = token_response['access_token']
                 user_info = get_user_info(access_token)
-                
+
                 st.success("You are logged in!")
-                
+
                 st.session_state['logged_in'] = True
                 st.session_state['user_info'] = user_info
                 st.session_state['access_token'] = access_token
