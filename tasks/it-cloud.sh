@@ -1,27 +1,26 @@
 #!/bin/bash
 
+
+# TODO separate the script into different functions for each steps, call all steps from a main function
+# print a small summary
+# separate the application testing into a separate script
+# describe what the test is doing, what does it test: the project setup, the deployment, the IAM setup, the integration tests
+# add to readme the variables that need to be set in the pipeline
+# allow tests in other languages (java, python, kotlin) to be called from here
+
 # run script from the npl-integration repository
 
 set -e
 
-get_paas_engine_version() {
-	echo "2024.1.8"
-}
-
-get_npl_version() {
-	echo "1.0"
-}
-
-get_nc_domain() {
-	echo "noumena.cloud"
-}
+## Setting environment variables
+PAAS_ENGINE_VERSION="2024.1.8"
+NPL_VERSION="1.0"
+NC_DOMAIN="noumena.cloud"
+NC_ORG_NAME="training"
+export NC_BASE_URL="https://portal.$NC_DOMAIN"
 
 get_nc_app_name() {
 	echo "it$(date +%y%m%d_%H%M%S)"
-}
-
-get_nc_org_name() {
-	echo "training"
 }
 
 get_nc_app_name_clean() {
@@ -30,7 +29,7 @@ get_nc_app_name_clean() {
 }
 
 get_nc_org() {
-	echo "$(./cli org list | jq --arg NC_ORG_NAME "$(get_nc_org_name)" -r '.[] | select(.slug == $NC_ORG_NAME) | .id')"
+	echo "$(./cli org list | jq --arg NC_ORG_NAME "NC_ORG_NAME" -r '.[] | select(.slug == $NC_ORG_NAME) | .id')"
 }
 
 get_nc_keycloak_username() {
@@ -44,27 +43,28 @@ get_nc_keycloak_password() {
 }
 
 get_keycloak_url() {
-	local app_name=$1
-	echo "https://keycloak-$(get_nc_org_name)-$(get_nc_app_name_clean $app_name).$(get_nc_domain)"
+	local app_name_clean=$1
+	echo "https://keycloak-$NC_ORG_NAME-$app_name_clean.$NC_DOMAIN"
 }
 
 get_engine_url() {
-	local app_name=$1
-	echo "https://engine-$(get_nc_org_name)-$(get_nc_app_name_clean $app_name).$(get_nc_domain)"
+	local app_name_clean=$1
+	echo "https://engine-$NC_ORG_NAME-$app_name_clean.$NC_DOMAIN"
 }
 
 get_read_model_url() {
-	echo "https://engine-$(get_nc_org_name)-$(get_nc_app_name_clean $app_name).$(get_nc_domain)/graphql"
+	local app_name_clean=$1
+	echo "https://engine-$NC_ORG_NAME-$app_name_clean.$NC_DOMAIN/graphql"
 }
 
 make_zip() {
 	mkdir -p target
 	mkdir -p target/src
-	cp -R npl/src/main/npl-$(get_npl_version) target/src/
+	cp -R npl/src/main/npl-$NPL_VERSION target/src/
 	cp -R npl/src/main/yaml target/src/
 	cp -R npl/src/main/kotlin-script target/src/
 	cd target/src
-	zip -r ../npl-integrations-$(get_npl_version).zip *
+	zip -r ../npl-integrations-$NPL_VERSION.zip *
 	cd ../..
 }
 
@@ -72,12 +72,13 @@ populate_iam() {
 	local app_name=$1
 	local app_id=$2
 	local my_realm_url=$3
+	local app_name_clean=$(get_nc_app_name_clean $app_name)
 
 	echo "Populating IAM for app $app_name with realm $my_realm_url"
 
 	local keycloak_user=$(get_nc_keycloak_username $app_id)
 	local keycloak_password=$(get_nc_keycloak_password $app_id)
-	local keycloak_url=$(get_keycloak_url $app_name)
+	local keycloak_url=$(get_keycloak_url $app_name_clean)
 
 	echo "fetching admin token: $keycloak_url/realms/master/protocol/openid-connect/token"
 	local keycloak_login=$(curl --location --request POST --header 'Content-Type: application/x-www-form-urlencoded' \
@@ -119,13 +120,13 @@ check_app_status() {
 }
 
 ## Creating app
-export NC_BASE_URL="https://portal.$(get_nc_domain)"
 nc_org=$(get_nc_org)
 app_name=$(get_nc_app_name)
 app_name_clean=$(get_nc_app_name_clean $app_name)
+engine_url=$(get_engine_url $app_name_clean)
 echo "Creating app $app_name"
-realm_url=$(get_keycloak_url $app_name)/realms/$app_name_clean
-app_id=$(./cli app create -org $nc_org -engine $(get_paas_engine_version) -name $app_name -provider MicrosoftAzure -trusted_issuers "[\"$realm_url\"]" | jq -r '.id')
+realm_url=$(get_keycloak_url $app_name_clean)/realms/$app_name_clean
+app_id=$(./cli app create -org $nc_org -engine $PAAS_ENGINE_VERSION -name $app_name -provider MicrosoftAzure -trusted_issuers "[\"$realm_url\"]" | jq -r '.id')
 
 if [ -z "$app_id" ]; then
 	echo "App creation failed"
@@ -159,7 +160,7 @@ echo "App active in less than $sleep_amount seconds."
 
 make_zip
 
-./cli app deploy -app $app_id -binary ./target/npl-integrations-$(get_npl_version).zip
+./cli app deploy -app $app_id -binary "./target/npl-integrations-$NPL_VERSION.zip"
 
 populate_iam $app_name $app_id $realm_url
 
@@ -180,7 +181,7 @@ if [ -z "$access_token" ]; then
 	exit 1
 fi
 
-iou_id=$(./bash/client.sh --host $(get_engine_url $app_name) createIou Authorization:"Bearer $access_token" \
+iou_id=$(./bash/client.sh --host "$engine_url" createIou Authorization:"Bearer $access_token" \
 	description=="IOU from integration-test on $(date +%d.%m.%y_%H:%M:%S)" \
 	forAmount:=100 \
 	@parties:='{"issuer":{"entity":{"email":["alice@noumenadigital.com"]},"access":{}},"payee":{"entity":{"email":["bob@noumenadigital.com"]},"access":{}}}' | jq -r '.["@id"]')
@@ -192,11 +193,11 @@ else
 	echo "IOU created with ID $iou_id"
 fi
 
-./bash/client.sh --host $(get_engine_url $app_name) iouPay id="$iou_id" Authorization:"Bearer $access_token" amount:=10
+./bash/client.sh --host "$engine_url" iouPay id="$iou_id" Authorization:"Bearer $access_token" amount:=10
 
 sleep 10
 
-iou_state=$(./bash/client.sh --host $(get_engine_url $app_name) getIouByID id="$iou_id" Authorization:"Bearer $access_token" | jq -r '.["@state"]')
+iou_state=$(./bash/client.sh --host "$engine_url" getIouByID id="$iou_id" Authorization:"Bearer $access_token" | jq -r '.["@state"]')
 if [ -z "$iou_state" ]; then
 	echo "IOU not found"
 	exit 1
