@@ -1,5 +1,4 @@
-. ./helpers.sh
-. ./setup_deploy.sh
+. ./tasks/lib/helpers.sh
 
 zip_sources() {
 	mkdir -p target
@@ -15,22 +14,24 @@ zip_sources() {
 populate_iam() {
 	local app_name=$1
 	local app_name_clean=$2
-	local app_id=$
+	local app_id=$3
 	local my_realm_url=$4
 
-	echo "Populating IAM for app $app_name with realm $my_realm_url"
+	printf "Populating IAM for app %s with realm %s" "$app_name" "$my_realm_url" >&2
 
 	local keycloak_user=$(get_nc_keycloak_username "$app_id")
 	local keycloak_password=$(get_nc_keycloak_password "$app_id")
 	local keycloak_url=$(get_keycloak_url "$app_name_clean")
 
-	echo "fetching admin token: $keycloak_url/realms/master/protocol/openid-connect/token"
+	local token_url="$keycloak_url/realms/master/protocol/openid-connect/token"
+
+	printf "fetching admin token: %s" "$token_url" >&2
 	local admin_token=$(curl --location --request POST --header 'Content-Type: application/x-www-form-urlencoded' \
 		--data-urlencode "username=$keycloak_user" \
 		--data-urlencode "password=$keycloak_password" \
 		--data-urlencode "client_id=admin-cli" \
 		--data-urlencode "grant_type=password" \
-		"$keycloak_url/realms/master/protocol/openid-connect/token" | jq -r '.access_token')
+		"$token_url" | jq -r '.access_token')
 
 	curl --location --request DELETE "$keycloak_url/admin/realms/$app_name_clean" \
 		--header "Content-Type: application/x-www-form-urlencoded" \
@@ -52,9 +53,9 @@ populate_iam() {
 
 setup_deploy() {
 	local app_id=$1
-	local app_name=$1
-	local app_name_clean=$2
-	local realm_url=$3
+	local app_name=$2
+	local app_name_clean=$3
+	local realm_url=$4
 
 	zip_sources
 

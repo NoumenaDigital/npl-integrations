@@ -3,28 +3,26 @@ create_app() {
 	local app_name=$2
 	local realm_url=$3
 
-	echo "Creating app $app_name"
-	app_id=$(./cli app create -org "$nc_org" -engine "$PAAS_ENGINE_VERSION" -name "$app_name" -provider MicrosoftAzure -trusted_issuers "[\"$realm_url\"]" | jq -r '.id')
+	echo "Creating app $app_name" >&2
+	echo "nc_org: $nc_org" >&2
+	echo "Realm URL: $realm_url" >&2
+
+	app_id=$(./cli app create -org "$nc_org" -engine "$NC_ENGINE_VERSION" -name "$app_name" -provider MicrosoftAzure -trusted_issuers "[\"$realm_url\"]" | jq -r '.id')
 
 	if [ -z "$app_id" ]; then
-		echo "App creation failed"
+		printf "App creation failed\n" >&2
 		exit 1
 	else
-		echo "App created with ID $app_id"
+		printf "App created with ID %s\n" "$app_id" >&2
 	fi
-	echo "$app_id"
-}
 
-get_app_details() {
-	local app_id=$1
-	local nc_org=$2
-	./cli app detail -org "$nc_org" -app "$app_id"
+	echo "$app_id"
 }
 
 check_app_status() {
 	local app_id=$1
 	local nc_org=$2
-	get_app_details "$app_id" "$nc_org" | jq -r '.state'
+	./cli app detail -org "$nc_org" -app "$app_id" | jq -r '.state'
 }
 
 waiting_for_activation() {
@@ -38,19 +36,23 @@ waiting_for_activation() {
     status=$(check_app_status "$app_id" "$nc_org")
 
     if [ -z "$status" ]; then
-    	echo "App not found"
+    	printf "App not found" >&2
     	exit 1
     fi
 
     while [ "$status" != "active" ]; do
-    	echo "App status: $status. Waiting for $check_interval seconds"
+    	printf "App status: %s. Waiting for %s seconds" "$status" "$check_interval" >&2
     	sleep $check_interval
-    	sleep_amount=$((sleep_amount + $check_interval))
+    	sleep_amount=$((sleep_amount + check_interval))
     	status=$(check_app_status "$app_id" "$nc_org")
+
+    	if [ -z "$status" ]; then
+			printf "App disappeared" >&2
+			exit 1
+		fi
     done
 
-    echo "App active in less than $sleep_amount seconds."
-    echo ""
+    printf "App active in less than %d seconds." "$sleep_amount" >&2
 }
 
 delete_app() {

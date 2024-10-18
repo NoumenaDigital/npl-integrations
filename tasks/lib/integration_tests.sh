@@ -1,4 +1,3 @@
-
 run_integration_tests() {
 	local app_name_clean=$1
 	local engine_url=$2
@@ -27,7 +26,7 @@ app_auth() {
 		-d "client_id=$app_name_clean" | jq -r '.access_token')
 
 	if [ -z "$access_token" ]; then
-		echo "Access token not found"
+		printf "Access token not found" >&2
 		exit 1
 	fi
 	echo "$access_token"
@@ -37,16 +36,16 @@ create_iou() {
 	local engine_url=$1
 	local access_token=$2
 
-	var iou_id=$(./bash/client.sh --host "$engine_url" createIou Authorization:"Bearer $access_token" \
+	iou_id=$(./bash/client.sh --host "$engine_url" createIou Authorization:"Bearer $access_token" \
 		description=="IOU from integration-test on $(date +%d.%m.%y_%H:%M:%S)" \
 		forAmount:=100 \
 		@parties:='{"issuer":{"entity":{"email":["alice@noumenadigital.com"]},"access":{}},"payee":{"entity":{"email":["bob@noumenadigital.com"]},"access":{}}}' | jq -r '.["@id"]')
 
 	if [ -z "$iou_id" ]; then
-		echo "Iou not created"
+		printf "Iou not created" >&2
 		exit 1
 	else
-		echo "IOU created with ID $iou_id"
+		printf "IOU created with ID %s" "$iou_id" >&2
 	fi
 	echo "$iou_id"
 }
@@ -66,12 +65,12 @@ check_iou_repayment() {
 
 	iou_state=$(./bash/client.sh --host "$engine_url" getIouByID id="$iou_id" Authorization:"Bearer $access_token" | jq -r '.["@state"]')
 	if [ -z "$iou_state" ]; then
-		echo "IOU not found"
+		printf "IOU not found"
 		exit 1
 	elif [ "$iou_state" != "unpaid" ]; then
-		echo "IOU not reset to unpaid, state is $iou_state"
+		printf "IOU not reset to unpaid, state is %s" "$iou_state"
 		exit 1
 	else
-		echo "IOU paid, check complete"
+		printf "IOU paid, check complete"
 	fi
 }
