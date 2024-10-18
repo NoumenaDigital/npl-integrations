@@ -97,7 +97,7 @@ integration-test-local:
 # Integration test tenant?
 .PHONY: integration-tests-paas
 integration-test-paas:
-	./tasks/it-cloud.sh
+	make -f paas.mk integration-test
 
 unit-tests-python-listener:
 	make -f local.mk unit-tests-python-listener
