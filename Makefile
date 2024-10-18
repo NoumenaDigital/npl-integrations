@@ -47,57 +47,55 @@ run-only:
 .PHONY:	run
 run: install run-only
 
-## PaaS commands
-.PHONY: first-install-paas
-first-install-paas:
-	make -f paas.mk first-install
+## Noumena Cloud commands
+.PHONY: first-install-cloud
+first-install-cloud:
+	make -f cloud.mk first-install
 
-.PHONY: install-paas
-install-paas:
-	make -f paas.mk install
+.PHONY: install-cloud
+install-cloud:
+	make -f cloud.mk install
 
-run-paas:
-	make -f paas.mk run
+run-cloud:
+	make -f cloud.mk run
 
-.PHONY:	run-only-paas
-run-only-paas:
-	make -f paas.mk run-only
+.PHONY:	run-only-cloud
+run-only-cloud:
+	make -f cloud.mk run-only
 
 download-cli:
-	make -f paas.mk download-cli
+	make -f cloud.mk download-cli
 
 .PHONY: create-app
 create-app:
-	make -f paas.mk create-app
+	make -f cloud.mk create-app
 
 clear-deploy:
-	make -f paas.mk clear-deploy
+	make -f cloud.mk clear-deploy
 
 .PHONY: status-app
 status-app:
-	make -f paas.mk status-app
+	make -f cloud.mk status-app
 
 .PHONY: iam
 iam:
-	make -f paas.mk iam
+	make -f cloud.mk iam
 
 .PHONY: zip
 zip:
-	make -f paas.mk zip
+	make -f cloud.mk zip
 
 .PHONY: run-streamlit-ui
 run-streamlit-ui:
-	make -f paas.mk run-streamlit-ui
+	make -f cloud.mk run-streamlit-ui
 
 .PHONY: integration-test-local
 integration-test-local:
 	make -f local.mk integration-test
 
-# PaaS credentials?
-# Integration test tenant?
-.PHONY: integration-tests-paas
-integration-test-paas:
-	make -f paas.mk integration-test
+.PHONY: integration-tests-cloud
+integration-test-cloud:
+	make -f cloud.mk integration-test
 
 unit-tests-python-listener:
 	make -f local.mk unit-tests-python-listener
