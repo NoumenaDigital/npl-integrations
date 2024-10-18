@@ -1,5 +1,3 @@
-## TODO manage env vars
-
 get_nc_app_name() {
 	echo "it$(date +%y%m%d_%H%M%S)"
 }

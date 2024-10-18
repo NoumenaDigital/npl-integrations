@@ -52,4 +52,4 @@ jobs:
         run: "make integration-test-local"
 
       - name: "Noumena Cloud integration tests"
-        run: "make integration-test-paas"
+        run: "NC_ENV=DEV make integration-test-paas"

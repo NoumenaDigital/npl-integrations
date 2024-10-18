@@ -3,8 +3,8 @@ MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
 
 CLI_OS_ARCH=npl_darwin_amd64
 CLI_RELEASE_TAG=1.3.0
-PAAS_ENGINE_VERSION=2024.1.8
 NPL_VERSION=1.0
+NC_ENGINE_VERSION=2024.1.8
 NC_DOMAIN=noumena.cloud
 NC_APP_NAME=nplintegrations
 NC_ORG_NAME=training
@@ -83,7 +83,7 @@ download-cli:
 
 .PHONY: create-app
 create-app:
-	./cli app create -org $(NC_ORG) -engine $(PAAS_ENGINE_VERSION) -name $(NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/realms/$(NC_APP_NAME)"]'
+	./cli app create -org $(NC_ORG) -engine $(NC_ENGINE_VERSION) -name $(NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/realms/$(NC_APP_NAME)"]'
 
 clear-deploy: zip
 	@if [ "$(NC_APP)" = "" ] ; then echo "App $(NC_APP_NAME) not found"; exit 1; fi
@@ -122,4 +122,8 @@ iam:
 
 .PHONY: integration-test
 integration-test:
-	PAAS_ENGINE_VERSION=2024.1.8 ./tasks/it-cloud.sh
+	NC_ENGINE_VERSION=$(NC_ENGINE_VERSION) \
+	NC_DOMAIN=$(NC_DOMAIN) \
+	NC_ORG_NAME=$(NC_ORG_NAME) \
+	NPL_VERSION=$(NPL_VERSION) \
+	bash -x tasks/it-cloud.sh

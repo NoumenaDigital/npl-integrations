@@ -1,8 +1,7 @@
-
 run_services() {
 	local app_name_clean=$1
 
-	-. ./venv/bin/activate
+	. ./venv/bin/activate
 	REALM="$app_name_clean" python python-listener/app.py &
 }
 
@@ -12,9 +11,9 @@ kill_services() {
 
 	if [ -n "$pid" ]; then
 		kill -9 "$pid"
-		echo "Process python-listener/app.py with PID $pid has been killed."
+		printf "Process python-listener/app.py with PID %s has been killed." "$pid" >&2
 	else
-		echo "No process found for python-listener/app.py."
+		printf "No process found for python-listener/app.py." >&2
 		exit 1
 	fi
 }
