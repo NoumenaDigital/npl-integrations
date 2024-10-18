@@ -18,7 +18,9 @@ app_auth() {
 	local realm_url=$1
 	local app_name_clean=$2
 
-	local access_token=$(curl -s "$realm_url/protocol/openid-connect/token" \
+	local access_token;
+
+	access_token=$(curl -s "$realm_url/protocol/openid-connect/token" \
 		-H 'Content-Type: application/x-www-form-urlencoded' \
 		-d 'username=alice' \
 		-d 'password=alice' \

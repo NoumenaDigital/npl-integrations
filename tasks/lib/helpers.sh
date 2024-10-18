@@ -8,17 +8,17 @@ get_nc_app_name_clean() {
 }
 
 get_nc_org() {
-	echo "$(./cli org list | jq --arg NC_ORG_NAME "$NC_ORG_NAME" -r '.[] | select(.slug == $NC_ORG_NAME) | .id')"
+	./cli org list | jq --arg NC_ORG_NAME "$NC_ORG_NAME" -r '.[] | select(.slug == $NC_ORG_NAME) | .id'
 }
 
 get_nc_keycloak_username() {
 	local app_id=$1
-	echo "$(./cli app secrets -app "$app_id" | jq -r '.iam_username')"
+	./cli app secrets -app "$app_id" | jq -r '.iam_username'
 }
 
 get_nc_keycloak_password() {
 	local app_id=$1
-	echo "$(./cli app secrets -app "$app_id" | jq -r '.iam_password')"
+	./cli app secrets -app "$app_id" | jq -r '.iam_password'
 }
 
 get_keycloak_url() {

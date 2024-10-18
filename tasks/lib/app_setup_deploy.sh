@@ -3,11 +3,11 @@
 zip_sources() {
 	mkdir -p target
 	mkdir -p target/src
-	cp -R npl/src/main/npl-$NPL_VERSION target/src/
+	cp -R npl/src/main/npl-"$NPL_VERSION" target/src/
 	cp -R npl/src/main/yaml target/src/
 	cp -R npl/src/main/kotlin-script target/src/
-	cd target/src
-	zip -r ../npl-integrations-$NPL_VERSION.zip *
+	cd target/src || exit
+	zip -r ../npl-integrations-"$NPL_VERSION".zip ./*
 	cd ../..
 }
 
@@ -17,16 +17,22 @@ populate_iam() {
 	local app_id=$3
 	local my_realm_url=$4
 
+	local keycloak_user;
+	local keycloak_password;
+	local keycloak_url;
+	local token_url;
+	local admin_token;
+
 	printf "Populating IAM for app %s with realm %s" "$app_name" "$my_realm_url" >&2
 
-	local keycloak_user=$(get_nc_keycloak_username "$app_id")
-	local keycloak_password=$(get_nc_keycloak_password "$app_id")
-	local keycloak_url=$(get_keycloak_url "$app_name_clean")
+	keycloak_user=$(get_nc_keycloak_username "$app_id")
+	keycloak_password=$(get_nc_keycloak_password "$app_id")
+	keycloak_url=$(get_keycloak_url "$app_name_clean")
 
-	local token_url="$keycloak_url/realms/master/protocol/openid-connect/token"
+	token_url="$keycloak_url/realms/master/protocol/openid-connect/token"
 
 	printf "fetching admin token: %s" "$token_url" >&2
-	local admin_token=$(curl --location --request POST --header 'Content-Type: application/x-www-form-urlencoded' \
+	admin_token=$(curl --location --request POST --header 'Content-Type: application/x-www-form-urlencoded' \
 		--data-urlencode "username=$keycloak_user" \
 		--data-urlencode "password=$keycloak_password" \
 		--data-urlencode "client_id=admin-cli" \
@@ -37,7 +43,7 @@ populate_iam() {
 		--header "Content-Type: application/x-www-form-urlencoded" \
 		--header "Authorization: Bearer $admin_token"
 
-	cd keycloak-provisioning
+	cd keycloak-provisioning || exit
 	terraform init
 
 	KEYCLOAK_USER=$keycloak_user \

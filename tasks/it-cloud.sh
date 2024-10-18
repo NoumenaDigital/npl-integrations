@@ -1,12 +1,12 @@
 #!/bin/bash
 
+# script must be run from the npl-integration repository
+
 . ./tasks/lib/helpers.sh
 . ./tasks/lib/app_lifecycle.sh
 . ./tasks/lib/app_setup_deploy.sh
 . ./tasks/lib/service_lifecycle.sh
 . ./tasks/lib/integration_tests.sh
-
-# run script from the npl-integration repository
 
 set -e
 
@@ -27,15 +27,20 @@ if [ -z "$NPL_VERSION" ]; then
 	exit 1
 fi
 
-nc_org=$(get_nc_org)
+org_id=$(get_nc_org)
+if [ -z "$org_id" ]; then
+	echo "NC org id not found for NC_ORG_NAME '$NC_ORG_NAME' on domain '$NC_DOMAIN'"
+	exit 1
+fi
+
 app_name=$(get_nc_app_name)
 app_name_clean=$(get_nc_app_name_clean "$app_name")
 engine_url=$(get_engine_url "$app_name_clean")
 realm_url="$(get_keycloak_url "$app_name_clean")/realms/$app_name_clean"
 
-app_id=$(create_app "$nc_org" "$app_name" "$realm_url")
+app_id=$(create_app "$org_id" "$app_name" "$realm_url")
 echo "App ID: $app_id"
-waiting_for_activation "$app_id" "$nc_org"
+waiting_for_activation "$app_id" "$org_id"
 setup_deploy "$app_id" "$app_name" "$app_name_clean" "$realm_url"
 run_services "$app_name_clean"
 run_integration_tests "$app_name_clean" "$engine_url" "$realm_url"
