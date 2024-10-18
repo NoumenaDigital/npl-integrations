@@ -119,3 +119,7 @@ iam:
 		TF_VAR_systemuser_secret=super-secret-system-security-safe \
 		TF_VAR_app_name=$(NC_APP_NAME_CLEAN) \
 		./local.sh
+
+.PHONY: integration-test
+integration-test:
+	PAAS_ENGINE_VERSION=2024.1.8 ./tasks/it-cloud.sh
