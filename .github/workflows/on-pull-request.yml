@@ -40,7 +40,7 @@ jobs:
         run: "mvn $MAVEN_CLI_OPTS clean verify"
 
       - name: "Install & setup"
-        run: "make -f paas.mk pipeline-setup && make -f paas.mk install"
+        run: "make -f cloud.mk pipeline-setup && make -f cloud.mk install"
 
       - name: "Formatting & prettifing"
         run: "make format-check"
@@ -52,4 +52,4 @@ jobs:
         run: "make integration-test-local"
 
       - name: "Noumena Cloud integration tests"
-        run: "NC_ENV=DEV make integration-test-paas"
+        run: "NC_ENV=DEV make integration-test-cloud"

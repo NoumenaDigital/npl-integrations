@@ -29,7 +29,7 @@ export const loadRuntimeConfiguration =
         const config_file =
             import.meta.env.VITE_ENV == 'DOCKER'
                 ? '/config-docker.json'
-                : '/config-paas.json'
+                : '/config-noumena-cloud.json'
         const response = await fetch(config_file)
         const value = await response.json()
 
