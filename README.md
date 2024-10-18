@@ -68,8 +68,9 @@ Supporting services include Keycloak for authentication and authorization, and d
 
     ```
     export NC_BASE_URL=https://portal.noumena.cloud
-    export NC_EMAIL=your.email@your.domain
-    export NC_ENV=PROD
+    export NC_EMAIL=your_email
+    export NC_PASSWORD=your_password
+    export NC_ENV=DEV
     ```
 
 3. Run `make create-app` to create the application with the name defined in the Makefile.
