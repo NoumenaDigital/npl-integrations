@@ -2,11 +2,11 @@
 
 # script must be run from the npl-integration repository
 
-. ./tasks/lib/helpers.sh
-. ./tasks/lib/app_lifecycle.sh
-. ./tasks/lib/app_setup_deploy.sh
-. ./tasks/lib/service_lifecycle.sh
-. ./tasks/lib/integration_tests.sh
+. ./it-test/lib/helpers.sh
+. ./it-test/lib/app_lifecycle.sh
+. ./it-test/lib/app_setup_deploy.sh
+. ./it-test/lib/service_lifecycle.sh
+. ./it-test/lib/integration_tests.sh
 
 set -e
 
