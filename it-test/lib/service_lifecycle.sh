@@ -11,9 +11,9 @@ kill_services() {
 
 	if [ -n "$pid" ]; then
 		kill -9 "$pid"
-		printf "Process python-listener/app.py with PID %s has been killed." "$pid" >&2
+		echo "Process python-listener/app.py with PID $pid has been killed" >&2
 	else
-		printf "No process found for python-listener/app.py." >&2
+		echo "No process found for python-listener/app.py" >&2
 		exit 1
 	fi
 }
