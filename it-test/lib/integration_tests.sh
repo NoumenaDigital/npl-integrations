@@ -28,7 +28,7 @@ app_auth() {
 		-d "client_id=$app_name_clean" | jq -r '.access_token')
 
 	if [ -z "$access_token" ]; then
-		printf "Access token not found" >&2
+		echo "Access token not found" >&2
 		exit 1
 	fi
 	echo "$access_token"
@@ -38,16 +38,16 @@ create_iou() {
 	local engine_url=$1
 	local access_token=$2
 
-	iou_id=$(./bash/client.sh --host "$engine_url" createIou Authorization:"Bearer $access_token" \
+	iou_id=$(./bash/client.sh -s --host "$engine_url" createIou Authorization:"Bearer $access_token" \
 		description=="IOU from integration-test on $(date +%d.%m.%y_%H:%M:%S)" \
 		forAmount:=100 \
 		@parties:='{"issuer":{"entity":{"email":["alice@noumenadigital.com"]},"access":{}},"payee":{"entity":{"email":["bob@noumenadigital.com"]},"access":{}}}' | jq -r '.["@id"]')
 
 	if [ -z "$iou_id" ]; then
-		printf "Iou not created" >&2
+		echo "Iou not created" >&2
 		exit 1
 	else
-		printf "IOU created with ID %s" "$iou_id" >&2
+		echo "IOU created with ID $iou_id" >&2
 	fi
 	echo "$iou_id"
 }
@@ -57,7 +57,18 @@ pay_iou() {
 	local access_token=$2
 	local iou_id=$3
 
-	./bash/client.sh --host "$engine_url" iouPay id="$iou_id" Authorization:"Bearer $access_token" amount:=10
+	local iou_after_payment_state
+
+	iou_after_payment_state=$(./bash/client.sh -s --host "$engine_url" iouPay id="$iou_id" Authorization:"Bearer $access_token" amount:=10 | jq -r '.["@state"]')
+	if [ -z "$iou_after_payment_state" ]; then
+		echo "IOU not found" >&2
+		exit 1
+	elif [ "$iou_after_payment_state" != "payment_confirmation_required" ]; then
+		echo "IOU not set to payment_confirmation_required, state is $iou_after_payment_state" >&2
+		exit 1
+	else
+		echo "IOU payment registered and in state $iou_after_payment_state" >&2
+	fi
 }
 
 check_iou_repayment() {
@@ -65,14 +76,14 @@ check_iou_repayment() {
 	local access_token=$2
 	local iou_id=$3
 
-	iou_state=$(./bash/client.sh --host "$engine_url" getIouByID id="$iou_id" Authorization:"Bearer $access_token" | jq -r '.["@state"]')
-	if [ -z "$iou_state" ]; then
-		printf "IOU not found"
+	iou_after_confirmation_state=$(./bash/client.sh -s --host "$engine_url" getIouByID id="$iou_id" Authorization:"Bearer $access_token" | jq -r '.["@state"]')
+	if [ -z "$iou_after_confirmation_state" ]; then
+		echo "IOU not found" >&2
 		exit 1
-	elif [ "$iou_state" != "unpaid" ]; then
-		printf "IOU not reset to unpaid, state is %s" "$iou_state"
+	elif [ "$iou_after_confirmation_state" != "unpaid" ]; then
+		echo "IOU not reset to unpaid, state is $iou_after_confirmation_state" >&2
 		exit 1
 	else
-		printf "IOU paid, check complete"
+		echo "IOU paid and in state $iou_after_confirmation_state, check complete" >&2
 	fi
 }

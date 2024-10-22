@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# script must be run from the npl-integration repository
+# script must be run from the npl-integration directory
 
 . ./it-test/lib/helpers.sh
 . ./it-test/lib/app_lifecycle.sh
