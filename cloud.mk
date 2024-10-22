@@ -126,4 +126,4 @@ integration-test:
 	NC_DOMAIN=$(NC_DOMAIN) \
 	NC_ORG_NAME=$(NC_ORG_NAME) \
 	NPL_VERSION=$(NPL_VERSION) \
-	./it-test/it-cloud.sh
+	./it-test/src/test/it-cloud.sh
