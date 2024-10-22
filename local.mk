@@ -31,7 +31,6 @@ unit-tests-python-listener:
 
 .PHONY: integration-test
 integration-test: install up
-	# ./it-test/it-local.sh
 	make -f local.mk run-integration-test
 	make -f local.mk down
 
