@@ -23,7 +23,7 @@ populate_iam() {
 	local token_url;
 	local admin_token;
 
-	printf "Populating IAM for app %s with realm %s" "$app_name" "$my_realm_url" >&2
+	echo "Populating IAM for app $app_name with realm $my_realm_url" >&2
 
 	keycloak_user=$(get_nc_keycloak_username "$app_id")
 	keycloak_password=$(get_nc_keycloak_password "$app_id")
@@ -31,7 +31,6 @@ populate_iam() {
 
 	token_url="$keycloak_url/realms/master/protocol/openid-connect/token"
 
-	printf "fetching admin token: %s" "$token_url" >&2
 	admin_token=$(curl --location --request POST --header 'Content-Type: application/x-www-form-urlencoded' \
 		--data-urlencode "username=$keycloak_user" \
 		--data-urlencode "password=$keycloak_password" \

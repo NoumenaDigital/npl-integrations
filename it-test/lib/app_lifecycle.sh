@@ -10,10 +10,10 @@ create_app() {
 	app_id=$(./cli app create -org "$nc_org" -engine "$NC_ENGINE_VERSION" -name "$app_name" -provider MicrosoftAzure -trusted_issuers "[\"$realm_url\"]" | jq -r '.id')
 
 	if [ -z "$app_id" ]; then
-		printf "App creation failed\n" >&2
+		echo "App creation failed" >&2
 		exit 1
 	else
-		printf "App created with ID %s\n" "$app_id" >&2
+		echo "App created with ID $app_id" >&2
 	fi
 
 	echo "$app_id"
@@ -36,23 +36,23 @@ waiting_for_activation() {
     status=$(check_app_status "$app_id" "$nc_org")
 
     if [ -z "$status" ]; then
-    	printf "App not found" >&2
+    	echo "App not found" >&2
     	exit 1
     fi
 
     while [ "$status" != "active" ]; do
-    	printf "App status: %s. Waiting for %s seconds" "$status" "$check_interval" >&2
+    	echo "App status: $status. Waiting for $check_interval seconds" >&2
     	sleep $check_interval
     	sleep_amount=$((sleep_amount + check_interval))
     	status=$(check_app_status "$app_id" "$nc_org")
 
     	if [ -z "$status" ]; then
-			printf "App disappeared" >&2
+			echo "App disappeared" >&2
 			exit 1
 		fi
     done
 
-    printf "App active in less than %d seconds." "$sleep_amount" >&2
+    echo "App active in less than $sleep_amount seconds" >&2
 }
 
 delete_app() {
