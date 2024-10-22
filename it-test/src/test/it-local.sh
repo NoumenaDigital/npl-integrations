@@ -2,7 +2,7 @@
 
 # script must be run from the npl-integration directory
 
-. ./it-test/lib/integration_tests.sh
+. ./it-test/src/test/lib/integration_tests.sh
 
 set -e
 

@@ -17,6 +17,7 @@
     <modules>
         <module>parent-pom</module>
         <module>npl</module>
+        <module>it-test</module>
     </modules>
     
     <properties>
