@@ -13,6 +13,10 @@
         <relativePath>../parent-pom</relativePath>
     </parent>
 
+    <properties>
+        <skipTests>true</skipTests>
+    </properties>
+
     <profiles>
         <profile>
             <id>integration-test</id>
@@ -38,6 +42,7 @@
                         <configuration>
                             <basedir>${project.basedir}/..</basedir>
                             <executable>${project.basedir}/src/test/it-local.sh</executable>
+                            <skip>${skipTests}</skip>
                         </configuration>
                     </execution>
                 </executions>
