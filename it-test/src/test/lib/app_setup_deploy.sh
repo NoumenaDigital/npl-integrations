@@ -1,4 +1,4 @@
-. ./it-test/lib/helpers.sh
+. ./it-test/src/test/lib/helpers.sh
 
 zip_sources() {
 	mkdir -p target
