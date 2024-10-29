@@ -48,7 +48,8 @@ app_id=$(create_app "$org_id" "$app_name" "$realm_url")
 echo "App ID: $app_id"
 waiting_for_activation "$app_id" "$org_id"
 setup_deploy "$app_id" "$app_name" "$app_name_clean" "$realm_url"
-run_services "$app_name_clean"
+listener_pid=$(run_services "$app_name_clean")
+echo "Listener service PID: $listener_pid"
 run_integration_tests "$app_name_clean" "$engine_url" "$realm_url"
-kill_services
+kill_services "$listener_pid"
 delete_app "$app_id"
