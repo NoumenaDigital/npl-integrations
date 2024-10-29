@@ -22,10 +22,16 @@ if [ -z "$NC_ENGINE_VERSION" ]; then
 	echo "NC_ENGINE_VERSION not set"
 	exit 1
 fi
+if [ -z "$NC_ENV" ]; then
+	echo "NC_ENV not set"
+	exit 1
+fi
 if [ -z "$NPL_VERSION" ]; then
 	echo "NPL_VERSION not set"
 	exit 1
 fi
+
+echo "Performing integration tests on domain '$NC_DOMAIN' for org '$NC_ORG_NAME' with engine version '$NC_ENGINE_VERSION' with auth '$NC_ENV' and NPL version '$NPL_VERSION'"
 
 org_id=$(get_nc_org)
 if [ -z "$org_id" ]; then

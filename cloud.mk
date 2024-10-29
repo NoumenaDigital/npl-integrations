@@ -70,7 +70,7 @@ run: install run-only
 .PHONY: zip
 zip:
 	@if [ "$(NPL_VERSION)" = "" ]; then echo "NPL_VERSION not set"; exit 1; fi
-	@mkdir -p target && cd target && mkdir -p src && cd src && \
+	@mkdir -p npl/src/main/kotlin-script && @mkdir -p target && cd target && mkdir -p src && cd src && \
 		cp -r ../../npl/src/main/npl-* . && cp -r ../../npl/src/main/yaml . && cp -r ../../npl/src/main/kotlin-script . && \
 		zip -r ../npl-integrations-$(NPL_VERSION).zip *
 
@@ -126,4 +126,5 @@ integration-test:
 	NC_DOMAIN=$(NC_DOMAIN) \
 	NC_ORG_NAME=$(NC_ORG_NAME) \
 	NPL_VERSION=$(NPL_VERSION) \
+	NC_ENV=$(NC_ENV) \
 	./it-test/src/test/it-cloud.sh
