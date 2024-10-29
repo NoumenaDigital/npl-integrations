@@ -7,13 +7,16 @@ run_services() {
 
 ## Cleaning up
 kill_services() {
-	pid=$(ps -e | grep 'python-listener/app.py' | grep -v 'grep' | awk '{print $1}')
+	process_ids=$(ps -e | grep 'python-listener/app.py' | grep -v 'grep' | awk '{print $1}')
 
-	if [ -n "$pid" ]; then
-		kill -9 "$pid"
-		echo "Process python-listener/app.py with PID $pid has been killed" >&2
-	else
+	if [ -z "$process_ids" ]; then
 		echo "No process found for python-listener/app.py" >&2
 		exit 1
+	else
+		for pid in $process_ids;
+		do
+			kill -9 "$pid"
+			echo "Process python-listener/app.py with PID $pid has been killed" >&2
+		done
 	fi
 }
