@@ -33,13 +33,13 @@ pipeline-setup:
 	-sudo apt-get install jq
 	CLI_OS_ARCH=npl_linux_amd64 make -e -f cloud.mk download-cli
 	make install
-	-python3 -m venv ./venv
+	python3 -m venv ./venv
 
 .PHONY: install
 install:
 	mvn $(MAVEN_CLI_OPTS) install
-	cd python-listener && python3 -m pip install -r requirements.txt
-	cd streamlit-ui && python3 -m pip install -r requirements.txt
+	. venv/bin/activate && cd python-listener && python3 -m pip install -r requirements.txt
+	. venv/bin/activate && cd streamlit-ui && python3 -m pip install -r requirements.txt
 	cd webapp && npm install
 
 .PHONY: install-python

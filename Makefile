@@ -98,4 +98,4 @@ integration-test-cloud:
 	make -f cloud.mk integration-test
 
 unit-tests-python-listener:
-	make -f local.mk unit-tests-python-listener
+	. venv/bin/activate && make -f local.mk unit-tests-python-listener
