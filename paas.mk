@@ -49,7 +49,7 @@ run-webapp:
 
 .PHONY: run-python
 run-python:
-	cd python && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) streamlit run main.py
+	cd python && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) python3 main.py
 
 .PHONY: run-streamlit-ui
 run-streamlit-ui:
