@@ -11,5 +11,7 @@ run_services() {
 kill_services() {
 	local pid=$1
 
+	echo "Killing listener service with PID $pid"
+
 	kill -9 "$pid"
 }
