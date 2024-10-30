@@ -3,9 +3,7 @@ create_app() {
 	local app_name=$2
 	local realm_url=$3
 
-	echo "Creating app $app_name" >&2
-	echo "nc_org: $nc_org" >&2
-	echo "Realm URL: $realm_url" >&2
+	echo "Creating app $app_name in org $nc_org" >&2
 
 	app_id=$(./cli app create -org "$nc_org" -engine "$NC_ENGINE_VERSION" -name "$app_name" -provider MicrosoftAzure -trusted_issuers "[\"$realm_url\"]" | jq -r '.id')
 

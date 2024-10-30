@@ -9,7 +9,7 @@ run_integration_tests() {
 
 	pay_iou "$engine_url" "$access_token" "$iou_id"
 
-	sleep 10
+	sleep 10 # wait for the IOU to be processed by the listener service
 
 	check_iou_repayment "$engine_url" "$access_token" "$iou_id"
 }
