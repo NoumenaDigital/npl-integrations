@@ -47,18 +47,8 @@ jobs:
       - name: "Python listener unit tests"
         run: "make unit-tests-python-listener"
 
-  local-integration-tests:
-    name: "Local integration tests"
-    runs-on: "ubuntu-latest"
-    needs: "build-test-verify"
-    steps:
       - name: "local integration tests"
         run: "make integration-test-local"
 
-  cloud-integration-tests:
-    name: "Cloud integration tests"
-    runs-on: "ubuntu-latest"
-    needs: "build-test-verify"
-    steps:
       - name: "Noumena Cloud integration tests"
         run: "NC_ENV=DEV make integration-test-cloud"
