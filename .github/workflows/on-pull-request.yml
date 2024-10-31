@@ -38,20 +38,27 @@ jobs:
           java-version: "17"
           cache: "maven"
 
-      - name: "Verify"
-        run: "mvn $MAVEN_CLI_OPTS clean verify"
-
       - name: "Install & setup"
-        run: "make -f cloud.mk pipeline-setup && make -f cloud.mk install"
+        run: "make install"
 
-      - name: "Formatting & prettifing"
+      - name: "Formatting & prettifying"
         run: "make format-check"
 
       - name: "Python listener unit tests"
         run: "make unit-tests-python-listener"
 
+  local-integration-tests:
+    name: "Local integration tests"
+    runs-on: "ubuntu-latest"
+    needs: "build-test-verify"
+    steps:
       - name: "local integration tests"
         run: "make integration-test-local"
 
+  cloud-integration-tests:
+    name: "Cloud integration tests"
+    runs-on: "ubuntu-latest"
+    needs: "build-test-verify"
+    steps:
       - name: "Noumena Cloud integration tests"
         run: "NC_ENV=DEV make integration-test-cloud"

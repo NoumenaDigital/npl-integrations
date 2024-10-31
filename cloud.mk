@@ -21,32 +21,41 @@ escape_dollar = $(subst $$,\$$,$1)
 
 .PHONY: first-install
 first-install:
-	-brew install jq python3
-	-sudo apt-get install jq
+	brew install jq python3
 	make download-cli
 	python3 -m venv ./venv; \
 	. venv/bin/activate
-	make install
 
 .PHONY: pipeline-setup
 pipeline-setup:
 	-sudo apt-get install jq
 	CLI_OS_ARCH=npl_linux_amd64 make -e -f cloud.mk download-cli
-	make install
 	python3 -m venv ./venv
 
 .PHONY: install
 install:
 	mvn $(MAVEN_CLI_OPTS) install
-	. venv/bin/activate && cd python-listener && python3 -m pip install -r requirements.txt
-	. venv/bin/activate && cd streamlit-ui && python3 -m pip install -r requirements.txt
+	make -f cloud.mk install-listener-service
+	make -f cloud.mk install-streamlit-ui
 	cd webapp && npm install
 
 .PHONY: install-python
 install-python:
-	mvn $(MAVEN_CLI_OPTS) install
-	cd python-listener && python3 -m pip install -r requirements.txt
-	cd streamlit-ui && python3 -m pip install -r requirements.txt
+	mvn $(MAVEN_CLI_OPTS) generate-sources
+	make -f cloud.mk install-listener-service
+	make -f cloud.mk install-streamlit-ui
+
+.PHONY: install-listener-service
+install-listener-service:
+	. venv/bin/activate && cd python-listener && python3 -m pip install -r requirements.txt
+
+.PHONY: install-webapp
+install-webapp:
+	cd webapp && npm install
+
+.PHONY: install-streamlit-ui
+install-streamlit-ui:
+	. venv/bin/activate && cd streamlit-ui && python3 -m pip install -r requirements.txt
 
 .PHONY:	run-only
 run-only:
@@ -58,11 +67,11 @@ run-webapp:
 
 .PHONY: run-python-listener
 run-python-listener:
-	cd python-listener && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) python app.py
+	. venv/bin/activate && cd python-listener && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) python app.py
 
 .PHONY: run-streamlit-ui
 run-streamlit-ui:
-	cd streamlit-ui && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) streamlit run main.py
+	. venv/bin/activate && cd streamlit-ui && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) streamlit run main.py
 
 .PHONY:	run
 run: install run-only
@@ -70,7 +79,7 @@ run: install run-only
 .PHONY: zip
 zip:
 	@if [ "$(NPL_VERSION)" = "" ]; then echo "NPL_VERSION not set"; exit 1; fi
-	@mkdir -p npl/src/main/kotlin-script && @mkdir -p target && cd target && mkdir -p src && cd src && \
+	@mkdir -p npl/src/main/kotlin-script && mkdir -p target && cd target && mkdir -p src && cd src && \
 		cp -r ../../npl/src/main/npl-* . && cp -r ../../npl/src/main/yaml . && cp -r ../../npl/src/main/kotlin-script . && \
 		zip -r ../npl-integrations-$(NPL_VERSION).zip *
 

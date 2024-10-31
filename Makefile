@@ -2,6 +2,11 @@ GITHUB_SHA=HEAD
 MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
 
 ## Common commands
+.PHONY: install
+install:
+	make -f cloud.mk first-install
+	make -f local.mk install
+
 .PHONY: rename
 rename:
 	@if [ "$(PROJECT_NAME)" = "" ]; then echo "PROJECT_NAME not set"; exit 1; fi
@@ -36,16 +41,45 @@ bump-platform-version:
 	mvn -pl parent-pom versions:set-property -Dproperty=noumena.platform.version -DnewVersion="$(PLATFORM_VERSION)"
 
 ## Local commands
-.PHONY: install
-install:
-	make -f local.mk install
+.PHONY: install-python
+install-python:
+	make -f cloud.mk install-python
+
+.PHONY: install-webapp
+install-webapp:
+	make -f cloud.mk install-webapp
+
+.PHONY: generate-sources
+generate-sources:
+	mvn $(MAVEN_CLI_OPTS) generate-sources
+	chmod +x bash/client.sh
 
 .PHONY:	run-only
 run-only:
 	make -f local.mk run-only
 
+.PHONY:	up
+up:
+	make -f local.mk up
+
+.PHONY:	down
+down:
+	make -f local.mk down
+
 .PHONY:	run
 run: install run-only
+
+.PHONY: run-python-listener
+run-python-listener:
+	make -f cloud.mk run-python-listener
+
+.PHONY: run-streamlit-ui
+run-streamlit-ui:
+	make -f cloud.mk run-streamlit-ui
+
+.PHONY: run-webapp
+run-webapp:
+	make -f cloud.mk run-webapp
 
 ## Noumena Cloud commands
 .PHONY: first-install-cloud
@@ -84,10 +118,6 @@ iam:
 .PHONY: zip
 zip:
 	make -f cloud.mk zip
-
-.PHONY: run-streamlit-ui
-run-streamlit-ui:
-	make -f cloud.mk run-streamlit-ui
 
 .PHONY: integration-test-local
 integration-test-local:

@@ -3,9 +3,13 @@ MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
 
 .PHONY: install
 install:
-	mvn $(MAVEN_CLI_OPTS) install
+	make -f local.mk maven-install
 	chmod +x bash/client.sh
 	make -f local.mk build-images
+
+.PHONY: maven-install
+maven-install:
+	mvn clean $(MAVEN_CLI_OPTS) install
 
 .PHONY: build-images
 build-images:

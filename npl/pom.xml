@@ -41,7 +41,7 @@
                 <version>7.4.0</version>
                 <executions>
                     <execution>
-                        <id>python</id>
+                        <id>listener-service-source-generation</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
@@ -52,7 +52,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>streamlit-ui</id>
+                        <id>streamlit-ui-source-generation</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
@@ -63,7 +63,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>typescript</id>
+                        <id>webapp-source-generator</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
@@ -74,7 +74,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>bash</id>
+                        <id>bash-source-generator</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
