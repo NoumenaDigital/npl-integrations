@@ -34,10 +34,11 @@ pipeline-setup:
 
 .PHONY: install
 install:
-	mvn $(MAVEN_CLI_OPTS) install
+	mvn $(MAVEN_CLI_OPTS) generate-sources
+	chmod +x bash/client.sh
 	make -f cloud.mk install-listener-service
 	make -f cloud.mk install-streamlit-ui
-	cd webapp && npm install
+	make -f cloud.mk install-webapp
 
 .PHONY: install-python
 install-python:

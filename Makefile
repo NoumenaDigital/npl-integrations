@@ -7,6 +7,12 @@ install:
 	make -f cloud.mk first-install
 	make -f local.mk install
 
+.PHONY: cloud-install
+cloud-install:
+	make -f local.mk install
+	make -f cloud.mk pipeline-setup
+	make -f cloud.mk install
+
 .PHONY: rename
 rename:
 	@if [ "$(PROJECT_NAME)" = "" ]; then echo "PROJECT_NAME not set"; exit 1; fi
