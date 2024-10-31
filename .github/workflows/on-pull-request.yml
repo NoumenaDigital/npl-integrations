@@ -39,7 +39,7 @@ jobs:
           cache: "maven"
 
       - name: "Install & setup"
-        run: "make install"
+        run: "make -f cloud.mk pipeline-setup && make -f local.mk install"
 
       - name: "Formatting & prettifying"
         run: "make format-check"
