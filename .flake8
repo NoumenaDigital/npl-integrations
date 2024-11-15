@@ -5,4 +5,4 @@ exclude =
     __pycache__,
     generated,
 max-complexity = 10
-max-line-length = 119
+max-line-length = 120

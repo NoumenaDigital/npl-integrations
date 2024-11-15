@@ -1,31 +1,16 @@
 import json
-import time
 
-from nose.tools import assert_is_not_none, assert_equal, assert_true
+from nose.tools import assert_equal
 from unittest.mock import patch
 from requests_sse import MessageEvent
 
 import app
-from src.auth import AuthService
 from src.stream import Notification, REPAYMENT_OCCURRENCE_NAME, StreamReader
+from test.utils import setup_auth_mock
 
 
 def raise_for_status():
     pass
-
-
-def setup_auth_mock(mock_auth):
-    my_access_token = "my_access_token"
-
-    def json_fct():
-        return {
-            "access_token": my_access_token,
-            "expires_in": 3600
-        }
-
-    mock_auth.return_value.raise_for_status = raise_for_status
-    mock_auth.return_value.json = json_fct
-    return my_access_token
 
 
 def setup_notification_mock(notification_mock, notifications):
@@ -37,24 +22,6 @@ def setup_notification_mock(notification_mock, notifications):
             last_event_id="my last_event_id"
         ) for (notification_type, notification_data) in notifications
     ])
-
-
-@patch('src.auth.requests.post')
-def test_auth(mock_auth):
-    my_access_token = setup_auth_mock(mock_auth)
-
-    my_username = 'my_username'
-    my_password = 'my_password'
-    auth_service = AuthService()
-
-    access_token = auth_service.auth(
-        my_username,
-        my_password
-    )
-
-    assert_is_not_none(access_token)
-    assert_equal(access_token, my_access_token)
-    assert_true(auth_service.validity > time.time() + 3600 - 10 - 5)
 
 
 @patch('src.stream.StreamReader.get_stream')
@@ -99,7 +66,7 @@ def test_stream_pass(mock_get_stream):
 @patch('src.stream.StreamReader.manage_repayment_occurrence')
 @patch('src.stream.StreamReader.get_stream')
 @patch('src.auth.requests.post')
-def test_main(mock_auth, mock_get_stream, mock_manage_repayment_occurrence):
+def test_main_with_repayment_occurrence_notification(mock_auth, mock_get_stream, mock_manage_repayment_occurrence):
     setup_auth_mock(mock_auth)
 
     notification = Notification(
@@ -119,13 +86,19 @@ def test_main(mock_auth, mock_get_stream, mock_manage_repayment_occurrence):
     setup_notification_mock(
         mock_get_stream,
         [
-            ("notify", json.dumps({
-                "notification": {
-                    k: [arg.__dict__ for arg in v]
-                    if (k == "arguments") else v for k, v
-                    in notification.__dict__.items()
-                }
-            }))
+            (
+                "notify",
+                json.dumps({
+                    "notification": {
+                        k:
+                            [arg.__dict__ for arg in v]
+                            if (k == "arguments")
+                            else v
+                        for k, v
+                        in notification.__dict__.items()
+                    }
+                })
+            )
         ]
     )
 
