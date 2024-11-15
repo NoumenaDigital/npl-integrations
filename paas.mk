@@ -29,14 +29,14 @@ first-install:
 .PHONY: install
 install:
 	mvn $(MAVEN_CLI_OPTS) install
-	cd python && python3 -m pip install -r requirements.txt
+	cd python-listener && python3 -m pip install -r requirements.txt
 	cd streamlit-ui && python3 -m pip install -r requirements.txt
 	cd webapp && npm install
 
 .PHONY: install-python
 install-python:
 	mvn $(MAVEN_CLI_OPTS) install
-	cd python && python3 -m pip install -r requirements.txt
+	cd python-listener && python3 -m pip install -r requirements.txt
 	cd streamlit-ui && python3 -m pip install -r requirements.txt
 
 .PHONY:	run-only
@@ -49,7 +49,7 @@ run-webapp:
 
 .PHONY: run-python
 run-python:
-	cd python && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) streamlit run main.py
+	cd python-listener && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) python3 app.py
 
 .PHONY: run-streamlit-ui
 run-streamlit-ui:
