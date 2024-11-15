@@ -15,7 +15,7 @@ import { useServices } from '../ServiceProvider.tsx'
 
 export const CreateIouDialog: React.FC<{
     open: boolean
-    onClose: (subscribed: boolean) => void
+    onClose: (_: boolean) => void
 }> = ({ open, onClose }) => {
     const user = useMe()
     const { createIou } = useServices()
