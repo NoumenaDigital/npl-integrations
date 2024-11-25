@@ -185,6 +185,9 @@ services:
       context: streamlit-ui
     ports:
       - "8080:8501"
+    environment:
+      ENV: LOCAL
+      REALM: nplintegrations
     depends_on:
       engine:
         condition: service_healthy
