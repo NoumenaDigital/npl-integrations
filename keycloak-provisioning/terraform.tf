@@ -116,26 +116,6 @@ resource "keycloak_openid_user_attribute_protocol_mapper" "party_mapper" {
   claim_value_type = "JSON"
 }
 
-resource "keycloak_openid_user_attribute_protocol_mapper" "department_mapper" {
-  realm_id  = keycloak_realm.realm.id
-  client_id = keycloak_openid_client.client.id
-  name      = "department-mapper"
-
-  user_attribute   = "department"
-  claim_name       = "department"
-  claim_value_type = "JSON"
-}
-
-resource "keycloak_openid_user_attribute_protocol_mapper" "job_title_mapper" {
-  realm_id  = keycloak_realm.realm.id
-  client_id = keycloak_openid_client.client.id
-  name      = "job-title-mapper"
-
-  user_attribute   = "job_title"
-  claim_name       = "job_title"
-  claim_value_type = "JSON"
-}
-
 resource "keycloak_openid_user_attribute_protocol_mapper" "organisation_mapper" {
   realm_id  = keycloak_realm.realm.id
   client_id = keycloak_openid_client.client.id
@@ -146,16 +126,25 @@ resource "keycloak_openid_user_attribute_protocol_mapper" "organisation_mapper" 
   claim_value_type = "JSON"
 }
 
+resource "keycloak_openid_user_attribute_protocol_mapper" "department_mapper" {
+  realm_id  = keycloak_realm.realm.id
+  client_id = keycloak_openid_client.client.id
+  name      = "department-mapper"
+
+  user_attribute   = "department"
+  claim_name       = "department"
+  claim_value_type = "JSON"
+}
+
 resource "keycloak_user" "alice" {
   realm_id   = keycloak_realm.realm.id
   username   = "alice"
   email      = "alice@noumenadigital.com"
   first_name = "Alice"
-  last_name  = "Noumena"
+  last_name  = "A"
   attributes = {
-    "job_title" = jsonencode(["chairperson"])
     "organisation" = jsonencode(["Noumena"])
-    "department" = jsonencode(["business"])
+    "department" = jsonencode(["acquisitions"])
   }
   initial_password {
     value     = "alice"
@@ -168,11 +157,10 @@ resource "keycloak_user" "bob" {
   username   = "bob"
   email      = "bob@noumenadigital.com"
   first_name = "Bob"
-  last_name  = "Noumena"
+  last_name  = "B"
   attributes = {
-    "job_title" = jsonencode(["board-member", "secretary"])
     "organisation" = jsonencode(["Noumena"])
-    "department" = jsonencode(["tech"])
+    "department" = jsonencode(["business"])
   }
   initial_password {
     value     = "bob"
@@ -180,16 +168,31 @@ resource "keycloak_user" "bob" {
   }
 }
 
+resource "keycloak_user" "charlie" {
+  realm_id   = keycloak_realm.realm.id
+  username   = "charlie"
+  email      = "charlie@noumenadigital.com"
+  first_name = "Charlie"
+  last_name  = "C"
+  attributes = {
+    "organisation" = jsonencode(["Noumena"])
+    "department" = jsonencode(["consulting"])
+  }
+  initial_password {
+    value     = "charlie"
+    temporary = false
+  }
+}
+
 resource "keycloak_user" "eve" {
   realm_id   = keycloak_realm.realm.id
   username   = "eve"
-  email      = "eve@noumenadigital.com"
+  email      = "eve@tableorg.com"
   first_name = "Eve"
-  last_name  = "Noumena"
+  last_name  = "E"
   attributes = {
-    "job_title" = jsonencode(["board-member"])
     "organisation" = jsonencode(["TableOrg"])
-    "department" = jsonencode(["business"])
+    "department" = jsonencode(["eavesdropping"])
   }
   initial_password {
     value     = "eve"
