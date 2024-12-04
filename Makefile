@@ -9,7 +9,6 @@ install:
 
 .PHONY: cloud-install
 cloud-install:
-	make -f local.mk install
 	make -f cloud.mk pipeline-setup
 	make -f cloud.mk install
 

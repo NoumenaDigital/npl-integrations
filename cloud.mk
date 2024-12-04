@@ -1,13 +1,14 @@
+NC_APP_NAME=nplintegrations
+NC_ORG_NAME=noumena
+
 GITHUB_SHA=HEAD
 MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
-
 CLI_OS_ARCH=npl_darwin_amd64
 CLI_RELEASE_TAG=1.3.0
 NPL_VERSION=1.0
 NC_ENGINE_VERSION=2024.1.8
 NC_DOMAIN=noumena.cloud
-NC_APP_NAME=nplintegrations
-NC_ORG_NAME=training
+
 NC_APP_NAME_CLEAN := $(shell echo $(NC_APP_NAME) | tr -d '-' | tr -d '_')
 NC_ORG := $(shell ./cli org list 2>/dev/null | jq --arg NC_ORG_NAME "$(NC_ORG_NAME)" -r '.[] | select(.slug == $$NC_ORG_NAME) | .id' 2>/dev/null)
 NC_APP := $(shell ./cli app list -org $(NC_ORG) 2>/dev/null | jq --arg NC_APP_NAME "$(NC_APP_NAME)" '.[] | select(.name == $$NC_APP_NAME) | .id' 2>/dev/null)
