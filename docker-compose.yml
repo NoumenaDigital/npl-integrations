@@ -30,7 +30,7 @@ services:
         condition: service_healthy
 
   read-model:
-    image: ghcr.io/noumenadigital/packages/read-model:2024.2.1
+    image: ghcr.io/noumenadigital/packages/read-model:${PLATFORM_VERSION}
     ports:
       - "15000:15000"
     environment:
