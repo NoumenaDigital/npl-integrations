@@ -2,11 +2,14 @@
 
 ## Focus of this demo
 The demo steps detailed below illustrate
-- How various components of the `npl-integrations` example application (with python "callback service" and typescript frontend) can be deployed locally, using docker, or integrated with an engine and keycloak deployed to PaaS
+- How various components of the `npl-integrations` example application (with python "listener and callback service" and typescript frontend) can be deployed locally, using docker, or integrated with an engine and keycloak deployed to PaaS
 - The various APIs exposed by the engine and how users can interact with them to execute actions, retrieve a history of state changes or commands, listen to event streams...
 
 ## Pre-requisites
 Follow the configuration steps detailed in `README.md` and make sure you can run the components detailed therein.
+
+## Context
+The NPL code base in the `npl-integrations` application builds on the IoU example of the [npl-starter](https://github.com/NoumenaDigital/npl-starter) repository, adding a `RepaymentOccurrence` notification triggered when the IoU issuer calls the `pay`action to claim she/he has repaid an amount on the IoU, a permission `confirmPayment` that can be invoked by the payee to confirm such a repayment did indeed happen, and a new state `payment_confirmation_required` to reflect that after each `pay` invocation a confirmation is now required. The python listener service is designed to pick up `paymentOccurence` notifications and "call back" to confirm repayments. For simplicity, that python listener service authenticates as one specific user among the provisioned ones, namely Bob, meaning that the listener will only callback to confirm payments with success on IoU's where Bob (identified as bob@noumenadigital.com in the IoU creation form in the frontend) is the payee. The new state and the new state transitions can be visualized in the State Machine Analyzer provided by the NPL Dev Plugin.
 
 ## Part 1: Local deployment of engine and keycloak
 **Step 1:** Deploy the NPL in an engine running locally, using docker: `docker compose up -d --build engine keycloak-provisioning`
