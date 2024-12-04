@@ -61,7 +61,6 @@ class StreamReader:
         self.api = default_api
 
     def get_stream(self, access_token: str):
-        print("Getting stream")
         return EventSource(
                 config.ROOT_URL + "/api/streams",
                 timeout=30,
@@ -83,7 +82,6 @@ class StreamReader:
                     else:
                         print("unrecognized message event", event)
             except KeyboardInterrupt:
-                print("Exiting")
                 exit()
 
     def manage_notification(self, event: dict):

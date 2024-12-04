@@ -169,7 +169,7 @@ services:
   python-service:
     image: ghcr.io/noumenadigital/npl-integrations/python-service:latest
     build:
-      context: python
+      context: python-listener
     environment:
       ENV: LOCAL
       REALM: nplintegrations

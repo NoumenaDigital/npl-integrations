@@ -32,8 +32,11 @@ Make sure the `c:\Windows\System32\Drivers\etc\hosts` file includes the line `12
 
 To build and run the project, follow the steps below:
 
-1. Run `mvn clean install` to build and generate NPL-API and clients.
-2. Run `docker compose up --build -d` to ensure the Python listener service, the Python Streamlit UI and the Typescript React frontend are built in addition to the Engine and its dependencies, then create and start the containers.
+1. Run `make install` to build and generate NPL-API and clients.
+It also builds Python listener service, the Python Streamlit UI and the Typescript React frontend in addition to the Engine and its dependencies.
+2. Run `make up` to create and start the containers.
+
+To stop the containers, run `make down`.
 
 ### Service endpoints
 
@@ -68,8 +71,9 @@ Supporting services include Keycloak for authentication and authorization, and d
 
     ```
     export NC_BASE_URL=https://portal.noumena.cloud
-    export NC_EMAIL=your.email@your.domain
-    export NC_ENV=PROD
+    export NC_EMAIL=your_email
+    export NC_PASSWORD=your_password
+    export NC_ENV=DEV
     ```
 
 3. Run `make create-app` to create the application with the name defined in the Makefile.
@@ -93,7 +97,7 @@ In addition, Keycloak can be configured from the `Services` tab in the Noumena C
 
 #### Option 3: Using the Noumena Cloud UI
 
-1. Create a zip file by running the `zip -r sources.zip npl/src/main/` command in the root directory.
+1. Create a zip file by running the `make zip` command in the root directory. A zip file will be created in the `target` directory.
 2. In the Noumena Cloud UI, click on `Upload packages` and upload the zip file.
 
 ### Python-Listener
@@ -103,16 +107,17 @@ In this setup, the Python listener service runs locally and connects to the Engi
 
 #### Setup
 
-1. In the root directory, set up & activate your Python venv
-2. run `mvn install` to generate the Python client from the NPL code
-3. run `cd python-listener && pip install -r requirements.txt`
+1. Set up & activate your Python venv
+2. Run `make install-python` to generate the Python client from the NPL code and install python requirements
 
-Note: it is needed to install requirements every time NPL code is changed.
-This is because the generated code is installed as a package for easier use.
+Note: requirements need to be installed every time NPL code is changed as the generated code is installed as a package.
 
 #### Running
 
-From the root directory, run `cd python-listener && python main.py`
+From the root directory, run `make run-python-listener`
+
+To stop the service, press `Ctrl+C`
+To keep the service running and continue this walkthrough, open a new terminal window.
 
 ### Webapp
 
@@ -121,12 +126,14 @@ In this setup, the webapp runs locally and connects to the Engine on Noumena Clo
 
 #### Setup
 
-1. run `mvn install` to generate the webapp client from the NPL code
-2. run `cd webapp && npm install`
+From the root directory, run `make install-webapp` to generate the webapp client from the NPL code and install webapp dependencies
 
 #### Running
 
-run `cd webapp && npm run dev`
+From the root directory, run `make run-webapp`
+
+To stop the service, press `Ctrl+C`
+To keep the service running and continue this walkthrough, open a new terminal window.
 
 ### Streamlit UI
 
@@ -135,16 +142,18 @@ In this setup, the Streamlit UI runs locally and connects to the Engine on Noume
 
 #### Setup
 
-1. set up & activate your Python venv
-2. run `mvn install` to generate the Python client from the NPL code
-3. run `cd streamlit-ui && pip install -r requirements.txt`
+1. Set up & activate your Python venv
+2. Run `make install-python` to generate the Python client from the NPL code and install python requirements.
+This set can be omitted if already performed for the Python listener.
 
-Note: it is needed to install requirements every time NPL code is changed.
-This is because the generated code is installed as a package for easier use.
+Note: requirements need to be installed every time NPL code is changed as the generated code is installed as a package.
 
 #### Running
 
-run `cd streamlit-ui && streamlit run main.py`
+From the root directory, run `make run-streamlit-ui`
+
+To stop the service, press `Ctrl+C`
+To keep the service running and continue this walkthrough, open a new terminal window.
 
 ### Service endpoints
 
