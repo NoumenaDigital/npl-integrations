@@ -116,13 +116,13 @@ resource "keycloak_openid_user_attribute_protocol_mapper" "party_mapper" {
   claim_value_type = "JSON"
 }
 
-resource "keycloak_openid_user_attribute_protocol_mapper" "organisation_mapper" {
+resource "keycloak_openid_user_attribute_protocol_mapper" "organization_mapper" {
   realm_id  = keycloak_realm.realm.id
   client_id = keycloak_openid_client.client.id
-  name      = "organisation-mapper"
+  name      = "organization-mapper"
 
-  user_attribute   = "organisation"
-  claim_name       = "organisation"
+  user_attribute   = "organization"
+  claim_name       = "organization"
   claim_value_type = "JSON"
 }
 
@@ -143,7 +143,7 @@ resource "keycloak_user" "alice" {
   first_name = "Alice"
   last_name  = "A"
   attributes = {
-    "organisation" = jsonencode(["Noumena"])
+    "organization" = jsonencode(["Noumena"])
     "department" = jsonencode(["acquisitions"])
   }
   initial_password {
@@ -159,7 +159,7 @@ resource "keycloak_user" "bob" {
   first_name = "Bob"
   last_name  = "B"
   attributes = {
-    "organisation" = jsonencode(["Noumena"])
+    "organization" = jsonencode(["Noumena"])
     "department" = jsonencode(["business"])
   }
   initial_password {
@@ -175,7 +175,7 @@ resource "keycloak_user" "charlie" {
   first_name = "Charlie"
   last_name  = "C"
   attributes = {
-    "organisation" = jsonencode(["Noumena"])
+    "organization" = jsonencode(["Noumena"])
     "department" = jsonencode(["consulting"])
   }
   initial_password {
@@ -191,7 +191,7 @@ resource "keycloak_user" "eve" {
   first_name = "Eve"
   last_name  = "E"
   attributes = {
-    "organisation" = jsonencode(["TableOrg"])
+    "organization" = jsonencode(["TableOrg"])
     "department" = jsonencode(["eavesdropping"])
   }
   initial_password {
