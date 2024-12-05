@@ -139,11 +139,11 @@ resource "keycloak_openid_user_attribute_protocol_mapper" "department_mapper" {
 resource "keycloak_user" "alice" {
   realm_id   = keycloak_realm.realm.id
   username   = "alice"
-  email      = "alice@noumenadigital.com"
+  email      = "alice@nd.tech"
   first_name = "Alice"
   last_name  = "A"
   attributes = {
-    "organization" = jsonencode(["Noumena"])
+    "organization" = jsonencode(["NDtech"])
     "department" = jsonencode(["acquisitions"])
   }
   initial_password {
@@ -155,11 +155,11 @@ resource "keycloak_user" "alice" {
 resource "keycloak_user" "bob" {
   realm_id   = keycloak_realm.realm.id
   username   = "bob"
-  email      = "bob@noumenadigital.com"
+  email      = "bob@nd.tech"
   first_name = "Bob"
   last_name  = "B"
   attributes = {
-    "organization" = jsonencode(["Noumena"])
+    "organization" = jsonencode(["NDtech"])
     "department" = jsonencode(["business"])
   }
   initial_password {
@@ -171,11 +171,11 @@ resource "keycloak_user" "bob" {
 resource "keycloak_user" "charlie" {
   realm_id   = keycloak_realm.realm.id
   username   = "charlie"
-  email      = "charlie@noumenadigital.com"
+  email      = "charlie@nd.tech"
   first_name = "Charlie"
   last_name  = "C"
   attributes = {
-    "organization" = jsonencode(["Noumena"])
+    "organization" = jsonencode(["NDtech"])
     "department" = jsonencode(["consulting"])
   }
   initial_password {
@@ -187,11 +187,11 @@ resource "keycloak_user" "charlie" {
 resource "keycloak_user" "eve" {
   realm_id   = keycloak_realm.realm.id
   username   = "eve"
-  email      = "eve@tableorg.com"
+  email      = "eve@evilcorp.com"
   first_name = "Eve"
   last_name  = "E"
   attributes = {
-    "organization" = jsonencode(["TableOrg"])
+    "organization" = jsonencode(["EvilCorp"])
     "department" = jsonencode(["eavesdropping"])
   }
   initial_password {
