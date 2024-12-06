@@ -41,7 +41,7 @@ create_iou() {
 	iou_id=$(./bash/client.sh -s --host "$engine_url" createIou Authorization:"Bearer $access_token" \
 		description=="IOU from integration-test on $(date +%d.%m.%y_%H:%M:%S)" \
 		forAmount:=100 \
-		@parties:='{"issuer":{"entity":{"email":["alice@noumenadigital.com"]},"access":{}},"payee":{"entity":{"email":["bob@noumenadigital.com"]},"access":{}}}' | jq -r '.["@id"]')
+		@parties:='{"issuer":{"entity":{"email":["alice@nd.tech"]},"access":{}},"payee":{"entity":{"email":["bob@nd.tech"]},"access":{}}}' | jq -r '.["@id"]')
 
 	if [ -z "$iou_id" ]; then
 		echo "Iou not created" >&2
