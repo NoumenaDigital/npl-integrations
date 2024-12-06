@@ -6,7 +6,7 @@ MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
 CLI_OS_ARCH=npl_darwin_amd64
 CLI_RELEASE_TAG=1.3.0
 NPL_VERSION=1.0
-NC_ENGINE_VERSION=2024.1.8
+NC_ENGINE_VERSION=2024.2.6
 NC_DOMAIN=noumena.cloud
 
 NC_APP_NAME_CLEAN := $(shell echo $(NC_APP_NAME) | tr -d '-' | tr -d '_')
