@@ -119,5 +119,4 @@ class StreamReader:
             print("unrecognized state event", event)
 
     def manage_payment_confirmation_required_state_change(self, payload: Payload):
-        print("TODO complete implementation according to the business use-case")
         pass
