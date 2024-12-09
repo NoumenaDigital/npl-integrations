@@ -56,18 +56,16 @@ export class BaseService {
         this.api
             .getIouList(
                 undefined,
-                undefined,
-                undefined,
                 this.withAuthorizationHeader()
             )
-            .then((it) => it.data.items)
+            .then((it) => it.data.items);
 
     public getIou = async (iouId: string): Promise<Iou> =>
         await this.api
             .getIouByID(
-                iouId,
-                undefined,
-                undefined,
+                {
+                    id: iouId
+                },
                 this.withAuthorizationHeader()
             )
             .then((it) => it.data)
@@ -75,12 +73,12 @@ export class BaseService {
     public pay = async (iouId: string, amount: number) =>
         await this.api
             .iouPay(
-                iouId,
                 {
-                    amount: amount
+                    id: iouId,
+                    iouPayCommand: {
+                        amount: amount
+                    }
                 },
-                undefined,
-                undefined,
                 this.withAuthorizationHeader()
             )
             .then((it) => it.data)
@@ -88,9 +86,9 @@ export class BaseService {
     public confirmPayment = async (iouId: string) =>
         await this.api
             .iouConfirmPayment(
-                iouId,
-                undefined,
-                undefined,
+                {
+                    id: iouId
+                },
                 this.withAuthorizationHeader()
             )
             .then((it) => it.data)
@@ -106,21 +104,21 @@ export class BaseService {
         await this.api
             .createIou(
                 {
-                    description: description,
-                    forAmount: amount,
-                    ['@parties']: {
-                        issuer: {
-                            entity: issuerEntity,
-                            access: issuerAccess
-                        },
-                        payee: {
-                            entity: payeeEntity,
-                            access: payeeAccess
+                    iouCreate: {
+                        description: description,
+                        forAmount: amount,
+                        ['@parties']: {
+                            issuer: {
+                                entity: issuerEntity,
+                                access: issuerAccess
+                            },
+                            payee: {
+                                entity: payeeEntity,
+                                access: payeeAccess
+                            }
                         }
                     }
                 },
-                undefined,
-                undefined,
                 this.withAuthorizationHeader()
             )
             .then((it) => it.data)
