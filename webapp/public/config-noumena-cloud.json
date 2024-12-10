@@ -1,4 +1,4 @@
 {
-    "API_BASE_URL": "https://engine-noumena-nplintegrations.noumena.cloud",
-    "KEYCLOAK_URL": "https://keycloak-noumena-nplintegrations.noumena.cloud"
+    "API_BASE_URL": "https://engine-pwctraining-partytraining.noumena.cloud",
+    "KEYCLOAK_URL": "https://keycloak-pwctraining-partytraining.noumena.cloud"
 }

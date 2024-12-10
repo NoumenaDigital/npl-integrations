@@ -1,5 +1,5 @@
-NC_APP_NAME=nplintegrations
-NC_ORG_NAME=noumena
+NC_APP_NAME=partytraining
+NC_ORG_NAME=pwctraining
 
 GITHUB_SHA=HEAD
 MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress

@@ -51,8 +51,8 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
         };
     };
 
-    // Dummy permission to illustrate new API endpoint generation
-    /*@api
+/*    // Dummy permission to illustrate new API endpoint generation
+    @api
     permission[issuer] doSomething()  {
     };*/
 
