@@ -49,6 +49,7 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
         // TODO: Create an instance of protocol Payment, binding the external party
         // Your code here:
         //
+        // TODO BONUS: How to add a bit of control and require a joint invocation by issuer and externalParty?
     };
 
     @api
