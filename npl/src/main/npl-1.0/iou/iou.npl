@@ -36,15 +36,19 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
 
         become payment_confirmation_required;
 
-        info(issuer);
+        // TODO: Print out the claims of the issuer party
+        // Your code here:
+        // info(..);
     };
 
-    permission[*specificIssuer] payAsExternal(amount: Number) | unpaid {
+    permission[*externalParty] payAsExternal(amount: Number) | unpaid {
         this.pay[issuer](amount);
-        // TODO: print out the claims of the external party specificIssuer
-        info(specificIssuer);
-        // TODO: create an instance of Payment, binding the external party specificIssuer
-        Payment[specificIssuer](amount);
+        // TODO: Print out the claims of the external party
+        // Your code here:
+        //
+        // TODO: Create an instance of protocol Payment, binding the external party
+        // Your code here:
+        //
     };
 
     @api
