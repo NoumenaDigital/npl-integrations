@@ -1,0 +1,53 @@
+package iou
+
+protocol[payer] Payment(amount: Number) {
+};
+
+function scenario_iou_repayment_as_representative_of_issuer_org() -> {
+
+    // Issuer: Noumena organization
+    var noumena = partyOf(
+        mapOf(
+            Pair("organization", setOf("Noumena"))
+        ),
+        mapOf<Text, Set<Text>>()
+    );
+
+    // Payee: Bob individual
+    var bob = partyOf(
+        mapOf(
+            Pair("email", setOf("bob@nd.tech"))
+        ),
+        mapOf<Text, Set<Text>>()
+    );
+
+    // IoU between Noumena and Bob
+    var iou = Iou[noumena, bob]("Noumena owes Bob", 100);
+
+    // Alice belongs to Noumena and may represent it in view of claims
+    var alice = partyOf(
+        mapOf(
+            Pair("email", setOf("alice@noumenadigital.com")),
+            Pair("organization", setOf("Noumena"))
+        ),
+        mapOf<Text, Set<Text>>()
+    );
+
+    // payment works but no way to know Alice paid - "representation by organization Noumena after party matching"
+    iou.pay[alice](20);
+    iou.confirmPayment[bob]();
+
+
+    // payment specifically as Alice (funelling through all of Alice's claims, relevant e.g. if creating new protocols)
+    // call by isolated external party only possible within NPL
+    iou.payAsExternal[alice](20);
+    iou.confirmPayment[bob]();
+
+    // user protocol as entry point to achieve the same through API
+    var aliceUser = User[alice]();
+
+    aliceUser.payIou[alice](iou, 30);
+    iou.confirmPayment[bob]();
+};
+
+

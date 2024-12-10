@@ -1,0 +1,86 @@
+package iou
+
+@test
+function test_iou_repayment_as_issuer_org(test: Test) -> {
+
+    // Issuer: Noumena organization
+    var noumena = partyOf(
+        mapOf(
+            Pair("organization", setOf("Noumena"))
+        ),
+        mapOf<Text, Set<Text>>()
+    );
+
+    // Payee: Bob individual
+    var bob = partyOf(
+        mapOf(
+            Pair("email", setOf("bob@nd.tech"))
+        ),
+        mapOf<Text, Set<Text>>()
+    );
+
+    // IoU between Noumena and Bob
+    var iou = Iou[noumena, bob]("Noumena owes Bob", 100);
+
+    // Noumena party and Bob party as such interact with IoU
+    iou.pay[noumena](50);
+    iou.confirmPayment[bob]();
+    test.assertEquals(50, iou.amountOwed);
+};
+
+@test
+function test_iou_repayment_as_representative_of_issuer_org(test: Test) -> {
+
+    // Issuer: Noumena organization
+    var noumena = partyOf(
+        mapOf(
+            Pair("organization", setOf("Noumena"))
+        ),
+        mapOf<Text, Set<Text>>()
+    );
+
+    // Payee: Bob individual
+    var bob = partyOf(
+        mapOf(
+            Pair("email", setOf("bob@nd.tech"))
+        ),
+        mapOf<Text, Set<Text>>()
+    );
+
+    // IoU between Noumena and Bob
+    var iou = Iou[noumena, bob]("Noumena owes Bob", 100);
+
+    // Alice belongs to Noumena and may represent it in view of claims
+    var alice = partyOf(
+        mapOf(
+            Pair("email", setOf("alice@noumenadigital.com")),
+            Pair("organization", setOf("Noumena"))
+        ),
+        mapOf<Text, Set<Text>>()
+    );
+    test.assertTrue(
+        alice.mayRepresent(noumena),
+        "Alice party matches Noumena party claims"
+    );
+
+    // payment works but no way to know Alice paid - "representation by organization Noumena after party matching"
+    iou.pay[alice](20);
+    iou.confirmPayment[bob]();
+    test.assertEquals(80, iou.amountOwed);
+
+
+    // payment specifically as Alice (funelling through all of Alice's claims, relevant e.g. if creating new protocols)
+    // call by isolated external party only possible within NPL
+    iou.payAsExternal[alice](20);
+    iou.confirmPayment[bob]();
+    test.assertEquals(60, iou.amountOwed);
+
+    // user protocol as entry point to achieve the same through API
+    var aliceUser = User[alice]();
+
+    aliceUser.payIou[alice](iou, 30);
+    iou.confirmPayment[bob]();
+    test.assertEquals(30, iou.amountOwed);
+};
+
+

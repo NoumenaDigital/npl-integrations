@@ -1,0 +1,10 @@
+package iou
+
+@api
+protocol[user] User() {
+
+    @api
+    permission[user] payIou(iou: Iou, amount: Number) {
+        iou.pay[user](amount);
+    };
+};

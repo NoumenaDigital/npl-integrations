@@ -35,6 +35,16 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
         notify RepaymentOccurrence(amount, amountOwed);
 
         become payment_confirmation_required;
+
+        info(issuer);
+    };
+
+    permission[*specificIssuer] payAsExternal(amount: Number) | unpaid {
+        this.pay[issuer](amount);
+        // TODO: print out the claims of the external party specificIssuer
+        info(specificIssuer);
+        // TODO: create an instance of Payment, binding the external party specificIssuer
+        Payment[specificIssuer](amount);
     };
 
     @api
@@ -50,11 +60,6 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
             become unpaid;
         };
     };
-
-/*    // Dummy permission to illustrate new API endpoint generation
-    @api
-    permission[issuer] doSomething()  {
-    };*/
 
     @api
     permission[payee] forgive() | unpaid {
