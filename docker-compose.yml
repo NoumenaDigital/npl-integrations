@@ -12,17 +12,17 @@ services:
       - "12000:12000"
     environment:
       ENGINE_DEV_MODE: ${DEV_MODE:-false}
-      ENGINE_ALLOWED_ISSUERS: http://keycloak:11000
+      ENGINE_ALLOWED_ISSUERS: http://keycloak:11000/realms/${KEYCLOAK_REALM:-nplintegrations}
       ENGINE_DB_URL: "jdbc:postgresql://engine-db:5432/engine"
       ENGINE_DB_USER: npl-integrations
       ENGINE_DB_PASSWORD: secret
       ENGINE_DB_HISTORY_USER: history
       ENGINE_DB_HISTORY_SCHEMA: history
       ENGINE_DB_READ_MODEL_USER: postgraphile
-      ENGINE_ISSUER_OVERRIDE: http://keycloak:11000/realms/nplintegrations
+      ENGINE_ISSUER_OVERRIDE: http://keycloak:11000/realms/${KEYCLOAK_REALM:-nplintegrations}
       SWAGGER_ENGINE_URL: http://localhost:12000
-      SWAGGER_SECURITY_AUTH_URL: http://localhost:11000/realms/nplintegrations
-      SWAGGER_SECURITY_CLIENT_ID: nplintegrations
+      SWAGGER_SECURITY_AUTH_URL: http://localhost:11000/realms/${KEYCLOAK_REALM:-nplintegrations}
+      SWAGGER_SECURITY_CLIENT_ID: ${KEYCLOAK_REALM:-nplintegrations}
     depends_on:
       engine-db:
         condition: service_started
@@ -39,9 +39,9 @@ services:
       READ_MODEL_DB_USER: postgraphile
       READ_MODEL_DB_SCHEMA: noumena
       READ_MODEL_ALLOWED_ISSUERS: >
-        http://keycloak:11000/realms/nplintegrations,
+        http://keycloak:11000/realms/${KEYCLOAK_REALM:-nplintegrations},
         http://keycloak:11000,
-        http://localhost:11000/realms/nplintegrations
+        http://localhost:11000/realms/${KEYCLOAK_REALM:-nplintegrations}
       READ_MODEL_ENGINE_HEALTH_ENDPOINT: "http://engine:12000/actuator/health"
       READ_MODEL_ENGINE_HEALTH_TIMEOUT_SECONDS: 250
     depends_on:
@@ -91,10 +91,23 @@ services:
         condition: service_healthy
 
   keycloak:
-    image: quay.io/keycloak/keycloak:23.0.2
-    command: start --hostname-strict=false --hostname-strict-https=false --health-enabled=true --http-enabled=true --metrics-enabled=true --db=postgres
+    image: ghcr.io/noumenadigital/npl-integrations/keycloak:latest
+    build:
+      context: keycloak
+    command: |
+      start
+      --spi-events-listener-jboss-logging-success-level=info
+      --spi-events-listener-jboss-logging-error-level=error
+      --hostname-strict=false
+      --health-enabled=true
+      --http-enabled=true
+      --metrics-enabled=true
+      --db=postgres
+      --hostname-admin=http://keycloak:11000
+      --hostname=http://keycloak:11000
     ports:
       - "11000:11000"
+      - "9000:9000"
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-welcome}
@@ -109,7 +122,7 @@ services:
       keycloak-db:
         condition: service_started
     healthcheck:
-      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/11000;echo -e 'GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n' >&3;if [ $? -eq 0 ]; then echo 'Healthcheck Successful';exit 0;else echo 'Healthcheck Failed';exit 1;fi;" ]
+      test: curl http://keycloak:9000/health || exit 1
       interval: 1s
       retries: 60
 
@@ -158,8 +171,8 @@ services:
     environment:
       GQL_ENDPOINT: http://localhost:15001/graphql
       KEYCLOAK_URL: http://keycloak:11000
-      KEYCLOAK_REALM: nplintegrations
-      KEYCLOAK_CLIENT_ID: nplintegrations
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-nplintegrations}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_REALM:-nplintegrations}
     depends_on:
       nginx-proxy:
         condition: service_started
@@ -172,7 +185,7 @@ services:
       context: python-listener
     environment:
       ENV: LOCAL
-      REALM: nplintegrations
+      REALM: ${KEYCLOAK_REALM:-nplintegrations}
     depends_on:
       engine:
         condition: service_healthy
