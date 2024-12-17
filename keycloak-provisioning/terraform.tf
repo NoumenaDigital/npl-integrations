@@ -25,12 +25,59 @@ variable "web_origins" {
   default = ["*"]
 }
 
+variable "realm_smtp_from" {
+  type    = string
+  default = "payee1@noumenadigital.com"
+}
+
+variable "realm_smtp_host" {
+  type    = string
+  default = "smtp.gmail.com"
+}
+
+variable "realm_smtp_port" {
+  type    = number
+  default = 465
+}
+
+variable "realm_smtp_auth_username" {
+  type    = string
+  default = "payee1@noumenadigital.com"
+}
+
+variable "realm_smtp_auth_password" {
+  type    = string
+  default = ""
+}
+
+variable "systemuser_secret" {
+  type    = string
+}
+
+variable "systemuser_name" {
+  type    = string
+  default = "bankingsystem"
+}
+
 resource "keycloak_realm" "realm" {
   realm = var.app_name
   # Realm Settings > Login tab
   reset_password_allowed   = true
   login_with_email_allowed = true
   registration_allowed = true
+
+  # Realm Settings > Email tab
+  smtp_server {
+    from = var.realm_smtp_from
+    host = var.realm_smtp_host
+    port = var.realm_smtp_port
+    ssl  = true
+
+    auth {
+      username = var.realm_smtp_auth_username
+      password = var.realm_smtp_auth_password
+    }
+  }
 
   # Realm Settings > User profile tab
   attributes = {
