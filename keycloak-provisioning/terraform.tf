@@ -1,5 +1,9 @@
 # ref: https://registry.terraform.io/providers/mrparkers/keycloak/4.1.0/docs/resources/openid_client
 
+variable "default_password" {
+  type = string
+}
+
 variable "app_name" {
   type    = string
   default = "nplintegrations"
@@ -11,17 +15,17 @@ variable "root_url" {
 }
 
 variable "valid_redirect_uris" {
-  type = list(string)
+  type    = list(string)
   default = ["*"]
 }
 
 variable "valid_post_logout_redirect_uris" {
-  type = list(string)
+  type    = list(string)
   default = ["+"]
 }
 
 variable "web_origins" {
-  type = list(string)
+  type    = list(string)
   default = ["*"]
 }
 
@@ -143,7 +147,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
 }
 
 resource "keycloak_default_roles" "default_roles" {
-  realm_id = keycloak_realm.realm.id
+  realm_id      = keycloak_realm.realm.id
   default_roles = ["offline_access", "uma_authorization"]
 }
 
