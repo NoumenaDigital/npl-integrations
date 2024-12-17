@@ -20,6 +20,8 @@
                 <version>${noumena.platform.version}</version>
                 <executions>
                     <execution>
+                        <id>npl-compile-and-test</id>
+                        <phase>compile</phase>
                         <goals>
                             <goal>npl-puml</goal>
                             <goal>npl-compile</goal>
@@ -42,6 +44,7 @@
                 <executions>
                     <execution>
                         <id>listener-service-source-generation</id>
+                        <phase>package</phase>
                         <goals>
                             <goal>generate</goal>
                         </goals>
@@ -53,6 +56,7 @@
                     </execution>
                     <execution>
                         <id>streamlit-ui-source-generation</id>
+                        <phase>package</phase>
                         <goals>
                             <goal>generate</goal>
                         </goals>
@@ -64,6 +68,7 @@
                     </execution>
                     <execution>
                         <id>webapp-source-generator</id>
+                        <phase>package</phase>
                         <goals>
                             <goal>generate</goal>
                         </goals>
@@ -71,10 +76,14 @@
                             <inputSpec>${project.basedir}/target/generated-sources/openapi/iou-openapi.yml</inputSpec>
                             <generatorName>typescript-axios</generatorName>
                             <output>../webapp/generated</output>
+                            <configOptions>
+                                <useSingleRequestParameter>true</useSingleRequestParameter>
+                            </configOptions>
                         </configuration>
                     </execution>
                     <execution>
                         <id>it-test-source-generator</id>
+                        <phase>package</phase>
                         <goals>
                             <goal>generate</goal>
                         </goals>
