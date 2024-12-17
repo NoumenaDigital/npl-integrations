@@ -35,7 +35,6 @@ resource "keycloak_realm" "realm" {
   # Realm Settings > User profile tab
   attributes = {
     userProfileEnabled = true
-    mycustomAttribute  = "myCustomValue"
   }
 }
 
