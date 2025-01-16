@@ -12,7 +12,11 @@ Follow the configuration steps detailed in `README.md` and make sure you can run
 The NPL code base in the `npl-integrations` application builds on the IoU example of the [npl-starter](https://github.com/NoumenaDigital/npl-starter) repository, adding a `RepaymentOccurrence` notification triggered when the IoU issuer calls the `pay`action to claim she/he has repaid an amount on the IoU, a permission `confirmPayment` that can be invoked by the payee to confirm such a repayment did indeed happen, and a new state `payment_confirmation_required` to reflect that after each `pay` invocation a confirmation is now required. The python listener service is designed to pick up `paymentOccurence` notifications and "call back" to confirm repayments. For simplicity, that python listener service authenticates as one specific user among the provisioned ones, namely Bob, meaning that the listener will only callback to confirm payments with success on IoU's where Bob (identified as bob@noumenadigital.com in the IoU creation form in the frontend) is the payee. The new state and the new state transitions can be visualized in the State Machine Analyzer provided by the NPL Dev Plugin.
 
 ## Part 1: Local deployment of engine and keycloak
-**Step 1:** Deploy the NPL in an engine running locally, using docker: `docker compose up -d --build engine keycloak-provisioning`
+**Step 1:** Deploy the NPL in an engine running locally, using docker:
+```shell
+$ docker compose up -d --build engine keycloak-provisioning
+```
+
 Notes:
 - The `--build` flag in docker compose ensures that if containers are recreated, images are rebuilt first from the latest sources. 
 - Look at the deployed containers using the Docker Desktop app or typing `docker ps -a`. You should see the engine and its database running, as well as keycloak and its database.
@@ -22,17 +26,6 @@ Notes:
 
 ## Dump of remainder
 
-A. Show IoU code, states, permission, additional confirmPayment() permission
-B. Discussed developer experience in IntelliJ last time, showed sandbox (operating engine within IntelliJ)
-C. Let's deploy that NPL application locally
-
-1. Deploy engine locally
-
-```shell
-$ docker compose up -d --build engine keycloak-provisioning
-```
-
-D. Show containers in Docker desktop, comment on engine, Keycloak, Keycloak provisioning (created users)
 E. Open Keycloak console, show users provisioned
 F. Open Engine API, append swagger-ui/, generated API, test interaction listing IoUs
 
