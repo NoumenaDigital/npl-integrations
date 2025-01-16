@@ -2,7 +2,7 @@
 
 ## Focus of this demo
 The demo steps detailed below illustrate
-- How various components of the `npl-integrations` example application (with python "listener and callback service" and typescript frontend) can be deployed locally, using docker, or integrated with an engine and keycloak deployed to PaaS
+- How various components of the `npl-integrations` example application (with python "listener and callback service" and typescript frontend) can be deployed locally, using docker, or integrated with an engine and keycloak deployed to PaaS/Noumena Cloud
 - The various APIs exposed by the engine and how users can interact with them to execute actions, retrieve a history of state changes or commands, listen to event streams...
 
 ## Pre-requisites
@@ -19,6 +19,7 @@ Notes:
 - Keycloak has been provisioned with users Alice, Bob and Eve. A container `keycloak-provisioning` should show up as exited among docker containers since provisioning has completed. For technical details on the provisioning, follow the trail from the `keycloak-provisioning` service in `docker-compose.yml` to script `local.sh` and terraform file `terraform.tf` in module `keycloak-provisioning`.
 - Open the keycloak administration console accessible under `http://keycloak:11000/admin/master/console/` (also via `http://keycloak:11000`)
 
+
 ## Dump of remainder
 
 A. Show IoU code, states, permission, additional confirmPayment() permission
@@ -26,20 +27,25 @@ B. Discussed developer experience in IntelliJ last time, showed sandbox (operati
 C. Let's deploy that NPL application locally
 
 1. Deploy engine locally
-   docker compose up -d --build engine keycloak-provisioning
+
+```shell
+$ docker compose up -d --build engine keycloak-provisioning
+```
 
 D. Show containers in Docker desktop, comment on engine, Keycloak, Keycloak provisioning (created users)
 E. Open Keycloak console, show users provisioned
 F. Open Engine API, append swagger-ui/, generated API, test interaction listing IoUs
 
 2. Get Alice JWT
-   \    
-   curl -s 'http://localhost:11000/realms/nplintegrations/protocol/openid-connect/token' \
+
+```shell
+$ curl -s 'http://localhost:11000/realms/nplintegrations/protocol/openid-connect/token' \
    -d 'username=alice' \
    -d 'password=alice' \
    -d 'grant_type=password' \
    -d 'client_id=nplintegrations' \
    | jq -j .access_token
+```
 
 G. Retest ListIoUs after authentication, success
 H. Create IoU with postman, re-list on engine API
@@ -47,61 +53,81 @@ H. Create IoU with postman, re-list on engine API
 I. Other APIs we have been discussing on the graph earlier, e.g. streaming API
 
 3.  Event stream
-    \
-    TOKEN=$(curl -s 'http://localhost:11000/realms/nplintegrations/protocol/openid-connect/token' -d 'username=alice' -d 'password=alice' -d 'grant_type=password' -d 'client_id=nplintegrations' | jq -j .access_token) \
-    && curl 'http://localhost:12000/api/streams' -H "Authorization: Bearer ${TOKEN}" -H 'Accept: text/event-stream'
+
+```shell
+$ TOKEN=$(curl -s 'http://localhost:11000/realms/nplintegrations/protocol/openid-connect/token' -d 'username=alice' -d 'password=alice' -d 'grant_type=password' -d 'client_id=nplintegrations' | jq -j .access_token) \
+&& curl 'http://localhost:12000/api/streams' -H "Authorization: Bearer ${TOKEN}" -H 'Accept: text/event-stream'
+```
 
 J. Repay part of IoU as Alice, see events on console with stream (command and state)
 K. Comment on state change linking to command, and command linking to agent/keycloak user Id = auditability
 L. We can replay state history and command history for audit
 
 4. State history
-   \
-   TOKEN=$(curl -s 'http://localhost:11000/realms/nplintegrations/protocol/openid-connect/token' -d 'username=alice' -d 'password=alice' -d 'grant_type=password' -d 'client_id=nplintegrations' | jq -j .access_token) \
-   && curl 'http://localhost:12000/api/streams/current-archived-states' -H "Authorization: Bearer ${TOKEN}" -H 'Accept: text/event-stream'
+
+```shell
+$ TOKEN=$(curl -s 'http://localhost:11000/realms/nplintegrations/protocol/openid-connect/token' -d 'username=alice' -d 'password=alice' -d 'grant_type=password' -d 'client_id=nplintegrations' | jq -j .access_token) \
+&& curl 'http://localhost:12000/api/streams/current-archived-states' -H "Authorization: Bearer ${TOKEN}" -H 'Accept: text/event-stream'
+```
 
 5. Command history
-   \
-   TOKEN=$(curl -s 'http://localhost:11000/realms/nplintegrations/protocol/openid-connect/token' -d 'username=alice' -d 'password=alice' -d 'grant_type=password' -d 'client_id=nplintegrations' | jq -j .access_token) \
-   && curl 'http://localhost:12000/api/streams/current-commands' -H "Authorization: Bearer ${TOKEN}" -H 'Accept: text/event-stream'
+```shell
+$ TOKEN=$(curl -s 'http://localhost:11000/realms/nplintegrations/protocol/openid-connect/token' -d 'username=alice' -d 'password=alice' -d 'grant_type=password' -d 'client_id=nplintegrations' | jq -j .access_token) \
+&& curl 'http://localhost:12000/api/streams/current-commands' -H "Authorization: Bearer ${TOKEN}" -H 'Accept: text/event-stream'
+```
 
 M. Streaming/history are permissioned, create Bob-Alice IoU and Bob-Charlie IoU, check in Alice's streams/history
 N. How easy is it to adjust and redeploy a fully functional app? Uncomment doSomething() lines, redeploy in 5 seconds
 
 6. Deploy adjusted NPL
-   docker compose down -v && docker compose up -d --build engine keycloak-provisioning
+```shell
+$ docker compose down -v && docker compose up -d --build engine keycloak-provisioning
+```
 
 O. Similarly, we would deploy to cloud or what we call PaaS. Let's now look at more complete application, show slide, point to python and webapp modules, show streams in main.py and HomePage.tsx
 P. Can build on generated API clients for faster development & ensure integration breaking changes are revealed at compile time, point to generated folders, show some model in api.ts
 Q. Delete generated folder, regenerate in 5-10 seconds with:
 
 7. Generate API clients
-   mvn clean install
+```shell
+$ mvn clean install
+```
 
 8. Deploy with Python & WebApp
    #docker compose down -v && docker compose up --wait
-   docker compose down -v && docker compose up --build --wait engine keycloak-provisioning webapp python-service
+```shell
+$ docker compose down -v && docker compose up --build --wait engine keycloak-provisioning webapp python-service
+```
 
 R. Show services in docker desktop, comment on webapp, python, read model; show python logs
 S. Open webapp, create Alice-Bob IoU, log in as Bob, log in as Alice, repay IoU, comment on state update, show python logs in docker desktop
 T. Let's now look at other deployment scenario, PaaS + local, show PaaS slide
 U. Log into PaaS with Microsoft Azure account (browser bookmark, https://portal.noumena.cloud/training), explain tenant, app, show previously uploaded app, Keycloak; open swagger UI and NPL generated API, does not yet have doSomething(), let's redeploy
 
-9. Login & Deploy to PaaS
-   az login --tenant 56c47bd0-7e9e-494e-8623-2b1c70226f92 --allow-no-subscriptions
-   make clear-deploy
+9. Login & Deploy to PaaS 
+
+```shell
+$ az login
+```
+```shell
+$ make clear-deploy
+```
 
 V. Show updated app (date, swagger UI)
 
 10. Build & Run standalone Python
     (cd python-listener && mkdir -p venv && python3 -m venv venv && source venv/bin/activate)
-    pip install -r requirements.txt && python3 app.py
+```shell
+$ pip install -r requirements.txt && python3 app.py
+```
 
 W. Show console output and comment on PaaS Keycloak URL & engine URL
 
 11. Build & Run standalone WebApp
     (cd webapp)
-    npm install && npm run dev
+```shell
+$ npm install && npm run dev
+```
 
 X. Open Webapp, login as Alice, create IoU, repay; show python log in console; show updated state in UI
 
