@@ -1,4 +1,4 @@
-# ref: https://registry.terraform.io/providers/mrparkers/keycloak/4.4.0/docs/resources/openid_client
+# ref: https://registry.terraform.io/providers/keycloak/keycloak/5.0.0/docs/resources/openid_client
 
 variable "default_password" {
   type = string

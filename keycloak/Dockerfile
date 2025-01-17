@@ -5,7 +5,7 @@
 FROM alpine AS alpine
 RUN \
 	apk add openssl && \
-	wget -O /tmp/DigiCertGlobalRootCA.crt.pem  https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem && \
+	wget -O /tmp/DigiCertGlobalRootCA.crt.pem https://cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem && \
 	wget -O /tmp/ms.crt --user-agent="curl/8.1.2"  https://www.microsoft.com/pkiops/certs/Microsoft%20RSA%20Root%20Certificate%20Authority%202017.crt && \
 	wget -O /tmp/ms2.crt --user-agent="curl/8.1.2" https://www.microsoft.com/pkiops/certs/Microsoft%20Azure%20RSA%20TLS%20Issuing%20CA%2003%20-%20xsign.crt && \
     wget -O /tmp/ms3.crt --user-agent="curl/8.1.2" https://www.microsoft.com/pkiops/certs/Microsoft%20Azure%20RSA%20TLS%20Issuing%20CA%2007%20-%20xsign.crt && \
