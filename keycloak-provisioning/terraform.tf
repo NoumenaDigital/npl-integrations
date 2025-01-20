@@ -1,24 +1,17 @@
-# ref: https://registry.terraform.io/providers/mrparkers/keycloak/4.1.0/docs/resources/openid_client
+# ref: https://registry.terraform.io/providers/keycloak/keycloak/5.0.0/docs/resources/openid_client
 
 variable "default_password" {
   type = string
 }
 
 variable "app_name" {
-  type = string
+  type    = string
   default = "nplintegrations"
 }
 
-/*
 variable "root_url" {
   type    = string
-  default = "http://127.0.0.1:5173"
-}
-*/
-
-variable "base_url" {
-  type    = string
-  default = "http://localhost:3000"
+  default = "http://localhost:5173"
 }
 
 variable "valid_redirect_uris" {
@@ -71,10 +64,12 @@ variable "systemuser_name" {
 }
 
 resource "keycloak_realm" "realm" {
-  realm                    = var.app_name
+  realm = var.app_name
   # Realm Settings > Login tab
   reset_password_allowed   = true
   login_with_email_allowed = true
+  registration_allowed = true
+
   # Realm Settings > Email tab
   smtp_server {
     from = var.realm_smtp_from
@@ -85,6 +80,68 @@ resource "keycloak_realm" "realm" {
     auth {
       username = var.realm_smtp_auth_username
       password = var.realm_smtp_auth_password
+    }
+  }
+
+  # Realm Settings > User profile tab
+  attributes = {
+    userProfileEnabled = true
+  }
+}
+
+resource "keycloak_realm_user_profile" "userprofile" {
+  realm_id = keycloak_realm.realm.id
+
+  attribute {
+    name         = "username"
+    display_name = "Username"
+  }
+
+  attribute {
+    name         = "firstName"
+    display_name = "First Name"
+
+    permissions {
+      view = ["user", "admin"]
+      edit = ["user", "admin"]
+    }
+  }
+
+  attribute {
+    name         = "lastName"
+    display_name = "Last Name"
+
+    permissions {
+      view = ["user", "admin"]
+      edit = ["user", "admin"]
+    }
+  }
+
+  attribute {
+    name = "email"
+
+    permissions {
+      view = ["admin"]
+      edit = ["admin"]
+    }
+  }
+
+  attribute {
+    name         = "organization"
+    display_name = "Organization"
+
+    permissions {
+      view = ["admin"]
+      edit = ["admin"]
+    }
+  }
+
+  attribute {
+    name = "department"
+
+    permissions {
+      view = ["admin"]
+      edit = ["admin"]
     }
   }
 }
@@ -103,7 +160,7 @@ resource "keycloak_openid_client" "client" {
   valid_redirect_uris             = var.valid_redirect_uris
   valid_post_logout_redirect_uris = var.valid_post_logout_redirect_uris
   web_origins                     = var.web_origins
-  root_url                        = "http://localhost:5173"
+  root_url                        = var.root_url
 }
 
 resource "keycloak_openid_user_attribute_protocol_mapper" "party_mapper" {
@@ -138,14 +195,17 @@ resource "keycloak_openid_user_attribute_protocol_mapper" "department_mapper" {
 
 resource "keycloak_user" "alice" {
   realm_id   = keycloak_realm.realm.id
+  depends_on = [keycloak_realm_user_profile.userprofile]
   username   = "alice"
   email      = "alice@nd.tech"
   first_name = "Alice"
   last_name  = "A"
+
   attributes = {
     "organization" = jsonencode(["NDtech"])
     "department" = jsonencode(["acquisitions"])
   }
+
   initial_password {
     value     = "alice"
     temporary = false
@@ -154,14 +214,17 @@ resource "keycloak_user" "alice" {
 
 resource "keycloak_user" "bob" {
   realm_id   = keycloak_realm.realm.id
+  depends_on = [keycloak_realm_user_profile.userprofile]
   username   = "bob"
   email      = "bob@nd.tech"
   first_name = "Bob"
   last_name  = "B"
+
   attributes = {
     "organization" = jsonencode(["NDtech"])
     "department" = jsonencode(["business"])
   }
+
   initial_password {
     value     = "bob"
     temporary = false
@@ -170,10 +233,12 @@ resource "keycloak_user" "bob" {
 
 resource "keycloak_user" "charlie" {
   realm_id   = keycloak_realm.realm.id
+  depends_on = [keycloak_realm_user_profile.userprofile]
   username   = "charlie"
   email      = "charlie@nd.tech"
   first_name = "Charlie"
   last_name  = "C"
+
   attributes = {
     "organization" = jsonencode(["NDtech"])
     "department" = jsonencode(["consulting"])
@@ -186,6 +251,7 @@ resource "keycloak_user" "charlie" {
 
 resource "keycloak_user" "eve" {
   realm_id   = keycloak_realm.realm.id
+  depends_on = [keycloak_realm_user_profile.userprofile]
   username   = "eve"
   email      = "eve@evilcorp.com"
   first_name = "Eve"
