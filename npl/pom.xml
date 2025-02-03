@@ -28,6 +28,7 @@
                             <goal>npl-test-compile</goal>
                             <goal>npl-test</goal>
                             <goal>npl-api</goal>
+                            <goal>npl-multigen</goal>
                         </goals>
                     </execution>
                 </executions>
