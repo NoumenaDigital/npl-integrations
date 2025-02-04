@@ -23,11 +23,11 @@
                         <id>npl-compile-and-test</id>
                         <phase>compile</phase>
                         <goals>
-                            <goal>npl-puml</goal>
                             <goal>npl-compile</goal>
                             <goal>npl-test-compile</goal>
                             <goal>npl-test</goal>
                             <goal>npl-api</goal>
+                            <goal>npl-puml</goal>
                             <goal>npl-multigen</goal>
                         </goals>
                     </execution>

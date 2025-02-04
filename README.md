@@ -7,6 +7,9 @@ It includes a Python listener service, a Typescript React web app, and a Python 
 The underlying NPL code is an extension of the IOU, which can be found
 in the [npl-starter](https://github.com/NoumenaDigital/npl-starter) repository.
 
+Details about each components can be found in the corresponding README files in the respective directories.
+- [NPL](npl/README.md)
+
 ## Building and running with Docker locally
 
 The project can be built and run locally using Docker Compose.
