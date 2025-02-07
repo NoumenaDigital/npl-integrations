@@ -5,9 +5,24 @@ struct TimestampedAmount {
     timestamp: DateTime
 };
 
+struct PaymentConfirmation {
+    confirmed: Boolean,
+    payment: TimestampedAmount
+};
+
 function total(entries: List<TimestampedAmount>) -> entries.map(function(p: TimestampedAmount) -> p.amount).sum();
 
 notification RepaymentOccurrence(paymentAmount: Number, remainingAmount: Number) returns Unit;
+
+struct PaymentDetails {
+    description: Text,
+    forAmount: Number,
+    paymentAmount: TimestampedAmount,
+    remainingAmount: Number
+};
+
+@multinode
+notification RepaymentOccurrenceMultiNode(payment: PaymentDetails) returns PaymentConfirmation;
 
 @api
 protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
@@ -33,6 +48,7 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
             TimestampedAmount(amount = amount, timestamp = now())
         );
         notify RepaymentOccurrence(amount, amountOwed);
+        notify RepaymentOccurrenceMultiNode(PaymentDetails(description, forAmount, paymentToBeConfirmed.getOrFail(), amountOwed - amount));
 
         become payment_confirmation_required;
     };
@@ -47,6 +63,24 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
         if (amountOwed == 0) {
             become repaid;
         } else {
+            become unpaid;
+        };
+    };
+
+    @multinode
+    permission[payee] confirmPaymentMultiNode(r: PaymentConfirmation) | payment_confirmation_required {
+        if (r.confirmed && paymentToBeConfirmed.getOrFail() == r.payment) {
+            payments = payments.with(paymentToBeConfirmed.getOrFail());
+            paymentToBeConfirmed = optionalOf<TimestampedAmount>();
+            amountOwed = getAmountOwed();
+
+            if (amountOwed == 0) {
+                become repaid;
+            } else {
+                become unpaid;
+            };
+        } else if (r.confirmed.not()) {
+            paymentToBeConfirmed = optionalOf<TimestampedAmount>();
             become unpaid;
         };
     };
