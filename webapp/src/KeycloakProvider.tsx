@@ -8,12 +8,12 @@ interface KeycloakProviderProps {
 }
 
 export const KeycloakProvider: FC<KeycloakProviderProps> = ({ children }) => {
-    const { keycloakUrl } = useRuntimeConfiguration()
+    const { keycloakUrl, keycloakRealm } = useRuntimeConfiguration()
 
     const keycloak = new Keycloak({
         url: keycloakUrl,
-        realm: 'nplintegrations',
-        clientId: 'nplintegrations'
+        realm: keycloakRealm,
+        clientId: keycloakRealm,
     })
 
     const initOptions = {

@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 export interface RuntimeConfiguration {
     apiBaseUrl: string
     keycloakUrl: string
+    keycloakRealm: string
 }
 
 const RuntimeConfigurationContext = createContext<RuntimeConfiguration | null>(
@@ -33,10 +34,30 @@ export const loadRuntimeConfiguration =
         const response = await fetch(config_file)
         const value = await response.json()
 
-        return {
+        let keycloakRealm = import.meta.env.VITE_NC_APP_NAME
+        let ncOrg = import.meta.env.VITE_NC_ORG_NAME
+
+        let config = {
             apiBaseUrl: value.API_BASE_URL,
-            keycloakUrl: value.KEYCLOAK_URL
+            keycloakUrl: value.KEYCLOAK_URL,
+            keycloakRealm: value.KEYCLOAK_REALM,
         }
+        if (keycloakRealm !== undefined) {
+            config = {
+                ...config,
+                apiBaseUrl: config.apiBaseUrl.replace("nplintegrations", keycloakRealm),
+                keycloakUrl: config.keycloakUrl.replace("nplintegrations", keycloakRealm),
+                keycloakRealm: keycloakRealm,
+            }
+        }
+        if (ncOrg !== undefined) {
+            config = {
+                ...config,
+                apiBaseUrl: config.apiBaseUrl.replace("noumena", ncOrg),
+                keycloakUrl: config.keycloakUrl.replace("noumena", ncOrg),
+            }
+        }
+        return config
     }
 
 export const RuntimeConfigurationProvider: React.FC<

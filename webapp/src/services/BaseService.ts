@@ -24,6 +24,7 @@ export class BaseService {
 
     public useStateStream = (requestRefresh: () => void) => {
         const [active, setActive] = useState(true)
+
         useEffect(() => {
             const source = new EventSourcePolyfill(
                 this.apiBaseUrl + '/api/streams/states',
@@ -47,7 +48,7 @@ export class BaseService {
                 source.close()
                 setActive(false)
             }
-        }, [requestRefresh])
+        }, [])
 
         return active
     }

@@ -1,5 +1,5 @@
-NC_APP_NAME=nplintegrations
-NC_ORG_NAME=noumena
+#!make
+include .env
 
 GITHUB_SHA=HEAD
 MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
@@ -9,14 +9,14 @@ NPL_VERSION=1.0
 NC_ENGINE_VERSION=2024.2.9
 NC_DOMAIN=noumena.cloud
 
-NC_APP_NAME_CLEAN := $(shell echo $(NC_APP_NAME) | tr -d '-' | tr -d '_')
-NC_ORG := $(shell ./cli org list 2>/dev/null | jq --arg NC_ORG_NAME "$(NC_ORG_NAME)" -r '.[] | select(.slug == $$NC_ORG_NAME) | .id' 2>/dev/null)
-NC_APP := $(shell ./cli app list -org $(NC_ORG) 2>/dev/null | jq --arg NC_APP_NAME "$(NC_APP_NAME)" '.[] | select(.name == $$NC_APP_NAME) | .id' 2>/dev/null)
+NC_APP_NAME_CLEAN := $(shell echo ${VITE_NC_APP_NAME} | tr -d '-' | tr -d '_')
+NC_ORG := $(shell ./cli org list 2>/dev/null | jq --arg VITE_NC_ORG_NAME "$(VITE_NC_ORG_NAME)" -r '.[] | select(.slug == $$VITE_NC_ORG_NAME) | .id' 2>/dev/null)
+NC_APP := $(shell ./cli app list -org $(NC_ORG) 2>/dev/null | jq --arg VITE_NC_APP_NAME "${VITE_NC_APP_NAME}" '.[] | select(.name == $$VITE_NC_APP_NAME) | .id' 2>/dev/null)
 NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_username' 2>/dev/null )
 NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_password' 2>/dev/null )
-KEYCLOAK_URL=https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMAIN)
-ENGINE_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)
-READ_MODEL_URL=https://engine-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/graphql
+KEYCLOAK_URL=https://keycloak-$(VITE_NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMAIN)
+ENGINE_URL=https://engine-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)
+READ_MODEL_URL=https://engine-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)/graphql
 
 escape_dollar = $(subst $$,\$$,$1)
 
@@ -69,11 +69,11 @@ run-webapp:
 
 .PHONY: run-python-listener
 run-python-listener:
-	. venv/bin/activate && cd python-listener && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) python app.py
+	. venv/bin/activate && cd python-listener && python app.py
 
 .PHONY: run-streamlit-ui
 run-streamlit-ui:
-	. venv/bin/activate && cd streamlit-ui && REALM=$(NC_APP_NAME) ORG=$(NC_ORG_NAME) streamlit run main.py
+	. venv/bin/activate && cd streamlit-ui && streamlit run main.py
 
 .PHONY:	run
 run: install run-only
@@ -94,11 +94,11 @@ download-cli:
 
 .PHONY: create-app
 create-app:
-	./cli app create -org $(NC_ORG) -engine $(NC_ENGINE_VERSION) -name $(NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(NC_ORG_NAME)-$(NC_APP_NAME).$(NC_DOMAIN)/realms/$(NC_APP_NAME)"]'
+	./cli app create -org $(NC_ORG) -engine $(NC_ENGINE_VERSION) -name $(VITE_NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)/realms/$(VITE_NC_APP_NAME)"]'
 
 .PHONY: clear-deploy
 clear-deploy: zip
-	@if [ "$(NC_APP)" = "" ] ; then echo "App $(NC_APP_NAME) not found"; exit 1; fi
+	@if [ "$(NC_APP)" = "" ] ; then echo "App $(VITE_NC_APP_NAME) not found"; exit 1; fi
 	@if [ "$(NPL_VERSION)" = "" ]; then echo "NPL_VERSION not set"; exit 1; fi
 	./cli app clear -app $(NC_APP)
 	./cli app deploy -app $(NC_APP) -binary ./target/npl-integrations-$(NPL_VERSION).zip
@@ -109,7 +109,7 @@ status-app:
 
 .PHONY: delete
 delete:
-	@echo "Deleting app $(NC_APP_NAME) with id $(NC_APP)"
+	@echo "Deleting app $(VITE_NC_APP_NAME) with id $(NC_APP)"
 	make -f cloud.mk status-app
 	@./cli app delete -app $(NC_APP)
 
@@ -136,7 +136,7 @@ iam:
 integration-test:
 	NC_ENGINE_VERSION=$(NC_ENGINE_VERSION) \
 	NC_DOMAIN=$(NC_DOMAIN) \
-	NC_ORG_NAME=$(NC_ORG_NAME) \
+	VITE_NC_ORG_NAME=$(VITE_NC_ORG_NAME) \
 	NPL_VERSION=$(NPL_VERSION) \
 	NC_ENV=$(NC_ENV) \
 	./it-test/src/test/it-cloud.sh

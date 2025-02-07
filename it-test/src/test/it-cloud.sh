@@ -15,7 +15,7 @@ if [ -z "$NC_DOMAIN" ]; then
 	exit 1
 fi
 if [ -z "$NC_ORG_NAME" ]; then
-	echo "NC_ORG_NAME not set"
+	echo "VITE_NC_ORG_NAME not set"
 	exit 1
 fi
 if [ -z "$NC_ENGINE_VERSION" ]; then
@@ -35,7 +35,7 @@ echo "Performing integration tests on domain '$NC_DOMAIN' for org '$NC_ORG_NAME'
 
 org_id=$(get_nc_org)
 if [ -z "$org_id" ]; then
-	echo "NC org id not found for NC_ORG_NAME '$NC_ORG_NAME' on domain '$NC_DOMAIN'"
+	echo "NC org id not found for VITE_NC_ORG_NAME '$NC_ORG_NAME' on domain '$NC_DOMAIN'"
 	exit 1
 fi
 
