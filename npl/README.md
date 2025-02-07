@@ -5,7 +5,7 @@ It defines the data model and the business logic of the application.
 
 ## Maven goals
 
-Maven goals are different actions performed on the NPL codebase. The following Maven goals are used in the repository:
+Maven goals are specific tasks executed during the build process of the NPL codebase. The following Maven goals are used in this repository:
 - npl-compile: Compiles the NPL code and ensures that it is valid.
 - npl-test-compile: Compiles the NPL test code and ensures that it is valid.
 - npl-test: Runs the NPL tests.
