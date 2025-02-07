@@ -2,7 +2,7 @@ FROM node:22-alpine3.19 AS builder
 
 WORKDIR /webapp/
 COPY . /webapp/
-COPY .env.production ./
+COPY ../.env.production ./
 RUN npm ci && npm run build
 
 FROM nginx:1.27-alpine

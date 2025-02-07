@@ -8,7 +8,7 @@ get_nc_app_name_clean() {
 }
 
 get_nc_org() {
-	./cli org list | jq --arg NC_ORG_NAME "$NC_ORG_NAME" -r '.[] | select(.slug == $NC_ORG_NAME) | .id'
+	./cli org list | jq --arg NC_ORG_NAME "$VITE_NC_ORG_NAME" -r '.[] | select(.slug == $NC_ORG_NAME) | .id'
 }
 
 get_nc_keycloak_username() {
