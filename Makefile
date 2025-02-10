@@ -143,3 +143,7 @@ integration-test-cloud:
 
 unit-tests-python-listener:
 	. venv/bin/activate && make -f local.mk unit-tests-python-listener
+
+.PHONY: npl-test
+npl-test:
+	cd npl && mvn $(MAVEN_CLI_OPTS) test
