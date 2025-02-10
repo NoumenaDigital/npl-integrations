@@ -38,6 +38,9 @@ jobs:
           java-version: "17"
           cache: "maven"
 
+      - name: "NPL compile & test"
+        run: "make npl-test"
+
       - name: "Install & setup"
         run: "make cloud-install"
 
