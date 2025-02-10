@@ -66,8 +66,7 @@ install-webapp:
 
 .PHONY: generate-sources
 generate-sources:
-	mvn $(MAVEN_CLI_OPTS) generate-sources
-	chmod +x bash/client.sh
+	mvn $(MAVEN_CLI_OPTS) generate-sources && chmod +x bash/client.sh
 
 .PHONY:	run-only
 run-only:

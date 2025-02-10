@@ -6,8 +6,7 @@ KEYCLOAK_HEALTH_URL?=http://localhost:9000
 
 .PHONY: install
 install:
-	make -f local.mk maven-install
-	chmod +x bash/client.sh
+	make -f local.mk maven-install && chmod +x bash/client.sh
 	make -f local.mk build-images
 
 .PHONY: maven-install
