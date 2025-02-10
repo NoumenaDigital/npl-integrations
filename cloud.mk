@@ -35,8 +35,7 @@ pipeline-setup:
 
 .PHONY: install
 install:
-	mvn $(MAVEN_CLI_OPTS) generate-sources
-	chmod +x bash/client.sh
+	mvn $(MAVEN_CLI_OPTS) generate-sources && chmod +x bash/client.sh
 	make -f cloud.mk install-listener-service
 	make -f cloud.mk install-streamlit-ui
 	make -f cloud.mk install-webapp
