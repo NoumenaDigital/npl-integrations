@@ -56,8 +56,7 @@ install-webapp:
 
 .PHONY: generate-sources
 generate-sources:
-	mvn $(MAVEN_CLI_OPTS) generate-sources
-	chmod +x bash/client.sh
+	mvn $(MAVEN_CLI_OPTS) generate-sources && chmod +x bash/client.sh
 
 .PHONY:	run-only
 run-only:
@@ -134,3 +133,7 @@ integration-test-cloud:
 
 unit-tests-python-listener:
 	. venv/bin/activate && make -f local.mk unit-tests-python-listener
+
+.PHONY: npl-test
+npl-test:
+	cd npl && mvn test
