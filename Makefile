@@ -136,4 +136,4 @@ unit-tests-python-listener:
 
 .PHONY: npl-test
 npl-test:
-	cd npl && mvn $(MAVEN_CLI_OPTS) test
+	cd npl && mvn test
