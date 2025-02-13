@@ -1,5 +1,22 @@
 # npl-integrations
 
+## Table of contents
+
+- [Introduction](#introduction)
+- [Building and running with Docker locally](#building-and-running-with-docker-locally)
+  - [Pre-requisites](#pre-requisites)
+  - [Build & run](#build--run)
+  - [Service endpoints](#service-endpoints)
+- [Running NPL on Noumena Cloud & local services](#running-npl-on-noumena-cloud--local-services)
+  - [NPL and keycloak](#npl-and-keycloak)
+  - [Python-Listener](#python-listener)
+  - [Webapp](#webapp)
+  - [Streamlit UI](#streamlit-ui)
+  - [Service endpoints](#service-endpoints-1)
+- [NPL Development](#npl-development)
+- [Next steps](#next-steps)
+## Introduction
+
 The npl-integrations repo contains a sample project that demonstrates how to integrate with [Noumena's Engine](https://documentation.noumenadigital.com/engine/applications/engine/) using
 different programming languages and frameworks.
 It includes a Python listener service, a Typescript React web app, and a Python Streamlit UI.
@@ -7,7 +24,7 @@ It includes a Python listener service, a Typescript React web app, and a Python 
 The underlying NPL code is an extension of the IOU, which can be found
 in the [npl-starter](https://github.com/NoumenaDigital/npl-starter) repository.
 
-Details about each components can be found in the corresponding README files in the respective directories.
+Details about each component can be found in the corresponding README files in the respective directories.
 - [NPL](npl/README.md)
 
 ## Building and running with Docker locally
@@ -169,6 +186,10 @@ Once the project is running, services run behind the following URLs:
 | Keycloak admin console    | `https://keycloak-$NC_ORG_NAME-$NC_APP_NAME.noumena.cloud`           |
 | Webapp                    | http://localhost:5173                                                |
 | Streamlit UI              | http://localhost:8501                                                |
+
+## NPL Development
+
+
 
 ## Next steps
 
