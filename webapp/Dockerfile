@@ -1,13 +1,17 @@
 FROM node:22-alpine3.19 AS builder
 
-WORKDIR /webapp/
-COPY . /webapp/
-COPY ../.env.production ./
-RUN npm ci && npm run build
+WORKDIR /
+COPY ./webapp/ /webapp/
+# COPY .env.production ./webapp/.env.production
+COPY .env.production .env.production
+# COPY .env ./webapp/.env
+COPY .env .env
+
+RUN cd webapp && npm ci && npm run build
 
 FROM nginx:1.27-alpine
 COPY --from=builder /webapp/dist /app
-COPY nginx.default.conf /etc/nginx/conf.d/
+COPY webapp/nginx.default.conf /etc/nginx/conf.d/
 
 EXPOSE 8080
 

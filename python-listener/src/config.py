@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv("../.env")
+load_dotenv()
 
 ORG = os.getenv("VITE_NC_ORG_NAME") if os.getenv("VITE_NC_ORG_NAME") is not None else "training"
 REALM = os.getenv("VITE_NC_APP_NAME") if os.getenv("VITE_NC_APP_NAME") is not None else "nplintegrations"
