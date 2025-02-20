@@ -1,5 +1,7 @@
 package iou
 
+use sample.v1.concat;
+
 const ISSUER = 'issuer';
 const PAYEE = 'payee';
 
@@ -39,4 +41,21 @@ function test_amount_owed_after_confirmation(test: Test) -> {
     iou.confirmPayment[PAYEE]();
 
     test.assertEquals(50, iou.amountOwed, "Amount owed changed after payment confirmation");
+};
+
+@test
+function test_npl_contrib(test: Test) -> {
+    var iou = Iou[ISSUER, PAYEE]("iou 3", 100);
+    iou.pay[ISSUER](50);
+    iou.confirmPayment[PAYEE]();
+    iou.pay[ISSUER](25);
+    iou.confirmPayment[PAYEE]();
+    iou.pay[ISSUER](20);
+    iou.confirmPayment[PAYEE]();
+    iou.pay[ISSUER](5);
+    iou.confirmPayment[PAYEE]();
+
+    var logCount = 4;
+    var got = iou.getPaymentLog[PAYEE]();
+    test.assertEquals(logCount, got.size());
 };

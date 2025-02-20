@@ -1,5 +1,7 @@
 package iou
 
+use sample.v1.concat;
+
 struct TimestampedAmount {
     amount: Number,
     timestamp: DateTime
@@ -94,4 +96,18 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
     permission[payee] forgive() | unpaid {
         become forgiven;
     };
+
+    @api
+    permission[payee] getPaymentLog() returns List<Text> {
+        return payments.fold(
+            listOf<Text>(),
+            function(acc: List<Text>, item: TimestampedAmount) returns List<Text> -> {
+                return acc.with(getPaymentData(item));
+            }
+        );
+    };
+
+    function getPaymentData(item: TimestampedAmount) returns Text -> {
+        return concat(item.timestamp.toText() + " ", item.amount.toText());
+    }
 }
