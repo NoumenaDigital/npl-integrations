@@ -25,6 +25,11 @@ class Argument:
     nplType: str
     value: int
 
+@dataclass
+class StructArgument:
+    nplType: str
+    value: int
+    prototypeId: str
 
 @dataclass
 class Notification:
@@ -34,11 +39,11 @@ class Notification:
     agents: list[Agent]
     created: str
     name: str
-    arguments: list[Argument] = field(init=Argument)
+    arguments: list[Argument | StructArgument] = field(init=Argument)
     callback: str
 
     def __post_init__(self):
-        self.arguments = [Argument(**a_i) for a_i in self.arguments]
+        self.arguments = [StructArgument(**a_i) if "prototypeId" in a_i else Argument(**a_i) for a_i in self.arguments]
         self.agents = [Agent(**a_i) for a_i in self.agents]
 
 

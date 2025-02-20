@@ -27,6 +27,9 @@ interface RuntimeConfigurationProviderProps {
  */
 export const loadRuntimeConfiguration =
     async (): Promise<RuntimeConfiguration> => {
+        console.log('VITE_ENV: ', import.meta.env.VITE_ENV)
+        console.log('NODE_ENV: ', process.env.NODE_ENV)
+        console.log('MODE: ', import.meta.env.MODE)
         const config_file =
             import.meta.env.VITE_ENV == 'DOCKER'
                 ? '/config-docker.json'
@@ -37,6 +40,8 @@ export const loadRuntimeConfiguration =
         let keycloakRealm = import.meta.env.VITE_NC_APP_NAME
         let ncOrg = import.meta.env.VITE_NC_ORG_NAME
 
+        console.log('keycloakRealm: ', keycloakRealm)
+        console.log('ncOrg: ', ncOrg)
         let config = {
             apiBaseUrl: value.API_BASE_URL,
             keycloakUrl: value.KEYCLOAK_URL,
@@ -57,6 +62,7 @@ export const loadRuntimeConfiguration =
                 keycloakUrl: config.keycloakUrl.replace("noumena", ncOrg),
             }
         }
+        console.log('Runtime Env: ', import.meta.env)
         return config
     }
 
