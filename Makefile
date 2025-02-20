@@ -35,7 +35,7 @@ clean:
 	rm -rf bash
 	rm -rf keycloak-provisioning/state.tfstate*
 	rm -rf keycloak-provisioning/.terraform*
-	rm cli
+	rm -f cli
 
 .PHONY:	format-check
 format-check:
