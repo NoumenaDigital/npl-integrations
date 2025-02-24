@@ -11,7 +11,7 @@ NC_DOMAIN=noumena.cloud
 
 NC_APP_NAME_CLEAN := $(shell echo ${VITE_NC_APP_NAME} | tr -d '-' | tr -d '_')
 NC_ORG := $(shell ./cli org list 2>/dev/null | jq --arg VITE_NC_ORG_NAME "$(VITE_NC_ORG_NAME)" -r '.[] | select(.slug == $$VITE_NC_ORG_NAME) | .id' 2>/dev/null)
-NC_APP := $(shell ./cli app list -org $(NC_ORG) 2>/dev/null | jq --arg VITE_NC_APP_NAME "${VITE_NC_APP_NAME}" '.[] | select(.name == $$VITE_NC_APP_NAME) | .id' 2>/dev/null)
+NC_APP := $(shell ./cli app list -org $(NC_ORG) 2>/dev/null | jq --arg VITE_NC_APP_NAME "$(VITE_NC_APP_NAME)" '.[] | select(.slug == $$VITE_NC_APP_NAME) | .id' 2>/dev/null)
 NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_username' 2>/dev/null )
 NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_password' 2>/dev/null )
 KEYCLOAK_URL=https://keycloak-$(VITE_NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMAIN)
