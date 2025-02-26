@@ -2,7 +2,7 @@
 include .env
 
 GITHUB_SHA=HEAD
-MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
+MAVEN_CLI_OPTS?=--no-transfer-progress
 CLI_OS_ARCH=npl_darwin_amd64
 CLI_RELEASE_TAG=1.3.0
 NPL_VERSION=1.0

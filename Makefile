@@ -1,5 +1,5 @@
 GITHUB_SHA=HEAD
-MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
+MAVEN_CLI_OPTS?=--no-transfer-progress
 
 ## Common commands
 .PHONY: install
@@ -76,10 +76,6 @@ run-only:
 up:
 	make -f local.mk up
 
-.PHONY:	down
-down:
-	make -f local.mk down
-
 .PHONY:	run
 run: install run-only
 
@@ -144,6 +140,112 @@ integration-test-cloud:
 unit-tests-python-listener:
 	. venv/bin/activate && make -f local.mk unit-tests-python-listener
 
-.PHONY: npl-test
+.PHONY:	npl-test
 npl-test:
-	cd npl && mvn test
+	cd npl ; mvn test
+
+NPL_SOURCES=$(shell find npl/src/main -name \*npl)
+
+iou-openapi.yml:	$(NPL_SOURCES)
+	cd npl ; mvn package
+
+## NPL SECTION
+
+npl-docker:
+	docker compose up --wait --build engine
+
+npl-deploy: clear-deploy
+
+## PYTHON SECTION
+
+.PHONY:	python-client
+python-listener-client:	python-listener/generated/openapi_client/api_client.py
+	source venv/bin/activate && cd streamlit-ui; python -m pip install -r requirements.txt
+
+python-listener/generated/openapi_client/api_client.py:	iou-openapi.yml
+	openapi-generator generate --generator-name python --input-spec iou-openapi.yml --output python-listener/generated
+
+.PHONY:	python-listener-dependencies
+python-listener-dependencies:
+	cd python-listener; pip install -r requirements
+
+.PHONY: python-listener-run
+python-listener-run:	python-listener-client npl-deploy
+	cd python-listener; python app.py
+
+python-listener-docker:
+	docker compose up --wait --build python-listener
+
+## STREAMLIT SECTION
+
+.PHONY:	streamlit-ui-client
+streamlit-ui-client:	streamlit-ui/generated/openapi_client/api_client.py
+	source venv/bin/activate && cd streamlit-ui; python -m pip install -r requirements.txt
+
+streamlit-ui/generated/openapi_client/api_client.py:	iou-openapi.yml
+	openapi-generator generate --generator-name python --input-spec iou-openapi.yml --output streamlit-ui/generated
+
+.PHONY:	streamlit-dependencies
+streamlit-ui-dependencies:
+	cd streamlit-ui; pip install -r requirements
+
+.PHONY: streamlit-ui-run
+streamlit-ui-run:	streamlit-ui-client npl-docker
+	cd streamlit-ui; streamlit run main.py
+
+streamlit-ui-docker:
+	docker compose up --wait --build streamlit-ui
+
+## WEB SECTION
+
+.PHONY:	webapp-client
+webapp-client:	webapp/generated/openapi_client/api_client.py
+	source venv/bin/activate && cd webapp; python -m pip install -r requirements.txt
+
+webapp/generated/openapi_client/api_client.py:	iou-openapi.yml
+	openapi-generator generate --generator-name typescript-axios --input-spec iou-openapi.yml --output webapp/generated
+
+.PHONY:	streamlit-dependencies
+webapp-dependencies:
+	cd webapp; npm i
+
+.PHONY:	webapp-run
+webapp-run:	webapp-client
+	cd webapp; npm run dev
+
+webapp-docker:
+	docker compose up --wait --build webapp
+
+## IT-TEST SECTION
+
+.PHONY:	it-test-client
+it-test-client:	it-test/generated/openapi_client/api_client.py
+	source venv/bin/activate && cd it-test; python -m pip install -r requirements.txt
+
+it-test/generated/openapi_client/api_client.py:	iou-openapi.yml
+	openapi-generator generate --generator-name python --input-spec iou-openapi.yml --output it-test/generated
+
+.PHONY:	streamlit-dependencies
+it-test-dependencies:
+
+## ALL
+docker: npl-docker webapp-docker streamlit-ui-docker python-listener-docker
+
+it-tests-cloud:	npl-deploy streamlit-ui-docker python-listener-docker it-test-client
+	./it-test/src/test/it-local.sh
+
+it-tests-local:	npl-docker webapp-docker streamlit-ui-docker python-listener-docker it-test-client
+	./it-test/src/test/it-local.sh
+
+.PHONY: up
+up:	docker
+
+.PHONY: down
+down:
+	docker compose down -v
+
+.PHONY: run
+run:	npl-deploy streamlit-ui-run python-listener-run webapp-run
+
+.PHONY:	all
+all:	docker it-tests-local it-tests-cloud

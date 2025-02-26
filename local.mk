@@ -1,5 +1,5 @@
 GITHUB_SHA=HEAD
-MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
+MAVEN_CLI_OPTS?=--no-transfer-progress
 
 ENGINE_URL?=http://localhost:12000
 KEYCLOAK_HEALTH_URL?=http://localhost:9000
@@ -11,7 +11,7 @@ install:
 
 .PHONY: maven-install
 maven-install:
-	mvn clean $(MAVEN_CLI_OPTS) install
+	cd npl ; mvn clean $(MAVEN_CLI_OPTS) install
 
 .PHONY: build-images
 build-images:
