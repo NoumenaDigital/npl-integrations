@@ -6,3 +6,5 @@ ENV ENGINE_NPL_MIGRATION_DIRECTORY_PATH="/npl"
 
 COPY src/main/yaml /npl/yaml
 COPY src/main/npl-1.0  /npl/npl-1.0
+COPY npl-contrib /npl-contrib
+COPY npl-contrib.properties /
