@@ -42,11 +42,11 @@ def create_iou():
                     options={"verify_signature": False}
                 )
                 created_iou = iou.create_iou(
-                    get_api(),
-                    description_val,
-                    amount_val,
-                    recipient,
-                    str(decoded_token['email'])
+                    api=get_api(),
+                    description=description_val,
+                    amount=amount_val,
+                    issuer=str(decoded_token['email']),
+                    payee=recipient
                 )
                 st.write("Iou created:")
                 st.write("ID:", created_iou.id)

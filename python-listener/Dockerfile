@@ -5,7 +5,8 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Add the current directory contents into the container at /app
-ADD . /app
+ADD ./python-listener /app
+ADD .env .env
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt

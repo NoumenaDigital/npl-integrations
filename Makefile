@@ -26,6 +26,16 @@ rename:
 clean:
 	docker compose down -v
 	mvn $(MAVEN_CLI_OPTS) clean
+	rm -rf **/target
+	rm -rf **/node_modules
+	rm -rf **/dist
+	rm -rf **/build
+	rm -rf **/venv
+	rm -rf **/generated
+	rm -rf bash
+	rm -rf keycloak-provisioning/state.tfstate*
+	rm -rf keycloak-provisioning/.terraform*
+	rm -f cli
 
 .PHONY:	format-check
 format-check:
