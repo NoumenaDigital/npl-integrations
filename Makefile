@@ -155,7 +155,7 @@ python-listener/generated/openapi_client/api_client.py:	iou-openapi.yml
 
 .PHONY:	python-listener-dependencies
 python-listener-dependencies:
-	source venv/bin/activate && cd python-listener; python -m pip install -r requirements.txt
+	. venv/bin/activate && cd python-listener; python -m pip install -r requirements.txt
 
 .PHONY:	python-listener-run
 python-listener-run:	python-listener-client npl-deploy
@@ -177,11 +177,11 @@ streamlit-ui/generated/openapi_client/api_client.py:	iou-openapi.yml
 
 .PHONY:	streamlit-ui-dependencies
 streamlit-ui-dependencies:
-	source venv/bin/activate && cd streamlit-ui; python -m pip install -r requirements.txt
+	. venv/bin/activate && cd streamlit-ui; python -m pip install -r requirements.txt
 
 .PHONY:	streamlit-ui-run
 streamlit-ui-run:	streamlit-ui-client
-	source venv/bin/activate && cd streamlit-ui ; streamlit run main.py
+	. venv/bin/activate && cd streamlit-ui ; streamlit run main.py
 
 streamlit-ui-docker:
 	docker compose up --wait --build streamlit-ui
