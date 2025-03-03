@@ -56,7 +56,7 @@ clean:
 	rm -f *-openapi.yml
 
 .PHONY:	format-check
-format-check:
+format-check: venv/bin/activate
 	cd webapp && npm run format:ci
 	. venv/bin/activate && cd python-listener && flake8
 	. venv/bin/activate && cd streamlit-ui && flake8
