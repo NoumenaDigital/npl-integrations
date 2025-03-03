@@ -9,7 +9,7 @@ run_integration_tests() {
 
 	pay_iou "$engine_url" "$access_token" "$iou_id"
 
-	sleep 10 # wait for the IOU to be processed by the listener service
+	sleep 20 # wait for the IOU to be processed by the listener service
 
 	check_iou_repayment "$engine_url" "$access_token" "$iou_id"
 }
@@ -38,7 +38,7 @@ create_iou() {
 	local engine_url=$1
 	local access_token=$2
 
-	iou_id=$(./bash/client.sh -s --host "$engine_url" createIou Authorization:"Bearer $access_token" \
+	iou_id=$(./it-test/generated/client.sh -s --host "$engine_url" createIou Authorization:"Bearer $access_token" \
 		description=="IOU from integration-test on $(date +%d.%m.%y_%H:%M:%S)" \
 		forAmount:=100 \
 		@parties:='{"issuer":{"entity":{"email":["alice@nd.tech"]},"access":{}},"payee":{"entity":{"email":["bob@nd.tech"]},"access":{}}}' | jq -r '.["@id"]')
@@ -59,7 +59,10 @@ pay_iou() {
 
 	local iou_after_payment_state
 
-	iou_after_payment_state=$(./bash/client.sh -s --host "$engine_url" iouPay id="$iou_id" Authorization:"Bearer $access_token" amount:=10 | jq -r '.["@state"]')
+  ./it-test/generated/client.sh -s --host "$engine_url" iouPay id="$iou_id" Authorization:"Bearer $access_token" amount:=10
+
+	iou_after_payment_state=$(./it-test/generated/client.sh -s --host "$engine_url" getIouByID id="$iou_id" Authorization:"Bearer $access_token" | jq -r '.["@state"]')
+
 	if [ -z "$iou_after_payment_state" ]; then
 		echo "IOU not found" >&2
 		exit 1
@@ -76,7 +79,7 @@ check_iou_repayment() {
 	local access_token=$2
 	local iou_id=$3
 
-	iou_after_confirmation_state=$(./bash/client.sh -s --host "$engine_url" getIouByID id="$iou_id" Authorization:"Bearer $access_token" | jq -r '.["@state"]')
+	iou_after_confirmation_state=$(./it-test/generated/client.sh -s --host "$engine_url" getIouByID id="$iou_id" Authorization:"Bearer $access_token" | jq -r '.["@state"]')
 	if [ -z "$iou_after_confirmation_state" ]; then
 		echo "IOU not found" >&2
 		exit 1

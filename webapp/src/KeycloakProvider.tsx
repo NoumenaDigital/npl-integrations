@@ -13,7 +13,7 @@ export const KeycloakProvider: FC<KeycloakProviderProps> = ({ children }) => {
     const keycloak = new Keycloak({
         url: keycloakUrl,
         realm: keycloakRealm,
-        clientId: keycloakRealm,
+        clientId: keycloakRealm
     })
 
     const initOptions = {

@@ -12,7 +12,7 @@ LOCAL_ROOT_URL = "http://engine:12000"
 CLOUD_TOKEN_URL = f"""https://keycloak-{ORG}-{REALM}.{DOMAIN}/realms/{REALM}/protocol/openid-connect/token"""
 CLOUD_ROOT_URL = f"""https://engine-{ORG}-{REALM}.{DOMAIN}"""
 
-local = os.getenv("ENV") == "LOCAL"
+local = os.getenv("ENV") == "DOCKER"
 TOKEN_URL = LOCAL_TOKEN_URL if local else CLOUD_TOKEN_URL
 ROOT_URL = LOCAL_ROOT_URL if local else CLOUD_ROOT_URL
 

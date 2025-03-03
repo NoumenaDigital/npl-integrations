@@ -38,11 +38,11 @@ jobs:
           java-version: "17"
           cache: "maven"
 
+      - name: "Install & setup"
+        run: "CLI_OS_ARCH=npl_linux_amd64 make -e cloud-install"
+
       - name: "NPL compile & test"
         run: "make npl-test"
-
-      - name: "Install & setup"
-        run: "make cloud-install"
 
       - name: "Formatting & prettifying"
         run: "make format-check"
@@ -51,7 +51,7 @@ jobs:
         run: "make unit-tests-python-listener"
 
       - name: "local integration tests"
-        run: "make integration-test-local"
+        run: "make it-tests-local"
 
       - name: "Noumena Cloud integration tests"
-        run: "NC_ENV=DEV make integration-test-cloud"
+        run: "NC_ENV=DEV make it-tests-cloud"

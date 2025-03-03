@@ -181,9 +181,9 @@ Once the project is running, services run behind the following URLs:
 
 | Service                   | URL                                                                  |
 |---------------------------|----------------------------------------------------------------------|
-| Engine APIs               | `https://engine-$NC_ORG_NAME-$NC_APP_NAME.noumena.cloud`             |
-| Swagger UI of Engine APIs | `https://engine-$NC_ORG_NAME-$NC_APP_NAME.noumena.cloud/swagger-ui/` |
-| Keycloak admin console    | `https://keycloak-$NC_ORG_NAME-$NC_APP_NAME.noumena.cloud`           |
+| Engine APIs               | `https://engine-$VITE_NC_ORG_NAME-$NC_APP_NAME.noumena.cloud`             |
+| Swagger UI of Engine APIs | `https://engine-$VITE_NC_ORG_NAME-$NC_APP_NAME.noumena.cloud/swagger-ui/` |
+| Keycloak admin console    | `https://keycloak-$VITE_NC_ORG_NAME-$NC_APP_NAME.noumena.cloud`           |
 | Webapp                    | http://localhost:5173                                                |
 | Streamlit UI              | http://localhost:8501                                                |
 
