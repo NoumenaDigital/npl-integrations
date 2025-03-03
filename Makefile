@@ -29,13 +29,13 @@ rename:
 
 .PHONY:	install
 install:	cli
-	brew install jq python3 openapi-generator
-	make clients
+	brew install jq python3
+	npm install @openapitools/openapi-generator-cli prettier -g
 
 .PHONY:	cloud-install
 cloud-install:	cli
 	-sudo apt-get install jq
-	npm install @openapitools/openapi-generator-cli -g
+	npm install @openapitools/openapi-generator-cli prettier -g
 
 .PHONY:	clean
 clean:
