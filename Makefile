@@ -29,13 +29,13 @@ rename:
 
 .PHONY:	install
 install:	cli
-	brew install jq python3
+	brew install jq python3 openapi-generator
 	make clients
 
 .PHONY:	cloud-install
 cloud-install:	cli
 	-sudo apt-get install jq
-	make clients
+	npm install @openapitools/openapi-generator-cli -g
 
 .PHONY:	clean
 clean:
@@ -151,7 +151,7 @@ venv/bin/activate:
 python-listener-client:	venv/bin/activate python-listener/generated/openapi_client/api_client.py python-listener-dependencies
 
 python-listener/generated/openapi_client/api_client.py:	iou-openapi.yml
-	openapi-generator generate --generator-name python --input-spec iou-openapi.yml --output python-listener/generated
+	openapi-generator-cli generate --generator-name python --input-spec iou-openapi.yml --output python-listener/generated
 
 .PHONY:	python-listener-dependencies
 python-listener-dependencies:
@@ -173,7 +173,7 @@ unit-tests-python-listener:	python-listener-client
 streamlit-ui-client:	venv/bin/activate streamlit-ui/generated/openapi_client/api_client.py streamlit-ui-dependencies
 
 streamlit-ui/generated/openapi_client/api_client.py:	iou-openapi.yml
-	openapi-generator generate --generator-name python --input-spec iou-openapi.yml --output streamlit-ui/generated
+	openapi-generator-cli generate --generator-name python --input-spec iou-openapi.yml --output streamlit-ui/generated
 
 .PHONY:	streamlit-ui-dependencies
 streamlit-ui-dependencies:
@@ -192,7 +192,7 @@ streamlit-ui-docker:
 webapp-client:	webapp/generated/openapi_client/api_client.py webapp-dependencies
 
 webapp/generated/openapi_client/api_client.py:	iou-openapi.yml
-	openapi-generator generate --generator-name typescript-axios --additional-properties=useSingleRequestParameter=true --input-spec iou-openapi.yml --output webapp/generated
+	openapi-generator-cli generate --generator-name typescript-axios --additional-properties=useSingleRequestParameter=true --input-spec iou-openapi.yml --output webapp/generated
 
 .PHONY:	webapp-dependencies
 webapp-dependencies:
@@ -211,7 +211,7 @@ webapp-docker:
 it-test-client:	it-test/generated/openapi_client/api_client.py
 
 it-test/generated/openapi_client/api_client.py:	iou-openapi.yml
-	openapi-generator generate --generator-name bash --input-spec iou-openapi.yml --output it-test/generated
+	openapi-generator-cli generate --generator-name bash --input-spec iou-openapi.yml --output it-test/generated
 	chmod +x ./it-test/generated/client.sh
 
 .PHONY:	it-test-dependencies
@@ -225,9 +225,9 @@ docker:	npl-docker webapp-docker streamlit-ui-docker python-listener-docker
 it-tests-cloud:	python-listener-client it-test-client
 	./it-test/src/test/it-cloud.sh
 
-it-tests-local:	npl-docker python-listener-docker it-test-client run-it-tests-local down
+it-tests-local:	npl-docker python-listener-docker run-it-tests-local down
 
-run-it-tests-local:
+run-it-tests-local: it-test-client
 	./it-test/src/test/it-local.sh
 
 .PHONY:	up
