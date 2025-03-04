@@ -29,12 +29,12 @@ rename:
 
 .PHONY:	install
 install:	cli
-	brew install jq python3
+	brew install jq python3 terraform
 	npm install @openapitools/openapi-generator-cli prettier -g
 
 .PHONY:	cloud-install
 cloud-install:	cli
-	-sudo apt-get install jq terraform
+	-sudo apt-get install jq
 	npm install @openapitools/openapi-generator-cli prettier -g
 
 .PHONY:	clean

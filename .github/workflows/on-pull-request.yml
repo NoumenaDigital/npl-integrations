@@ -38,6 +38,9 @@ jobs:
           java-version: "17"
           cache: "maven"
 
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v3
+
       - name: "Install & setup"
         run: "CLI_OS_ARCH=npl_linux_amd64 make -e cloud-install"
 
