@@ -13,20 +13,11 @@ NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | j
 KEYCLOAK_URL=https://keycloak-$(VITE_NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMAIN)
 ENGINE_URL=https://engine-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)
 READ_MODEL_URL=https://engine-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)/graphql
+NPL_SOURCES=$(shell find npl/src/main -name \*npl)
 
 escape_dollar = $(subst $$,\$$,$1)
 
 ## Common commands
-.PHONY:	rename
-rename:
-	@if [ -z "$(PROJECT_NAME)" ]; then echo "PROJECT_NAME not set"; exit 1; fi
-	perl -p -i -e's/npl-integrations/$(PROJECT_NAME)/g' `find . -type f`
-	perl -p -i -e"s/nplintegrations/$(shell echo $(PROJECT_NAME) | tr '[:upper:]' '[:lower:]' | tr -d '-')/g" `find . -type f`
-	@parent_dir=$$(basename "$$(pwd)") && \
-	if [ "$$parent_dir" = "npl-integrations" ]; then \
-		cd .. && mv npl-integrations $(PROJECT_NAME); \
-	fi
-
 .PHONY:	install
 install:	cli
 	brew install jq python3 terraform
@@ -120,7 +111,9 @@ iam:	cli
 
 
 .PHONY:	zip
-zip:
+zip:	target/npl-integrations-$(NPL_VERSION).zip
+
+target/npl-integrations-$(NPL_VERSION).zip:	$(NPL_SOURCES)
 	@if [ -z "$(NPL_VERSION)" ]; then echo "NPL_VERSION not set"; exit 1; fi
 	@mkdir -p npl/src/main/kotlin-script && mkdir -p target && cd target && mkdir -p src && cd src && \
 		cp -r ../../npl/src/main/npl-* . && cp -r ../../npl/src/main/yaml . && cp -r ../../npl/src/main/kotlin-script . && \
@@ -132,14 +125,14 @@ zip:
 npl-test:
 	cd npl ; mvn test
 
-NPL_SOURCES=$(shell find npl/src/main -name \*npl)
-
 iou-openapi.yml:	$(NPL_SOURCES)
 	cd npl ; mvn package
 
-npl-docker:	$(NPL_SOURCES)
+.PHONY: npl-docker
+npl-docker:
 	docker compose up --wait --build engine
 
+.PHONY:	npl-deploy
 npl-deploy:	clear-deploy
 
 ## PYTHON LISTENER SECTION
@@ -161,9 +154,11 @@ python-listener-dependencies:
 python-listener-run:	python-listener-client npl-deploy
 	cd python-listener; python app.py
 
+.PHONY: python-listener-docker
 python-listener-docker:
 	docker compose up --wait --build python-listener
 
+.PHONY:	unit-tests-python-listener
 unit-tests-python-listener:	python-listener-client
 	. venv/bin/activate && cd python-listener && PYTHONPATH=$(shell pwd) nosetests --verbosity=2 .
 
@@ -183,6 +178,7 @@ streamlit-ui-dependencies:
 streamlit-ui-run:	streamlit-ui-client
 	. venv/bin/activate && cd streamlit-ui ; streamlit run main.py
 
+.PHONY:	streamlit-ui-docker
 streamlit-ui-docker:
 	docker compose up --wait --build streamlit-ui
 
@@ -202,6 +198,7 @@ webapp-dependencies:
 webapp-run:	webapp-client
 	cd webapp; npm run dev
 
+.PHONY:	webapp-docker
 webapp-docker:
 	docker compose up --wait --build webapp
 
@@ -218,20 +215,22 @@ it-test/generated/openapi_client/api_client.py:	iou-openapi.yml
 it-test-dependencies:
 
 ## ALL
+.PHONY:	clients
 clients:	python-listener-client streamlit-ui-client webapp-client it-test-client
 
-docker:	npl-docker webapp-docker streamlit-ui-docker python-listener-docker
-
+.PHONY:	it-tests-cloud
 it-tests-cloud:	python-listener-client it-test-client
 	./it-test/src/test/it-cloud.sh
 
+.PHONY:	it-tests-local
 it-tests-local:	npl-docker python-listener-docker run-it-tests-local down
 
+.PHONY:	run-it-tests-local
 run-it-tests-local: it-test-client
 	./it-test/src/test/it-local.sh
 
 .PHONY:	up
-up:	docker
+up:	npl-docker webapp-docker streamlit-ui-docker python-listener-docker
 
 .PHONY:	down
 down:
@@ -241,4 +240,4 @@ down:
 run:	npl-deploy streamlit-ui-run python-listener-run webapp-run
 
 .PHONY:	all
-all:	docker it-tests-local it-tests-cloud
+all:	up it-tests-local it-tests-cloud

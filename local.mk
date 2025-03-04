@@ -1,6 +1,4 @@
 GITHUB_SHA=HEAD
-MAVEN_CLI_OPTS?=--no-transfer-progress
-
 ENGINE_URL?=http://localhost:12000
 KEYCLOAK_HEALTH_URL?=http://localhost:9000
 

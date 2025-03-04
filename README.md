@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Introduction](#introduction)
+- [Renaming the repository](#renaming-the-repository)
 - [Building and running with Docker locally](#building-and-running-with-docker-locally)
   - [Pre-requisites](#pre-requisites)
   - [Build & run](#build--run)
@@ -15,6 +16,7 @@
   - [Service endpoints](#service-endpoints-1)
 - [NPL Development](#npl-development)
 - [Next steps](#next-steps)
+
 ## Introduction
 
 The npl-integrations repo contains a sample project that demonstrates how to integrate with [Noumena's Engine](https://documentation.noumenadigital.com/engine/applications/engine/) using
@@ -26,6 +28,16 @@ in the [npl-starter](https://github.com/NoumenaDigital/npl-starter) repository.
 
 Details about each component can be found in the corresponding README files in the respective directories.
 - [NPL](npl/README.md)
+
+## Renaming the repository
+
+To rename the repository, follow the steps below. Make sure to replace `<new-project-name>` with the desired name.
+```shell
+export PROJECT_NAME=<new-project-name>
+perl -p -i -e's/npl-integrations/$(PROJECT_NAME)/g' `find . -type f`
+perl -p -i -e"s/nplintegrations/$(shell echo $(PROJECT_NAME) | tr '[:upper:]' '[:lower:]' | tr -d '-')/g" `find . -type f`
+cd .. && mv npl-integrations $(PROJECT_NAME);
+```
 
 ## Building and running with Docker locally
 
@@ -86,7 +98,7 @@ Supporting services include Keycloak for authentication and authorization, and d
 
 #### Option 1: Using the NPL CLI & terraform
 
-1. Install the NPL CLI by running `make download-cli` in the root directory.
+1. Install the NPL CLI by running `make cli` in the root directory.
 2. Add the following variables to your shell to configure the NPL CLI and restart your terminal
 
     ```
@@ -127,14 +139,24 @@ In this setup, the Python listener service runs locally and connects to the Engi
 
 #### Setup
 
-1. Set up & activate your Python venv
-2. Run `make install-python` to generate the Python client from the NPL code and install python requirements
+1. Run
+    ```shell
+    make python-listener-client
+    ``` 
+    set up your Python venv, to generate the Python client from the NPL code and install python requirements
+2. Activate the virtual environment
+    ```shell
+    source venv/bin/activate
+    ```
 
 Note: requirements need to be installed every time NPL code is changed as the generated code is installed as a package.
 
 #### Running
 
-From the root directory, run `make run-python-listener`
+From the root directory, run 
+```shell
+make python-listener-run
+```
 
 To stop the service, press `Ctrl+C`
 To keep the service running and continue this walkthrough, open a new terminal window.
@@ -146,11 +168,18 @@ In this setup, the webapp runs locally and connects to the Engine on Noumena Clo
 
 #### Setup
 
-From the root directory, run `make install-webapp` to generate the webapp client from the NPL code and install webapp dependencies
+From the root directory, run 
+```shell
+make webapp-client
+```
+to generate the webapp client from the NPL code and install webapp dependencies
 
 #### Running
 
-From the root directory, run `make run-webapp`
+From the root directory, run
+```shell
+make webapp-run
+```
 
 To stop the service, press `Ctrl+C`
 To keep the service running and continue this walkthrough, open a new terminal window.
@@ -162,15 +191,20 @@ In this setup, the Streamlit UI runs locally and connects to the Engine on Noume
 
 #### Setup
 
-1. Set up & activate your Python venv
-2. Run `make install-python` to generate the Python client from the NPL code and install python requirements.
-This set can be omitted if already performed for the Python listener.
+Run 
+```shell
+make streamlit-ui-client
+```
+to generate the Python client from the NPL code and install python requirements.
 
 Note: requirements need to be installed every time NPL code is changed as the generated code is installed as a package.
 
 #### Running
 
-From the root directory, run `make run-streamlit-ui`
+From the root directory, run
+```shell
+make streamlit-ui-run
+```
 
 To stop the service, press `Ctrl+C`
 To keep the service running and continue this walkthrough, open a new terminal window.
@@ -179,17 +213,21 @@ To keep the service running and continue this walkthrough, open a new terminal w
 
 Once the project is running, services run behind the following URLs:
 
-| Service                   | URL                                                                  |
-|---------------------------|----------------------------------------------------------------------|
+| Service                   | URL                                                                       |
+|---------------------------|---------------------------------------------------------------------------|
 | Engine APIs               | `https://engine-$VITE_NC_ORG_NAME-$NC_APP_NAME.noumena.cloud`             |
 | Swagger UI of Engine APIs | `https://engine-$VITE_NC_ORG_NAME-$NC_APP_NAME.noumena.cloud/swagger-ui/` |
 | Keycloak admin console    | `https://keycloak-$VITE_NC_ORG_NAME-$NC_APP_NAME.noumena.cloud`           |
-| Webapp                    | http://localhost:5173                                                |
-| Streamlit UI              | http://localhost:8501                                                |
+| Webapp                    | http://localhost:5173                                                     |
+| Streamlit UI              | http://localhost:8501                                                     |
 
 ## NPL Development
 
-
+After implementing the NPL code, tests can be run:
+```shell
+make npl-test
+```
+Or run using the NPL-Dev plugin in IntelliJ.
 
 ## Next steps
 
