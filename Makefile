@@ -34,7 +34,7 @@ install:	cli
 
 .PHONY:	cloud-install
 cloud-install:	cli
-	-sudo apt-get install jq
+	-sudo apt-get install jq terraform
 	npm install @openapitools/openapi-generator-cli prettier -g
 
 .PHONY:	clean
