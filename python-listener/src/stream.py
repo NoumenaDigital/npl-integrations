@@ -12,6 +12,7 @@ from src import config
 NPL_PREFIX = '/nplintegrations-1.0?'
 IOU_PROTOTYPE_ID = NPL_PREFIX + '/iou/Iou'
 REPAYMENT_OCCURRENCE_NAME = NPL_PREFIX + '/iou/RepaymentOccurrence'
+MULTINODE_REPAYMENT_OCCURRENCE_NAME = NPL_PREFIX + '/iou/RepaymentOccurrenceMultiNode'
 
 
 @dataclass
@@ -25,11 +26,13 @@ class Argument:
     nplType: str
     value: int
 
+
 @dataclass
 class StructArgument:
     nplType: str
     value: int
     prototypeId: str
+
 
 @dataclass
 class Notification:
@@ -94,6 +97,8 @@ class StreamReader:
         if notification.name == REPAYMENT_OCCURRENCE_NAME:
             self.manage_repayment_occurrence(notification)
             print("Acted on notification RepaymentOccurrence")
+        elif notification.name == MULTINODE_REPAYMENT_OCCURRENCE_NAME:
+            print("Received notification RepaymentOccurrenceMultiNode")
         else:
             print("unrecognized notification event", event)
             print("No action in this notification")

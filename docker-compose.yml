@@ -28,6 +28,8 @@ services:
         condition: service_started
       keycloak:
         condition: service_healthy
+      keycloak-provisioning:
+        condition: service_completed_successfully
 
   read-model:
     image: ghcr.io/noumenadigital/packages/read-model:${PLATFORM_VERSION}
@@ -49,6 +51,8 @@ services:
         condition: service_started
       keycloak:
         condition: service_healthy
+      keycloak-provisioning:
+        condition: service_completed_successfully
 
   engine-db:
     image: postgres:14.4-alpine
@@ -138,7 +142,7 @@ services:
       - keycloak-db:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: testing
-      ENV: LOCAL
+      ENV: DOCKER
     healthcheck:
       test: pg_isready -U postgres
       interval: 1s
@@ -191,13 +195,11 @@ services:
       context: .
       dockerfile: ./python-listener/Dockerfile
     environment:
-      ENV: LOCAL
-      REALM: ${VITE_NC_APP_NAME:-nplintegrations}
+      ENV: DOCKER
+      VITE_NC_APP_NAME: ${VITE_NC_APP_NAME:-nplintegrations}
     depends_on:
       engine:
         condition: service_healthy
-      keycloak-provisioning:
-        condition: service_completed_successfully
 
   streamlit-ui:
     image: ghcr.io/noumenadigital/npl-integrations/streamlit-ui:latest
@@ -207,9 +209,7 @@ services:
     ports:
       - "8080:8501"
     environment:
-      ENV: LOCAL
+      ENV: DOCKER
     depends_on:
       engine:
         condition: service_healthy
-      keycloak-provisioning:
-        condition: service_completed_successfully

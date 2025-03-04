@@ -45,21 +45,27 @@ export const loadRuntimeConfiguration =
         let config = {
             apiBaseUrl: value.API_BASE_URL,
             keycloakUrl: value.KEYCLOAK_URL,
-            keycloakRealm: value.KEYCLOAK_REALM,
+            keycloakRealm: value.KEYCLOAK_REALM
         }
         if (keycloakRealm !== undefined) {
             config = {
                 ...config,
-                apiBaseUrl: config.apiBaseUrl.replace("nplintegrations", keycloakRealm),
-                keycloakUrl: config.keycloakUrl.replace("nplintegrations", keycloakRealm),
-                keycloakRealm: keycloakRealm,
+                apiBaseUrl: config.apiBaseUrl.replace(
+                    'nplintegrations',
+                    keycloakRealm
+                ),
+                keycloakUrl: config.keycloakUrl.replace(
+                    'nplintegrations',
+                    keycloakRealm
+                ),
+                keycloakRealm: keycloakRealm
             }
         }
         if (ncOrg !== undefined) {
             config = {
                 ...config,
-                apiBaseUrl: config.apiBaseUrl.replace("noumena", ncOrg),
-                keycloakUrl: config.keycloakUrl.replace("noumena", ncOrg),
+                apiBaseUrl: config.apiBaseUrl.replace('noumena', ncOrg),
+                keycloakUrl: config.keycloakUrl.replace('noumena', ncOrg)
             }
         }
         console.log('Runtime Env: ', import.meta.env)

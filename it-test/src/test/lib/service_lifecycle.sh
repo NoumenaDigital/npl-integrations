@@ -1,7 +1,7 @@
 run_services() {
 	local app_name_clean=$1
 	. ./venv/bin/activate
-	REALM="$app_name_clean" python python-listener/app.py &
+	VITE_NC_APP_NAME="$app_name_clean" python python-listener/app.py &
 }
 
 ## Cleaning up

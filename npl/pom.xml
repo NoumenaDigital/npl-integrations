@@ -3,14 +3,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>com.noumenadigital.npl-integrations</groupId>
     <artifactId>npl</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
-    <parent>
-        <groupId>com.noumenadigital.npl-integrations</groupId>
-        <artifactId>parent-pom</artifactId>
-        <version>1.0-SNAPSHOT</version>
-        <relativePath>../parent-pom</relativePath>
-    </parent>
+    <properties>
+        <noumena.platform.version>2024.2.12</noumena.platform.version>
+    </properties>
 
     <build>
         <plugins>
@@ -36,65 +35,8 @@
                     <sources>${project.basedir}/src/main/npl-1.0</sources>
                     <testSources>${project.basedir}/src/test/npl</testSources>
                     <enableCompilerOptimisations>false</enableCompilerOptimisations>
+                    <openAPIOutputDirectory>../</openAPIOutputDirectory>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>7.4.0</version>
-                <executions>
-                    <execution>
-                        <id>listener-service-source-generation</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${project.basedir}/target/generated-sources/openapi/iou-openapi.yml</inputSpec>
-                            <generatorName>python</generatorName>
-                            <output>../python-listener/generated</output>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>streamlit-ui-source-generation</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${project.basedir}/target/generated-sources/openapi/iou-openapi.yml</inputSpec>
-                            <generatorName>python</generatorName>
-                            <output>../streamlit-ui/generated</output>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>webapp-source-generator</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${project.basedir}/target/generated-sources/openapi/iou-openapi.yml</inputSpec>
-                            <generatorName>typescript-axios</generatorName>
-                            <output>../webapp/generated</output>
-                            <configOptions>
-                                <useSingleRequestParameter>true</useSingleRequestParameter>
-                            </configOptions>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>it-test-source-generator</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${project.basedir}/target/generated-sources/openapi/iou-openapi.yml</inputSpec>
-                            <generatorName>bash</generatorName>
-                            <output>../bash</output>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

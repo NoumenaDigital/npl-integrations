@@ -14,7 +14,7 @@ CLOUD_TOKEN_URL = f"""https://keycloak-{ORG}-{REALM}.{DOMAIN}/realms/{REALM}/pro
 CLOUD_ROOT_URL = f"""https://engine-{ORG}-{REALM}.{DOMAIN}"""
 CLOUD_USER_INFO_URL = f"""https://keycloak-{ORG}-{REALM}.{DOMAIN}/realms/{REALM}/protocol/openid-connect/userinfo"""
 
-local = os.getenv("ENV") == "LOCAL"
+local = os.getenv("ENV") == "DOCKER"
 TOKEN_URL = LOCAL_TOKEN_URL if local else CLOUD_TOKEN_URL
 USER_INFO_URL = LOCAL_USER_INFO_URL if local else CLOUD_USER_INFO_URL
 ROOT_URL = LOCAL_ROOT_URL if local else CLOUD_ROOT_URL
