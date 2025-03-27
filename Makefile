@@ -156,7 +156,7 @@ python-listener-run:	python-listener-client
 	. venv/bin/activate && cd python-listener; python app.py
 
 .PHONY: python-listener-docker
-python-listener-docker:
+python-listener-docker:	python-listener-client
 	docker compose up --wait --build python-listener
 
 .PHONY:	unit-tests-python-listener
@@ -180,7 +180,7 @@ streamlit-ui-run:	streamlit-ui-client
 	. venv/bin/activate && cd streamlit-ui ; streamlit run main.py
 
 .PHONY:	streamlit-ui-docker
-streamlit-ui-docker:
+streamlit-ui-docker:	streamlit-ui-client
 	docker compose up --wait --build streamlit-ui
 
 ## WEBAPP SECTION
@@ -236,8 +236,11 @@ up:	npl-docker webapp-docker streamlit-ui-docker python-listener-docker
 down:
 	docker compose down -v
 
+.PHONY:	run-only
+run-only:	streamlit-ui-run python-listener-run webapp-run
+
 .PHONY:	run
-run:	npl-deploy streamlit-ui-run python-listener-run webapp-run
+run:	npl-deploy run-only
 
 .PHONY:	all
 all:	up it-tests-local it-tests-cloud

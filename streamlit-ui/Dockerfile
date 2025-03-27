@@ -6,6 +6,7 @@ ADD ./streamlit-ui /app
 ADD .env .env
 
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install ./generated
 
 EXPOSE 8501
 
