@@ -139,17 +139,12 @@ In this setup, the Python listener service runs locally and connects to the Engi
 
 #### Setup
 
-1. Run
-    ```shell
-    make python-listener-client
-    ``` 
-    set up your Python venv, to generate the Python client from the NPL code and install python requirements
-2. Activate the virtual environment
-    ```shell
-    source venv/bin/activate
-    ```
+To set up your Python venv, to generate the Python client from the NPL code and install python requirements, run
+```shell
+make python-listener-client
+```
 
-Note: requirements need to be installed every time NPL code is changed as the generated code is installed as a package.
+Note: the generated client need to be installed every time NPL code is changed as the generated code is installed as a package.
 
 #### Running
 
@@ -191,13 +186,12 @@ In this setup, the Streamlit UI runs locally and connects to the Engine on Noume
 
 #### Setup
 
-Run 
+To generate the Python client from the NPL code and install python requirements, run 
 ```shell
 make streamlit-ui-client
 ```
-to generate the Python client from the NPL code and install python requirements.
 
-Note: requirements need to be installed every time NPL code is changed as the generated code is installed as a package.
+Note: the generated client need to be installed every time NPL code is changed as the generated code is installed as a package.
 
 #### Running
 

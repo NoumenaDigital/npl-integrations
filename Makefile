@@ -14,8 +14,9 @@ KEYCLOAK_URL=https://keycloak-$(VITE_NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMA
 ENGINE_URL=https://engine-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)
 READ_MODEL_URL=https://engine-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)/graphql
 NPL_SOURCES=$(shell find npl/src/main -name \*npl)
+TF_SOURCES=$(shell find keycloak-provisioning -name \*tf)
 
-escape_dollar = $(subst $$,\$$,$1)
+escape = $(subst $$,\$$,$1)
 
 ## Common commands
 .PHONY:	install
@@ -75,26 +76,25 @@ create-app:
 	./cli app create -org $(NC_ORG) -engine $(NC_ENGINE_VERSION) -name $(VITE_NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)/realms/$(VITE_NC_APP_NAME)"]'
 
 .PHONY:	clear-deploy
-clear-deploy:	cli zip
+clear-deploy:	zip
 	@if [ -z "$(NC_APP)" ] ; then echo "App $(VITE_NC_APP_NAME) not found"; exit 1; fi
 	@if [ -z "$(NPL_VERSION)" ]; then echo "NPL_VERSION not set"; exit 1; fi
 	./cli app clear -app $(NC_APP)
 	./cli app deploy -app $(NC_APP) -binary ./target/npl-integrations-$(NPL_VERSION).zip
 
 .PHONY:	status-app
-status-app:	cli
+status-app:
 	./cli app detail -org $(NC_ORG) -app $(NC_APP)
 
 .PHONY:	delete-app
-delete-app:	cli
+delete-app:
 	@echo "Deleting app $(VITE_NC_APP_NAME) with id $(NC_APP)"
 	@./cli app delete -app $(NC_APP)
 
-.PHONY:	iam
-iam:	cli
-	-curl --location --request DELETE '$(KEYCLOAK_URL)/admin/realms/$(NC_APP_NAME_CLEAN)' \
+iam:	$(TF_SOURCES)
+	-@curl -s --location --request DELETE '$(KEYCLOAK_URL)/admin/realms/$(NC_APP_NAME_CLEAN)' \
 		--header 'Content-Type: application/x-www-form-urlencoded' \
-		--header "Authorization: Bearer $(shell curl --location --request POST --header 'Content-Type: application/x-www-form-urlencoded' \
+		--header "Authorization: Bearer $(shell curl -s --location --request POST --header 'Content-Type: application/x-www-form-urlencoded' \
 			--data-urlencode 'username=$(NC_KEYCLOAK_USERNAME)' \
 			--data-urlencode 'password=$(NC_KEYCLOAK_PASSWORD)' \
 			--data-urlencode 'client_id=admin-cli' \
@@ -102,13 +102,12 @@ iam:	cli
 			'$(KEYCLOAK_URL)/realms/master/protocol/openid-connect/token' | jq -r '.access_token')"
 	cd keycloak-provisioning && \
 		KEYCLOAK_USER=$(NC_KEYCLOAK_USERNAME) \
-		KEYCLOAK_PASSWORD="$(call escape_dollar,$(NC_KEYCLOAK_PASSWORD))" \
+		KEYCLOAK_PASSWORD="$(call escape,$(NC_KEYCLOAK_PASSWORD))" \
 		KEYCLOAK_URL=$(KEYCLOAK_URL) \
 		TF_VAR_default_password=welcome \
 		TF_VAR_systemuser_secret=super-secret-system-security-safe \
 		TF_VAR_app_name=$(NC_APP_NAME_CLEAN) \
 		./local.sh
-
 
 .PHONY:	zip
 zip:	target/npl-integrations-$(NPL_VERSION).zip
@@ -137,22 +136,24 @@ npl-deploy:	clear-deploy
 
 ## PYTHON LISTENER SECTION
 
-venv/bin/activate:
+create-venv:
 	python3 -m venv venv
 
+venv/bin/activate: create-venv python-listener-dependencies streamlit-ui-dependencies
+
 .PHONY:	python-listener-client
-python-listener-client:	venv/bin/activate python-listener/generated/openapi_client/api_client.py python-listener-dependencies
+python-listener-client:	venv/bin/activate python-listener/generated/openapi_client/api_client.py
+	. venv/bin/activate && cd python-listener; pip install ./generated
 
 python-listener/generated/openapi_client/api_client.py:	iou-openapi.yml
 	openapi-generator-cli generate --generator-name python --input-spec iou-openapi.yml --output python-listener/generated
 
-.PHONY:	python-listener-dependencies
-python-listener-dependencies:
+python-listener-dependencies:	./python-listener/requirements.txt
 	. venv/bin/activate && cd python-listener; python -m pip install -r requirements.txt
 
 .PHONY:	python-listener-run
-python-listener-run:	python-listener-client npl-deploy
-	cd python-listener; python app.py
+python-listener-run:	python-listener-client
+	. venv/bin/activate && cd python-listener; python app.py
 
 .PHONY: python-listener-docker
 python-listener-docker:
@@ -165,13 +166,13 @@ unit-tests-python-listener:	python-listener-client
 ## STREAMLIT UI SECTION
 
 .PHONY:	streamlit-ui-client
-streamlit-ui-client:	venv/bin/activate streamlit-ui/generated/openapi_client/api_client.py streamlit-ui-dependencies
+streamlit-ui-client:	venv/bin/activate streamlit-ui/generated/openapi_client/api_client.py
+	. venv/bin/activate && cd streamlit-ui; pip install ./generated
 
 streamlit-ui/generated/openapi_client/api_client.py:	iou-openapi.yml
 	openapi-generator-cli generate --generator-name python --input-spec iou-openapi.yml --output streamlit-ui/generated
 
-.PHONY:	streamlit-ui-dependencies
-streamlit-ui-dependencies:
+streamlit-ui-dependencies: ./streamlit-ui/requirements.txt
 	. venv/bin/activate && cd streamlit-ui; python -m pip install -r requirements.txt
 
 .PHONY:	streamlit-ui-run
@@ -187,11 +188,10 @@ streamlit-ui-docker:
 .PHONY:	webapp-client
 webapp-client:	webapp/generated/openapi_client/api_client.py webapp-dependencies
 
-webapp/generated/openapi_client/api_client.py:	iou-openapi.yml
+webapp/generated/api.ts:	iou-openapi.yml
 	openapi-generator-cli generate --generator-name typescript-axios --additional-properties=useSingleRequestParameter=true --input-spec iou-openapi.yml --output webapp/generated
 
-.PHONY:	webapp-dependencies
-webapp-dependencies:
+webapp-dependencies: ./webapp/package.json
 	cd webapp; npm i
 
 .PHONY:	webapp-run
