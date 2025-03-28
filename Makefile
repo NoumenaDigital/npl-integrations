@@ -41,6 +41,7 @@ clean:
 	rm -rf **/venv
 	rm -rf venv
 	rm -rf **/generated
+	rm -rf iou-python-client
 	rm -rf bash
 	rm -rf keycloak-provisioning/state.tfstate*
 	rm -rf keycloak-provisioning/.terraform*
@@ -48,7 +49,7 @@ clean:
 	rm -f *-openapi.yml
 
 .PHONY:	format-check
-format-check: venv python-listener-client streamlit-ui-client
+format-check: venv iou-python-lib
 	cd webapp && npm run format:ci
 	. venv/bin/activate && cd python-listener && flake8
 	. venv/bin/activate && cd streamlit-ui && flake8
@@ -64,7 +65,8 @@ bump-platform-version:
 	perl -p -i -e's/FROM ghcr.io\/noumenadigital\/packages\/engine:.*/FROM ghcr.io\/noumenadigital\/packages\/engine:$(PLATFORM_VERSION)/' npl/Dockerfile
 	mvn -pl parent-pom versions:set-property -Dproperty=noumena.platform.version -DnewVersion="$(PLATFORM_VERSION)"
 
-## Noumena Cloud commands
+## NOUMENA CLOUD COMMANDS
+
 cli:
 	curl -s "https://api.github.com/repos/NoumenaDigital/npl-cli/releases/tags/$(CLI_RELEASE_TAG)" \
 		| jq --arg CLI_OS_ARCH "$(CLI_OS_ARCH)" '.assets[] | select(.name == $$CLI_OS_ARCH) | .url' -r \
@@ -134,57 +136,51 @@ npl-docker:
 .PHONY:	npl-deploy
 npl-deploy:	clear-deploy
 
-## PYTHON LISTENER SECTION
+## COMMON PYTHON SECTION
 
-venv: python-listener/requirements.txt streamlit-ui/requirements.txt
+venv:	python-requirements.txt
 	python3 -m venv venv
-	make python-listener-dependencies streamlit-ui-dependencies
 	@touch venv
 
-.PHONY:	python-listener-client
-python-listener-client:	venv python-listener/generated
+venv/.installed: venv
+	. venv/bin/activate; python -m pip install -r python-requirements.txt
+	@touch venv/.installed
 
-python-listener/generated:	iou-openapi.yml
-	openapi-generator-cli generate --generator-name python --input-spec iou-openapi.yml --output python-listener/generated
-	. venv/bin/activate && cd python-listener; pip install ./generated
-	@touch python-listener/generated
+@PHONY:	python-libs
+python-libs:	venv/.installed
 
-.PHONY: python-listener-dependencies
-python-listener-dependencies:
-	. venv/bin/activate && cd python-listener; python -m pip install -r requirements.txt
+iou-python-client:	iou-openapi.yml
+	openapi-generator-cli generate --generator-name python --package-name iou --input-spec iou-openapi.yml --output iou-python-client
+
+venv/lib/**/iou:	venv iou-python-client
+	. venv/bin/activate; pip install ./iou-python-client
+	@touch venv/lib/**/iou
+
+.PHONY:	iou-python-lib
+iou-python-lib:	venv/lib/**/iou
+
+## PYTHON LISTENER SECTION
 
 .PHONY:	python-listener-run
-python-listener-run:	venv python-listener-client
+python-listener-run:	venv python-libs iou-python-lib
 	. venv/bin/activate && cd python-listener; python app.py
 
 .PHONY: python-listener-docker
-python-listener-docker:	python-listener/generated
+python-listener-docker:	iou-python-client python-requirements.txt
 	docker compose up --wait --build python-listener
 
 .PHONY:	unit-tests-python-listener
-unit-tests-python-listener:	python-listener-client
+unit-tests-python-listener:	iou-python-lib
 	. venv/bin/activate && cd python-listener && PYTHONPATH=$(shell pwd) nosetests --verbosity=2 .
 
 ## STREAMLIT UI SECTION
 
-.PHONY:	streamlit-ui-client
-streamlit-ui-client:	venv streamlit-ui/generated
-
-streamlit-ui/generated:	iou-openapi.yml
-	openapi-generator-cli generate --generator-name python --input-spec iou-openapi.yml --output streamlit-ui/generated
-	. venv/bin/activate && cd streamlit-ui; pip install ./generated
-	@touch streamlit-ui/generated
-
-.PHONY: streamlit-ui-dependencies
-streamlit-ui-dependencies:
-	. venv/bin/activate && cd streamlit-ui; python -m pip install -r requirements.txt
-
 .PHONY:	streamlit-ui-run
-streamlit-ui-run:	venv streamlit-ui-client
+streamlit-ui-run:	venv python-libs iou-python-lib
 	. venv/bin/activate && cd streamlit-ui ; streamlit run main.py
 
 .PHONY:	streamlit-ui-docker
-streamlit-ui-docker:	streamlit-ui-client
+streamlit-ui-docker:	iou-python-client python-requirements.txt
 	docker compose up --wait --build streamlit-ui
 
 ## WEBAPP SECTION
@@ -197,7 +193,7 @@ webapp/generated:	iou-openapi.yml
 	@touch webapp/generated
 
 webapp/node_modules:	webapp/package.json
-	cd webapp && nvm use; npm install
+	cd webapp ; npm install
 	@touch webapp/node_modules
 
 .PHONY: webapp-dependencies
@@ -205,7 +201,7 @@ webapp-dependencies: webapp/node_modules
 
 .PHONY:	webapp-run
 webapp-run:	webapp-client
-	cd webapp && nvm use; npm run dev
+	cd webapp ; npm run dev
 
 webapp-docker:	webapp-client
 	docker compose up --wait --build webapp
@@ -225,10 +221,10 @@ it-test-dependencies:
 
 ## ALL
 .PHONY:	clients
-clients:	python-listener-client streamlit-ui-client webapp-client it-test-client
+clients:	iou-python-lib webapp-client it-test-client
 
 .PHONY:	it-tests-cloud
-it-tests-cloud:	python-listener-client it-test-client
+it-tests-cloud:	iou-python-lib it-test-client
 	./it-test/src/test/it-cloud.sh
 
 .PHONY:	it-tests-local
