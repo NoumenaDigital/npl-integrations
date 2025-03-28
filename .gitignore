@@ -22,11 +22,10 @@ certs.json
 .terraform*
 *.tfstate
 *.tfstate.backup
-python-listener/generated/
+iou-python-client
 node_modules
 cli
 .vite
-generated
 *.zip
 bash
 *-openapi.yml
