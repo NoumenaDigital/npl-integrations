@@ -48,7 +48,7 @@ clean:
 	rm -f *-openapi.yml
 
 .PHONY:	format-check
-format-check: venv/bin/activate python-listener-client streamlit-ui-client
+format-check: venv python-listener-client streamlit-ui-client
 	cd webapp && npm run format:ci
 	. venv/bin/activate && cd python-listener && flake8
 	. venv/bin/activate && cd streamlit-ui && flake8
@@ -136,27 +136,29 @@ npl-deploy:	clear-deploy
 
 ## PYTHON LISTENER SECTION
 
-create-venv:
+venv: python-listener/requirements.txt streamlit-ui/requirements.txt
 	python3 -m venv venv
-
-venv/bin/activate: create-venv python-listener-dependencies streamlit-ui-dependencies
+	make python-listener-dependencies streamlit-ui-dependencies
+	@touch venv
 
 .PHONY:	python-listener-client
-python-listener-client:	venv/bin/activate python-listener/generated/openapi_client/api_client.py
-	. venv/bin/activate && cd python-listener; pip install ./generated
+python-listener-client:	venv python-listener/generated
 
-python-listener/generated/openapi_client/api_client.py:	iou-openapi.yml
+python-listener/generated:	iou-openapi.yml
 	openapi-generator-cli generate --generator-name python --input-spec iou-openapi.yml --output python-listener/generated
+	. venv/bin/activate && cd python-listener; pip install ./generated
+	@touch python-listener/generated
 
-python-listener-dependencies:	./python-listener/requirements.txt
+.PHONY: python-listener-dependencies
+python-listener-dependencies:
 	. venv/bin/activate && cd python-listener; python -m pip install -r requirements.txt
 
 .PHONY:	python-listener-run
-python-listener-run:	python-listener-client
+python-listener-run:	venv python-listener-client
 	. venv/bin/activate && cd python-listener; python app.py
 
 .PHONY: python-listener-docker
-python-listener-docker:	python-listener-client
+python-listener-docker:	python-listener/generated
 	docker compose up --wait --build python-listener
 
 .PHONY:	unit-tests-python-listener
@@ -166,17 +168,19 @@ unit-tests-python-listener:	python-listener-client
 ## STREAMLIT UI SECTION
 
 .PHONY:	streamlit-ui-client
-streamlit-ui-client:	venv/bin/activate streamlit-ui/generated/openapi_client/api_client.py
-	. venv/bin/activate && cd streamlit-ui; pip install ./generated
+streamlit-ui-client:	venv streamlit-ui/generated
 
-streamlit-ui/generated/openapi_client/api_client.py:	iou-openapi.yml
+streamlit-ui/generated:	iou-openapi.yml
 	openapi-generator-cli generate --generator-name python --input-spec iou-openapi.yml --output streamlit-ui/generated
+	. venv/bin/activate && cd streamlit-ui; pip install ./generated
+	@touch streamlit-ui/generated
 
-streamlit-ui-dependencies: ./streamlit-ui/requirements.txt
+.PHONY: streamlit-ui-dependencies
+streamlit-ui-dependencies:
 	. venv/bin/activate && cd streamlit-ui; python -m pip install -r requirements.txt
 
 .PHONY:	streamlit-ui-run
-streamlit-ui-run:	streamlit-ui-client
+streamlit-ui-run:	venv streamlit-ui-client
 	. venv/bin/activate && cd streamlit-ui ; streamlit run main.py
 
 .PHONY:	streamlit-ui-docker
@@ -186,30 +190,35 @@ streamlit-ui-docker:	streamlit-ui-client
 ## WEBAPP SECTION
 
 .PHONY:	webapp-client
-webapp-client:	webapp/generated/openapi_client/api_client.py webapp-dependencies
+webapp-client:	webapp/generated
 
-webapp/generated/api.ts:	iou-openapi.yml
+webapp/generated:	iou-openapi.yml
 	openapi-generator-cli generate --generator-name typescript-axios --additional-properties=useSingleRequestParameter=true --input-spec iou-openapi.yml --output webapp/generated
+	@touch webapp/generated
 
-webapp-dependencies: ./webapp/package.json
-	cd webapp; npm i
+webapp/node_modules:	webapp/package.json
+	cd webapp && nvm use; npm install
+	@touch webapp/node_modules
+
+.PHONY: webapp-dependencies
+webapp-dependencies: webapp/node_modules
 
 .PHONY:	webapp-run
 webapp-run:	webapp-client
-	cd webapp; npm run dev
+	cd webapp && nvm use; npm run dev
 
-.PHONY:	webapp-docker
-webapp-docker:
+webapp-docker:	webapp-client
 	docker compose up --wait --build webapp
 
 ## IT-TEST SECTION
 
 .PHONY:	it-test-client
-it-test-client:	it-test/generated/openapi_client/api_client.py
+it-test-client:	it-test/generated
 
-it-test/generated/openapi_client/api_client.py:	iou-openapi.yml
+it-test/generated:	iou-openapi.yml
 	openapi-generator-cli generate --generator-name bash --input-spec iou-openapi.yml --output it-test/generated
 	chmod +x ./it-test/generated/client.sh
+	@touch it-test/generated
 
 .PHONY:	it-test-dependencies
 it-test-dependencies:
@@ -237,7 +246,8 @@ down:
 	docker compose down -v
 
 .PHONY:	run-only
-run-only:	streamlit-ui-run python-listener-run webapp-run
+run-only:
+	make streamlit-ui-run & make python-listener-run & make webapp-run
 
 .PHONY:	run
 run:	npl-deploy run-only
