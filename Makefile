@@ -49,7 +49,7 @@ clean:
 	rm -f *-openapi.yml
 
 .PHONY:	format-check
-format-check: venv iou-python-lib
+format-check: python-libs iou-python-lib
 	cd webapp && npm run format:ci
 	. venv/bin/activate && cd python-listener && flake8
 	. venv/bin/activate && cd streamlit-ui && flake8
@@ -140,7 +140,6 @@ npl-deploy:	clear-deploy
 
 venv:	python-requirements.txt
 	python3 -m venv venv
-	@touch venv
 
 venv/.installed: venv
 	. venv/bin/activate; python -m pip install -r python-requirements.txt
@@ -151,19 +150,27 @@ python-libs:	venv/.installed
 
 iou-python-client:	iou-openapi.yml
 	openapi-generator-cli generate --generator-name python --package-name iou --input-spec iou-openapi.yml --output iou-python-client
+	@touch iou-python-client
 
-venv/lib/**/iou:	venv iou-python-client
-	. venv/bin/activate; pip install ./iou-python-client
-	@touch venv/lib/**/iou
+venv/lib/*/site-packages/iou:	venv iou-python-client
+	. venv/bin/activate ; pip install ./iou-python-client
+	@touch venv/lib/$$(python --version 2>&1 | sed -E 's/Python ([0-9]+)\.([0-9]+).*/python\1.\2/')/site-packages/iou
+
+debug_python_path:
+	@echo "Checking Python path..."
+	@PYVER=$$(python --version 2>&1 | sed -E 's/Python ([0-9]+)\.([0-9]+).*/python\1.\2/'); \
+	echo "Python version string: $$PYVER"; \
+	echo "Full path would be: venv/lib/$$PYVER/site-packages/"
+	@ls -la venv/lib/
 
 .PHONY:	iou-python-lib
-iou-python-lib:	venv/lib/**/iou
+iou-python-lib:	venv/lib/*/site-packages/iou
 
 ## PYTHON LISTENER SECTION
 
 .PHONY:	python-listener-run
 python-listener-run:	venv python-libs iou-python-lib
-	. venv/bin/activate && cd python-listener; python app.py
+	. venv/bin/activate && cd python-listener ; python app.py
 
 .PHONY: python-listener-docker
 python-listener-docker:	iou-python-client python-requirements.txt
