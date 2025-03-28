@@ -1,7 +1,7 @@
-from openapi_client.api.default_api import DefaultApi
-from openapi_client.models.iou_create import IouCreate
-from openapi_client.models.iou_parties import IouParties
-from openapi_client.models.party import Party
+from iou.api.default_api import DefaultApi
+from iou.models.iou_create import IouCreate
+from iou.models.iou_parties import IouParties
+from iou.models.party import Party
 
 
 def create_iou(api: DefaultApi):
