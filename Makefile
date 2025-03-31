@@ -49,7 +49,7 @@ clean:
 	rm -f *-openapi.yml
 
 .PHONY:	format-check
-format-check: python-libs iou-python-lib
+format-check: venv python-libs iou-python-lib
 	cd webapp && npm run format:ci
 	. venv/bin/activate && cd python-listener && flake8
 	. venv/bin/activate && cd streamlit-ui && flake8
@@ -177,7 +177,7 @@ python-listener-docker:	iou-python-client python-requirements.txt
 	docker compose up --wait --build python-listener
 
 .PHONY:	unit-tests-python-listener
-unit-tests-python-listener:	iou-python-lib
+unit-tests-python-listener:	venv python-libs iou-python-lib
 	. venv/bin/activate && cd python-listener && PYTHONPATH=$(shell pwd) nosetests --verbosity=2 .
 
 ## STREAMLIT UI SECTION
