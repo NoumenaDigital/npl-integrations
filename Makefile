@@ -141,36 +141,30 @@ npl-deploy:	clear-deploy
 venv:	python-requirements.txt
 	python3 -m venv venv
 
-venv/.installed: venv
-	. venv/bin/activate; python -m pip install -r python-requirements.txt
-	@touch venv/.installed
+venv/.installed-libs: venv
+	. venv/bin/activate; python3 -m pip install -r python-requirements.txt
+	@touch venv/.installed-libs
 
 @PHONY:	python-libs
-python-libs:	venv/.installed
+python-libs:	venv/.installed-libs
 
 iou-python-client:	iou-openapi.yml
 	openapi-generator-cli generate --generator-name python --package-name iou --input-spec iou-openapi.yml --output iou-python-client
 	@touch iou-python-client
 
-venv/lib/*/site-packages/iou:	venv iou-python-client
+venv/.installed-iou:	venv iou-python-client
 	. venv/bin/activate ; pip install ./iou-python-client
-	@touch venv/lib/$$(python --version 2>&1 | sed -E 's/Python ([0-9]+)\.([0-9]+).*/python\1.\2/')/site-packages/iou
-
-debug_python_path:
-	@echo "Checking Python path..."
-	@PYVER=$$(python --version 2>&1 | sed -E 's/Python ([0-9]+)\.([0-9]+).*/python\1.\2/'); \
-	echo "Python version string: $$PYVER"; \
-	echo "Full path would be: venv/lib/$$PYVER/site-packages/"
-	@ls -la venv/lib/
+	@touch venv/.installed-iou
 
 .PHONY:	iou-python-lib
-iou-python-lib:	venv/lib/*/site-packages/iou
+iou-python-lib:	venv/.installed-iou
+	echo something here
 
 ## PYTHON LISTENER SECTION
 
 .PHONY:	python-listener-run
-python-listener-run:	venv python-libs iou-python-lib
-	. venv/bin/activate && cd python-listener ; python app.py
+python-listener-run:	python-libs iou-python-lib
+	. venv/bin/activate && cd python-listener ; python3 app.py
 
 .PHONY: python-listener-docker
 python-listener-docker:	iou-python-client python-requirements.txt
@@ -183,7 +177,7 @@ unit-tests-python-listener:	venv python-libs iou-python-lib
 ## STREAMLIT UI SECTION
 
 .PHONY:	streamlit-ui-run
-streamlit-ui-run:	venv python-libs iou-python-lib
+streamlit-ui-run:	python-libs iou-python-lib
 	. venv/bin/activate && cd streamlit-ui ; streamlit run main.py
 
 .PHONY:	streamlit-ui-docker
@@ -207,7 +201,7 @@ webapp/node_modules:	webapp/package.json
 webapp-dependencies: webapp/node_modules
 
 .PHONY:	webapp-run
-webapp-run:	webapp-client
+webapp-run:	webapp-client webapp-dependencies
 	cd webapp ; npm run dev
 
 webapp-docker:	webapp-client
