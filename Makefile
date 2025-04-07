@@ -158,7 +158,6 @@ venv/.installed-iou:	venv iou-python-client
 
 .PHONY:	iou-python-lib
 iou-python-lib:	venv/.installed-iou
-	echo something here
 
 ## PYTHON LISTENER SECTION
 
