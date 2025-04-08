@@ -55,11 +55,8 @@ export class BaseService {
 
     public getIouList: () => Promise<Iou[]> = async () =>
         this.api
-            .getIouList(
-                undefined,
-                this.withAuthorizationHeader()
-            )
-            .then((it) => it.data.items);
+            .getIouList(undefined, this.withAuthorizationHeader())
+            .then((it) => it.data.items)
 
     public getIou = async (iouId: string): Promise<Iou> =>
         await this.api

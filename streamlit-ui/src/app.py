@@ -6,9 +6,9 @@ import streamlit as st
 from src import iou
 from src import config
 
-from openapi_client.api.default_api import DefaultApi
-from openapi_client.api_client import ApiClient
-from openapi_client.configuration import Configuration
+from iou.api.default_api import DefaultApi
+from iou.api_client import ApiClient
+from iou.configuration import Configuration
 
 
 def get_api():

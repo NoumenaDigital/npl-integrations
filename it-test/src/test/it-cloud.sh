@@ -10,11 +10,16 @@
 
 set -e
 
+if [ -f .env ]; then
+  echo "Loading environment variables from .env"
+  export $(cat .env | xargs)
+fi
+
 if [ -z "$NC_DOMAIN" ]; then
 	echo "NC_DOMAIN not set"
 	exit 1
 fi
-if [ -z "$NC_ORG_NAME" ]; then
+if [ -z "$VITE_NC_ORG_NAME" ]; then
 	echo "VITE_NC_ORG_NAME not set"
 	exit 1
 fi
@@ -31,11 +36,11 @@ if [ -z "$NPL_VERSION" ]; then
 	exit 1
 fi
 
-echo "Performing integration tests on domain '$NC_DOMAIN' for org '$NC_ORG_NAME' with engine version '$NC_ENGINE_VERSION' with auth '$NC_ENV' and NPL version '$NPL_VERSION'"
+echo "Performing integration tests on domain '$NC_DOMAIN' for org '$VITE_NC_ORG_NAME' with engine version '$NC_ENGINE_VERSION' with auth '$NC_ENV' and NPL version '$NPL_VERSION'"
 
 org_id=$(get_nc_org)
 if [ -z "$org_id" ]; then
-	echo "NC org id not found for VITE_NC_ORG_NAME '$NC_ORG_NAME' on domain '$NC_DOMAIN'"
+	echo "NC org id not found for VITE_NC_ORG_NAME '$VITE_NC_ORG_NAME' on domain '$NC_DOMAIN'"
 	exit 1
 fi
 

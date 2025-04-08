@@ -1,0 +1,15 @@
+# Common dependencies for the Python Listener and Streamlit UI
+flake8==7.1.1
+requests==2.32.3
+requests-sse==0.3.2
+python-dotenv==1.0.1
+
+# Streamlit UI dependencies
+auth0-python==4.7.1
+pandas==2.2.2
+streamlit==1.38.0
+streamlit-auth0==1.0.5
+watchdog==4.0.2
+
+# Python Listener dependencies
+pynose==1.5.3

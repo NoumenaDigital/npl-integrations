@@ -1,7 +1,10 @@
 name: "Verify PR"
 
 on:
-  pull_request
+  schedule:
+    # every day at 01:00
+    - cron: "0 1 * * *"
+  pull_request:
 
 env:
   MAVEN_CLI_OPTS: "--batch-mode"
@@ -9,6 +12,10 @@ env:
     -Dorg.slf4j.simpleLogger.showDateTime=true 
     -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss.SSS
     -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
+  GITHUB_USER_NAME: "${{ secrets.GH_USERNAME_PUBLIC_REPOS }}"
+  GITHUB_USER_PASS: "${{ secrets.GH_PASSWORD_PUBLIC_REPOS }}"
+  NC_EMAIL: "${{ secrets.NC_EMAIL }}"
+  NC_PASSWORD: "${{ secrets.NC_PASSWORD }}"
 
 jobs:
   build-test-verify:
@@ -18,6 +25,13 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v4
 
+      - name: "GitHub Login"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ env.GITHUB_USER_NAME }}
+          password: ${{ env.GITHUB_USER_PASS }}
+
       - name: "Set up Java"
         uses: actions/setup-java@v4
         with:
@@ -25,5 +39,23 @@ jobs:
           java-version: "17"
           cache: "maven"
 
-      - name: "Verify"
-        run: "mvn $MAVEN_CLI_OPTS clean verify"
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: "Install & setup"
+        run: "CLI_OS_ARCH=npl_linux_amd64 make -e cloud-install"
+
+      - name: "NPL compile & test"
+        run: "make npl-test"
+
+      - name: "Formatting & prettifying"
+        run: "make format-check"
+
+      - name: "Python listener unit tests"
+        run: "make unit-tests-python-listener"
+
+      - name: "local integration tests"
+        run: "make it-tests-local"
+
+      - name: "Noumena Cloud integration tests"
+        run: "NC_ENV=DEV make it-tests-cloud"

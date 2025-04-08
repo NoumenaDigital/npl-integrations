@@ -1,4 +1,4 @@
-FROM ghcr.io/noumenadigital/packages/engine:2024.2.12
+FROM ghcr.io/noumenadigital/images/engine:2025.1.1
 
 LABEL org.opencontainers.image.source = "https://github.com/noumenadigital/npl-integrations"
 

@@ -28,9 +28,35 @@ services:
         condition: service_started
       keycloak:
         condition: service_healthy
+      keycloak-provisioning:
+        condition: service_completed_successfully
+
+  engine-db:
+    image: postgres:14.4-alpine
+    mem_limit: 256m
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: engine
+      ENGINE_DB_USER: npl-integrations
+      ENGINE_DB_PASSWORD: secret
+      HISTORY_DB_USER: history
+      HISTORY_DB_PASSWORD: secret
+      HISTORY_DB_SCHEMA: history
+      READ_MODEL_DB_USER: postgraphile
+      READ_MODEL_DB_PASSWORD: secret
+    volumes:
+      - ./db_init/db_init.sh:/docker-entrypoint-initdb.d/db_init.sh
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 1s
+      timeout: 5s
+      retries: 50
 
   read-model:
-    image: ghcr.io/noumenadigital/packages/read-model:${PLATFORM_VERSION}
+    image: ghcr.io/noumenadigital/images/read-model:${PLATFORM_VERSION}
     ports:
       - "15000:15000"
     environment:
@@ -49,29 +75,8 @@ services:
         condition: service_started
       keycloak:
         condition: service_healthy
-
-  engine-db:
-    image: postgres:14.4-alpine
-    mem_limit: 256m
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: engine
-      ENGINE_DB_USER: npl-integrations
-      ENGINE_DB_PASSWORD: secret
-      HISTORY_DB_USER: history
-      HISTORY_DB_PASSWORD: secret
-      READ_MODEL_DB_USER: postgraphile
-      READ_MODEL_DB_PASSWORD: secret
-    volumes:
-      - ./db_init/db_init.sh:/docker-entrypoint-initdb.d/db_init.sh
-    healthcheck:
-      test: pg_isready -U postgres
-      interval: 1s
-      timeout: 5s
-      retries: 50
+      keycloak-provisioning:
+        condition: service_completed_successfully
 
   keycloak-provisioning:
     image: ghcr.io/noumenadigital/npl-integrations/keycloak-provisioning:latest
@@ -138,7 +143,7 @@ services:
       - keycloak-db:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: testing
-      ENV: LOCAL
+      ENV: DOCKER
     healthcheck:
       test: pg_isready -U postgres
       interval: 1s
@@ -191,13 +196,11 @@ services:
       context: .
       dockerfile: ./python-listener/Dockerfile
     environment:
-      ENV: LOCAL
-      REALM: ${VITE_NC_APP_NAME:-nplintegrations}
+      ENV: DOCKER
+      VITE_NC_APP_NAME: ${VITE_NC_APP_NAME:-nplintegrations}
     depends_on:
       engine:
         condition: service_healthy
-      keycloak-provisioning:
-        condition: service_completed_successfully
 
   streamlit-ui:
     image: ghcr.io/noumenadigital/npl-integrations/streamlit-ui:latest
@@ -207,9 +210,7 @@ services:
     ports:
       - "8080:8501"
     environment:
-      ENV: LOCAL
+      ENV: DOCKER
     depends_on:
       engine:
         condition: service_healthy
-      keycloak-provisioning:
-        condition: service_completed_successfully

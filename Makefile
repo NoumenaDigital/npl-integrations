@@ -1,46 +1,56 @@
+include .env
+
 GITHUB_SHA=HEAD
-MAVEN_CLI_OPTS?=-s .m2/settings.xml --no-transfer-progress
+MAVEN_CLI_OPTS?=--no-transfer-progress
+CLI_OS_ARCH=npl_darwin_amd64
+CLI_RELEASE_TAG=1.3.0
+
+NC_APP_NAME_CLEAN := $(shell echo ${VITE_NC_APP_NAME} | tr -d '-' | tr -d '_')
+NC_ORG := $(shell ./cli org list 2>/dev/null | jq --arg VITE_NC_ORG_NAME "$(VITE_NC_ORG_NAME)" -r '.[] | select(.slug == $$VITE_NC_ORG_NAME) | .id' 2>/dev/null)
+NC_APP := $(shell ./cli app list -org $(NC_ORG) 2>/dev/null | jq --arg VITE_NC_APP_NAME "$(VITE_NC_APP_NAME)" '.[] | select(.slug == $$VITE_NC_APP_NAME) | .id' 2>/dev/null)
+NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_username' 2>/dev/null )
+NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_password' 2>/dev/null )
+KEYCLOAK_URL=https://keycloak-$(VITE_NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMAIN)
+ENGINE_URL=https://engine-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)
+READ_MODEL_URL=https://engine-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)/graphql
+NPL_SOURCES=$(shell find npl/src/main -name \*npl)
+TF_SOURCES=$(shell find keycloak-provisioning -name \*tf)
+
+escape = $(subst $$,\$$,$1)
 
 ## Common commands
-.PHONY: install
-install:
-	make -f cloud.mk first-install
-	make -f local.mk install
+.PHONY:	install
+install:	cli
+	brew install jq python3 terraform
+	npm install @openapitools/openapi-generator-cli prettier -g
 
-.PHONY: cloud-install
-cloud-install:
-	make -f cloud.mk pipeline-setup
-	make -f cloud.mk install
-
-.PHONY: rename
-rename:
-	@if [ "$(PROJECT_NAME)" = "" ]; then echo "PROJECT_NAME not set"; exit 1; fi
-	perl -p -i -e's/npl-integrations/$(PROJECT_NAME)/g' `find . -type f`
-	perl -p -i -e's/nplintegrations/$(shell echo $(PROJECT_NAME) | tr '[:upper:]' '[:lower:]' | tr -d '-')/g' `find . -type f`
-	@parent_dir=$$(basename "$$(pwd)") && \
-	if [ "$$parent_dir" = "npl-integrations" ]; then \
-		cd .. && mv npl-integrations $(PROJECT_NAME); \
-	fi
+.PHONY:	cloud-install
+cloud-install:	cli
+	-sudo apt-get install jq
+	npm install @openapitools/openapi-generator-cli prettier -g
 
 .PHONY:	clean
 clean:
 	docker compose down -v
-	mvn $(MAVEN_CLI_OPTS) clean
+	cd npl ; mvn $(MAVEN_CLI_OPTS) clean
 	rm -rf **/target
+	rm -rf target
 	rm -rf **/node_modules
 	rm -rf **/dist
 	rm -rf **/build
 	rm -rf **/venv
+	rm -rf venv
 	rm -rf **/generated
+	rm -rf iou-python-client
 	rm -rf bash
 	rm -rf keycloak-provisioning/state.tfstate*
 	rm -rf keycloak-provisioning/.terraform*
 	rm -f cli
+	rm -f *-openapi.yml
 
 .PHONY:	format-check
-format-check:
+format-check: venv python-libs iou-python-lib
 	cd webapp && npm run format:ci
-	cd webapp && npm run lint
 	. venv/bin/activate && cd python-listener && flake8
 	. venv/bin/activate && cd streamlit-ui && flake8
 
@@ -50,97 +60,193 @@ format:
 
 .PHONY:	bump-platform-version
 bump-platform-version:
-	@if [ "$(PLATFORM_VERSION)" = "" ]; then echo "PLATFORM_VERSION not set"; exit 1; fi
+	@if [ -z "$(PLATFORM_VERSION)" ]; then echo "PLATFORM_VERSION not set"; exit 1; fi
 	perl -p -i -e's/PLATFORM_VERSION=.*/PLATFORM_VERSION=$(PLATFORM_VERSION)/' .env
 	perl -p -i -e's/FROM ghcr.io\/noumenadigital\/packages\/engine:.*/FROM ghcr.io\/noumenadigital\/packages\/engine:$(PLATFORM_VERSION)/' npl/Dockerfile
 	mvn -pl parent-pom versions:set-property -Dproperty=noumena.platform.version -DnewVersion="$(PLATFORM_VERSION)"
 
-## Local commands
-.PHONY: install-python
-install-python:
-	make -f cloud.mk install-python
+## NOUMENA CLOUD COMMANDS
 
-.PHONY: install-webapp
-install-webapp:
-	make -f cloud.mk install-webapp
+cli:
+	curl -s "https://api.github.com/repos/NoumenaDigital/npl-cli/releases/tags/$(CLI_RELEASE_TAG)" \
+		| jq --arg CLI_OS_ARCH "$(CLI_OS_ARCH)" '.assets[] | select(.name == $$CLI_OS_ARCH) | .url' -r \
+		| xargs -t -n 2 -P 3 curl -sG -H "Accept: application/octet-stream" -Lo cli
+	chmod +x cli
 
-.PHONY: generate-sources
-generate-sources:
-	mvn $(MAVEN_CLI_OPTS) generate-sources
-	chmod +x bash/client.sh
+.PHONY:	create-app
+create-app:
+	./cli app create -org $(NC_ORG) -engine $(NC_ENGINE_VERSION) -name $(VITE_NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)/realms/$(VITE_NC_APP_NAME)"]'
 
-.PHONY:	run-only
-run-only:
-	make -f local.mk run-only
+.PHONY:	clear-deploy
+clear-deploy:	zip
+	@if [ -z "$(NC_APP)" ] ; then echo "App $(VITE_NC_APP_NAME) not found"; exit 1; fi
+	@if [ -z "$(NPL_VERSION)" ]; then echo "NPL_VERSION not set"; exit 1; fi
+	./cli app clear -app $(NC_APP)
+	./cli app deploy -app $(NC_APP) -binary ./target/npl-integrations-$(NPL_VERSION).zip
+
+.PHONY:	status-app
+status-app:
+	./cli app detail -org $(NC_ORG) -app $(NC_APP)
+
+.PHONY:	delete-app
+delete-app:
+	@echo "Deleting app $(VITE_NC_APP_NAME) with id $(NC_APP)"
+	@./cli app delete -app $(NC_APP)
+
+iam:	$(TF_SOURCES)
+	-@curl -s --location --request DELETE '$(KEYCLOAK_URL)/admin/realms/$(NC_APP_NAME_CLEAN)' \
+		--header 'Content-Type: application/x-www-form-urlencoded' \
+		--header "Authorization: Bearer $(shell curl -s --location --request POST --header 'Content-Type: application/x-www-form-urlencoded' \
+			--data-urlencode 'username=$(NC_KEYCLOAK_USERNAME)' \
+			--data-urlencode 'password=$(NC_KEYCLOAK_PASSWORD)' \
+			--data-urlencode 'client_id=admin-cli' \
+			--data-urlencode 'grant_type=password' \
+			'$(KEYCLOAK_URL)/realms/master/protocol/openid-connect/token' | jq -r '.access_token')"
+	cd keycloak-provisioning && \
+		KEYCLOAK_USER=$(NC_KEYCLOAK_USERNAME) \
+		KEYCLOAK_PASSWORD="$(call escape,$(NC_KEYCLOAK_PASSWORD))" \
+		KEYCLOAK_URL=$(KEYCLOAK_URL) \
+		TF_VAR_default_password=welcome \
+		TF_VAR_systemuser_secret=super-secret-system-security-safe \
+		TF_VAR_app_name=$(NC_APP_NAME_CLEAN) \
+		./local.sh
+
+.PHONY:	zip
+zip:	target/npl-integrations-$(NPL_VERSION).zip
+
+target/npl-integrations-$(NPL_VERSION).zip:	$(NPL_SOURCES)
+	@if [ -z "$(NPL_VERSION)" ]; then echo "NPL_VERSION not set"; exit 1; fi
+	@mkdir -p npl/src/main/kotlin-script && mkdir -p target && cd target && mkdir -p src && cd src && \
+		cp -r ../../npl/src/main/npl-* . && cp -r ../../npl/src/main/yaml . && cp -r ../../npl/src/main/kotlin-script . && \
+		zip -r ../npl-integrations-$(NPL_VERSION).zip *
+
+## NPL SECTION
+
+.PHONY:	npl-test
+npl-test:
+	cd npl ; mvn test
+
+iou-openapi.yml:	$(NPL_SOURCES)
+	cd npl ; mvn package
+
+.PHONY: npl-docker
+npl-docker:
+	docker compose up --wait --build engine
+
+.PHONY:	npl-deploy
+npl-deploy:	clear-deploy
+
+## COMMON PYTHON SECTION
+
+venv:	python-requirements.txt
+	python3 -m venv venv
+
+venv/.installed-libs: venv
+	. venv/bin/activate; python3 -m pip install -r python-requirements.txt
+	@touch venv/.installed-libs
+
+@PHONY:	python-libs
+python-libs:	venv/.installed-libs
+
+iou-python-client:	iou-openapi.yml
+	openapi-generator-cli generate --generator-name python --package-name iou --input-spec iou-openapi.yml --output iou-python-client
+	@touch iou-python-client
+
+venv/.installed-iou:	venv iou-python-client
+	. venv/bin/activate ; pip install ./iou-python-client
+	@touch venv/.installed-iou
+
+.PHONY:	iou-python-lib
+iou-python-lib:	venv/.installed-iou
+
+## PYTHON LISTENER SECTION
+
+.PHONY:	python-listener-run
+python-listener-run:	python-libs iou-python-lib
+	. venv/bin/activate && cd python-listener ; python3 app.py
+
+.PHONY: python-listener-docker
+python-listener-docker:	iou-python-client python-requirements.txt
+	docker compose up --wait --build python-listener
+
+.PHONY:	unit-tests-python-listener
+unit-tests-python-listener:	venv python-libs iou-python-lib
+	. venv/bin/activate && cd python-listener && PYTHONPATH=$(shell pwd) nosetests --verbosity=2 .
+
+## STREAMLIT UI SECTION
+
+.PHONY:	streamlit-ui-run
+streamlit-ui-run:	python-libs iou-python-lib
+	. venv/bin/activate && cd streamlit-ui ; streamlit run main.py
+
+.PHONY:	streamlit-ui-docker
+streamlit-ui-docker:	iou-python-client python-requirements.txt
+	docker compose up --wait --build streamlit-ui
+
+## WEBAPP SECTION
+
+.PHONY:	webapp-client
+webapp-client:	webapp/generated
+
+webapp/generated:	iou-openapi.yml
+	openapi-generator-cli generate --generator-name typescript-axios --additional-properties=useSingleRequestParameter=true --input-spec iou-openapi.yml --output webapp/generated
+	@touch webapp/generated
+
+webapp/node_modules:	webapp/package.json
+	cd webapp ; npm install
+	@touch webapp/node_modules
+
+.PHONY: webapp-dependencies
+webapp-dependencies: webapp/node_modules
+
+.PHONY:	webapp-run
+webapp-run:	webapp-client webapp-dependencies
+	cd webapp ; npm run dev
+
+webapp-docker:	webapp-client
+	docker compose up --wait --build webapp
+
+## IT-TEST SECTION
+
+.PHONY:	it-test-client
+it-test-client:	it-test/generated
+
+it-test/generated:	iou-openapi.yml
+	openapi-generator-cli generate --generator-name bash --input-spec iou-openapi.yml --output it-test/generated
+	chmod +x ./it-test/generated/client.sh
+	@touch it-test/generated
+
+.PHONY:	it-test-dependencies
+it-test-dependencies:
+
+## ALL
+.PHONY:	clients
+clients:	iou-python-lib webapp-client it-test-client
+
+.PHONY:	it-tests-cloud
+it-tests-cloud:	iou-python-lib it-test-client
+	./it-test/src/test/it-cloud.sh
+
+.PHONY:	it-tests-local
+it-tests-local:	npl-docker python-listener-docker run-it-tests-local down
+
+.PHONY:	run-it-tests-local
+run-it-tests-local: it-test-client
+	./it-test/src/test/it-local.sh
 
 .PHONY:	up
-up:
-	make -f local.mk up
+up:	npl-docker webapp-docker streamlit-ui-docker python-listener-docker
 
 .PHONY:	down
 down:
-	make -f local.mk down
+	docker compose down -v
+
+.PHONY:	run-only
+run-only:
+	make streamlit-ui-run & make python-listener-run & make webapp-run
 
 .PHONY:	run
-run: install run-only
+run:	npl-deploy run-only
 
-.PHONY: run-python-listener
-run-python-listener:
-	make -f cloud.mk run-python-listener
-
-.PHONY: run-streamlit-ui
-run-streamlit-ui:
-	make -f cloud.mk run-streamlit-ui
-
-.PHONY: run-webapp
-run-webapp:
-	make -f cloud.mk run-webapp
-
-## Noumena Cloud commands
-.PHONY: first-install-cloud
-first-install-cloud:
-	make -f cloud.mk first-install
-
-.PHONY: install-cloud
-install-cloud:
-	make -f cloud.mk install
-
-run-cloud:
-	make -f cloud.mk run
-
-.PHONY:	run-only-cloud
-run-only-cloud:
-	make -f cloud.mk run-only
-
-download-cli:
-	make -f cloud.mk download-cli
-
-.PHONY: create-app
-create-app:
-	make -f cloud.mk create-app
-
-clear-deploy:
-	make -f cloud.mk clear-deploy
-
-.PHONY: status-app
-status-app:
-	make -f cloud.mk status-app
-
-.PHONY: iam
-iam:
-	make -f cloud.mk iam
-
-.PHONY: zip
-zip:
-	make -f cloud.mk zip
-
-.PHONY: integration-test-local
-integration-test-local:
-	make -f local.mk integration-test
-
-.PHONY: integration-tests-cloud
-integration-test-cloud:
-	make -f cloud.mk integration-test
-
-unit-tests-python-listener:
-	. venv/bin/activate && make -f local.mk unit-tests-python-listener
+.PHONY:	all
+all:	up it-tests-local it-tests-cloud
