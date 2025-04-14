@@ -2,32 +2,40 @@
 
 ## Focus of this demo
 The demo steps detailed below illustrate
-- How various components of the `npl-integrations` example application (with python "listener and callback service" and typescript frontend) can be deployed locally, using docker, or integrated with an engine and keycloak deployed to PaaS/Noumena Cloud
+- How various components of the `npl-integrations` example application (with python "listener and callback service" and typescript frontend) can be deployed locally, using docker, or integrated with an engine and keycloak deployed to Noumena Cloud
 - The various APIs exposed by the engine and how users can interact with them to execute actions, retrieve a history of state changes or commands, listen to event streams...
-
-## Pre-requisites
-Follow the configuration steps detailed in `README.md` and make sure you can run the components detailed therein.
 
 ## Context
 The NPL code base in the `npl-integrations` application builds on the IoU example of the [npl-starter](https://github.com/NoumenaDigital/npl-starter) repository, adding a `RepaymentOccurrence` notification triggered when the IoU issuer calls the `pay`action to claim she/he has repaid an amount on the IoU, a permission `confirmPayment` that can be invoked by the payee to confirm such a repayment did indeed happen, and a new state `payment_confirmation_required` to reflect that after each `pay` invocation a confirmation is now required. The python listener service is designed to pick up `paymentOccurence` notifications and "call back" to confirm repayments. For simplicity, that python listener service authenticates as one specific user among the provisioned ones, namely Bob, meaning that the listener will only callback to confirm payments with success on IoU's where Bob (identified as bob@noumenadigital.com in the IoU creation form in the frontend) is the payee. The new state and the new state transitions can be visualized in the State Machine Analyzer provided by the NPL Dev Plugin.
 
+## Pre-requisites
+- Follow the configuration steps detailed in `README.md` and make sure you can run the components detailed therein.
+- In the following, we assume that application https://portal.noumena.cloud/noumena/nplintegrations exists and that variables in the `.env`file are set to `VITE_NC_APP_NAME=nplintegrations` [app name], `VITE_NC_ORG_NAME=noumena` [tenant name]. To ensure the latter given the current default settings, run
+    ```shell
+    sed -i '' 's/trainingapp/nplintegrations/g;s/training/noumena/g' .env
+    ```
+    Otherwise, create the application of your choice and set those two variables in `.env`configuration file accordingly. 
+- To start from a clean slate with respect to artefacts, run
+    ```shell
+    $ make clean && make cli && cd keycloak-provisioning/ && terraform init && cd ..
+    ```
+
 ## Part 1: Local deployment of engine and keycloak
-**Step 1:** Deploy the NPL in an engine running locally, using docker:
-```shell
-$ docker compose up -d --build engine keycloak-provisioning
-```
-
-Notes:
-- The `--build` flag in docker compose ensures that if containers are recreated, images are rebuilt first from the latest sources. 
-- Look at the deployed containers using the Docker Desktop app or typing `docker ps -a`. You should see the engine and its database running, as well as keycloak and its database.
+**Step 1:** Deploy the NPL locally
+- Deploy the NPL in an engine running locally, using docker:
+    ```shell
+    $ make npl-docker
+    ```
+    Note: The `make` target simply builds and brings up docker containers locally. 
+- Observe the deployed containers using the Docker Desktop app or typing `docker ps -a`. You should see the engine and its database running, as well as keycloak and its database.
 - Keycloak has been provisioned with users Alice, Bob and Eve. A container `keycloak-provisioning` should show up as exited among docker containers since provisioning has completed. For technical details on the provisioning, follow the trail from the `keycloak-provisioning` service in `docker-compose.yml` to script `local.sh` and terraform file `terraform.tf` in module `keycloak-provisioning`.
-- Open the keycloak administration console accessible under `http://keycloak:11000/admin/master/console/` (also via `http://keycloak:11000`)
+- Open the keycloak administration console accessible under `http://keycloak:11000/admin/master/console/` (also via `http://keycloak:11000`) using the keycloak admin credentials defined in `env.` file, inspect the users created in the `nplintegrations` [app name] realm , e.g. keycloak user `alice` and its user ID.
 
+**Step 2:** Interact with the local engine
+- Navigate to the swagger UI of the local engine under `http://localhost:12000/swagger-ui/`, select definition `NPL Application - iou`, which reflects the API automatically generated out of the IoU NPL code.
+- Try listing IoU instances without authorization using `GET /npl/iou/Iou`. You should get a 401 Unauthorized error.
 
 ## Dump of remainder
-
-E. Open Keycloak console, show users provisioned
-F. Open Engine API, append swagger-ui/, generated API, test interaction listing IoUs
 
 2. Get Alice JWT
 
