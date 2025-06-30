@@ -21,7 +21,7 @@ escape = $(subst $$,\$$,$1)
 ## Common commands
 .PHONY:	install
 install:	cli
-	brew install jq python3 terraform
+	brew install jq python@3.12 terraform
 	npm install @openapitools/openapi-generator-cli prettier -g
 
 .PHONY:	cloud-install
@@ -139,7 +139,7 @@ npl-deploy:	clear-deploy
 ## COMMON PYTHON SECTION
 
 venv:	python-requirements.txt
-	python3 -m venv venv
+	python3.12 -m venv venv
 
 venv/.installed-libs: venv
 	. venv/bin/activate; python3 -m pip install -r python-requirements.txt
@@ -153,6 +153,7 @@ iou-python-client:	iou-openapi.yml
 	@touch iou-python-client
 
 venv/.installed-iou:	venv iou-python-client
+	cat iou-python-client/pyproject.toml
 	. venv/bin/activate ; python3 -m pip install ./iou-python-client
 	@touch venv/.installed-iou
 
