@@ -142,6 +142,7 @@ venv:	python-requirements.txt
 	python3.12 -m venv venv
 
 venv/.installed-libs: venv
+	. venv/bin/activate; python3 -m pip install --upgrade pip
 	. venv/bin/activate; python3 -m pip install -r python-requirements.txt
 	@touch venv/.installed-libs
 

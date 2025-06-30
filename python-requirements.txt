@@ -4,6 +4,7 @@ requests==2.32.3
 requests-sse==0.3.2
 python-dotenv==1.0.1
 setuptools==80.9.0
+build==1.2.2.post1
 
 # Streamlit UI dependencies
 auth0-python==4.7.1
