@@ -50,7 +50,7 @@ jobs:
 
       - name: Show pip/setuptools/build versions
         run: |
-          make venv iou-python-client
+          make venv iou-python-client venv/.installed-libs
           . venv/bin/activate ; pip --version
           . venv/bin/activate ; python -m pip show setuptools
           . venv/bin/activate ; python -m pip show build

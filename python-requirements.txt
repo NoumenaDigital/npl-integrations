@@ -3,6 +3,7 @@ flake8==7.1.1
 requests==2.32.3
 requests-sse==0.3.2
 python-dotenv==1.0.1
+setuptools==80.9.0
 
 # Streamlit UI dependencies
 auth0-python==4.7.1
