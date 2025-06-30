@@ -153,7 +153,7 @@ iou-python-client:	iou-openapi.yml
 	@touch iou-python-client
 
 venv/.installed-iou:	venv iou-python-client
-	. venv/bin/activate ; pip install ./iou-python-client
+	. venv/bin/activate ; python3 -m pip install ./iou-python-client
 	@touch venv/.installed-iou
 
 .PHONY:	iou-python-lib
