@@ -1,8 +1,8 @@
-systemUnderAudit: nplintegrations
+$schema: https://documentation.noumenadigital.com/schemas/migration-schema-v2.yml
 
 changesets:
   - name: 1.0
     changes:
-      - reset: true
-      - npl-load:
-        dir-list: npl
+      - migrate:
+          sources:
+          - npl
