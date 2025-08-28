@@ -63,9 +63,24 @@ variable "systemuser_name" {
   default = "bankingsystem"
 }
 
+data "keycloak_realm" "master" {
+  realm = "master"
+}
+
+import {
+  id = "master"
+  to = keycloak_realm.master
+}
+
+resource "keycloak_realm" "master" {
+  realm             = data.keycloak_realm.master.id
+  ssl_required = "none"
+}
+
 resource "keycloak_realm" "realm" {
   realm = var.app_name
   # Realm Settings > Login tab
+  ssl_required = "none"
   reset_password_allowed   = true
   login_with_email_allowed = true
   registration_allowed = true
