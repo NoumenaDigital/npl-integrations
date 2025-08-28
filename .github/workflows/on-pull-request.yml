@@ -57,5 +57,13 @@ jobs:
       - name: "local integration tests"
         run: "make it-tests-local"
 
+      - name: "Dump docker logs on failure"
+        if: failure()
+        uses: jwalton/gh-docker-logs@v2
+
       - name: "Noumena Cloud integration tests"
         run: "NC_ENV=DEV make it-tests-cloud"
+
+      - name: "Dump docker logs on failure"
+        if: failure()
+        uses: jwalton/gh-docker-logs@v2
