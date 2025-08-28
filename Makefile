@@ -131,7 +131,7 @@ iou-openapi.yml:	$(NPL_SOURCES)
 
 .PHONY: npl-docker
 npl-docker:
-	docker compose up --wait --build engine
+	docker compose up --wait --build engine keycloak-provisioning
 
 .PHONY:	npl-deploy
 npl-deploy:	clear-deploy

@@ -28,8 +28,6 @@ services:
         condition: service_started
       keycloak:
         condition: service_healthy
-      keycloak-provisioning:
-        condition: service_completed_successfully
 
   engine-db:
     image: postgres:14.4-alpine
@@ -75,8 +73,6 @@ services:
         condition: service_started
       keycloak:
         condition: service_healthy
-      keycloak-provisioning:
-        condition: service_completed_successfully
 
   keycloak-provisioning:
     image: ghcr.io/noumenadigital/npl-integrations/keycloak-provisioning:latest
