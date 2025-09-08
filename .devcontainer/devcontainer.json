@@ -1,0 +1,17 @@
+{
+  "name": "NPL Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "noumenadigital.npl-dev-vscode-extension"
+      ]
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest"
+    },
+    "ghcr.io/noumenadigital/devcontainers/npl-cli:1": {}
+  }
+}
