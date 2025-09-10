@@ -32,7 +32,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <sources>${project.basedir}/src/main/npl-1.0</sources>
+                    <sources>${project.basedir}/src/main/npl</sources>
                     <testSources>${project.basedir}/src/test/npl</testSources>
                     <enableCompilerOptimisations>false</enableCompilerOptimisations>
                     <openAPIOutputDirectory>../</openAPIOutputDirectory>
