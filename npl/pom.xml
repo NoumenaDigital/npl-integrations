@@ -8,7 +8,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <noumena.platform.version>2025.1.1</noumena.platform.version>
+        <noumena.platform.version>2025.1.11</noumena.platform.version>
     </properties>
 
     <build>
@@ -32,7 +32,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <sources>${project.basedir}/src/main/npl-1.0</sources>
+                    <sources>${project.basedir}/src/main/npl</sources>
                     <testSources>${project.basedir}/src/test/npl</testSources>
                     <enableCompilerOptimisations>false</enableCompilerOptimisations>
                     <openAPIOutputDirectory>../</openAPIOutputDirectory>
