@@ -29,3 +29,6 @@ cli
 *.zip
 bash
 *-openapi.yml
+npl-contrib.properties
+.claude
+.cursorrules

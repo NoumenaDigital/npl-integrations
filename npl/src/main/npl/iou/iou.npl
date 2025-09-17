@@ -22,7 +22,7 @@ struct PaymentDetails {
 };
 
 @multinode
-notification RepaymentOccurrenceMultiNode(payment: PaymentDetails) returns PaymentConfirmation;
+notification RepaymentOccurrenceMultiNode(payment: PaymentDetails) returns PaymentConfirmation; 
 
 @api
 protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
@@ -48,7 +48,7 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
             TimestampedAmount(amount = amount, timestamp = now())
         );
         notify RepaymentOccurrence(amount, amountOwed);
-        notify RepaymentOccurrenceMultiNode(PaymentDetails(description, forAmount, paymentToBeConfirmed.getOrFail(), amountOwed - amount));
+        // notify RepaymentOccurrenceMultiNode(PaymentDetails(description, forAmount, paymentToBeConfirmed.getOrFail(), amountOwed - amount));
 
         become payment_confirmation_required;
     };
