@@ -94,10 +94,8 @@ export class BaseService {
     public createIou = async (
         description: string,
         amount: number,
-        issuerEntity: Party['entity'],
-        issuerAccess: Party['access'],
-        payeeEntity: Party['entity'],
-        payeeAccess: Party['access']
+        issuerClaims: Party['claims'],
+        payeeClaims: Party['claims'],
     ) =>
         await this.api
             .createIou(
@@ -107,12 +105,10 @@ export class BaseService {
                         forAmount: amount,
                         ['@parties']: {
                             issuer: {
-                                entity: issuerEntity,
-                                access: issuerAccess
+                                claims: issuerClaims,
                             },
                             payee: {
-                                entity: payeeEntity,
-                                access: payeeAccess
+                                claims: payeeClaims,
                             }
                         }
                     }

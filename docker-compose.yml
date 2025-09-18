@@ -12,7 +12,7 @@ services:
       - "12000:12000"
     environment:
       ENGINE_DEV_MODE: ${DEV_MODE:-false}
-      ENGINE_ALLOWED_ISSUERS: http://keycloak:11000/realms/${VITE_NC_APP_NAME:-nplintegrations}
+      ENGINE_ALLOWED_ISSUERS: http://keycloak:11000/realms/${VITE_NC_APP_NAME:-nplintegrations},http://localhost:11000/realms/${VITE_NC_APP_NAME:-nplintegrations}
       ENGINE_DB_URL: "jdbc:postgresql://engine-db:5432/engine"
       ENGINE_DB_USER: npl-integrations
       ENGINE_DB_PASSWORD: secret
@@ -102,13 +102,15 @@ services:
       start
       --spi-events-listener-jboss-logging-success-level=info
       --spi-events-listener-jboss-logging-error-level=error
-      --hostname-strict=false
       --health-enabled=true
       --http-enabled=true
+      --http-port=11000
+      --hostname-strict=false
+      --hostname=http://localhost:11000
+      --hostname-admin=http://localhost:11000
+      --hostname-backchannel-dynamic=true
       --metrics-enabled=true
       --db=postgres
-      --hostname-admin=http://keycloak:11000
-      --hostname=http://keycloak:11000
     ports:
       - "11000:11000"
       - "9000:9000"
@@ -119,14 +121,11 @@ services:
       KC_DB_USERNAME: postgres
       KC_DB_PASSWORD: testing
       KC_HEALTH_ENABLED: "true"
-      KC_HTTP_ENABLED: "true"
-      KC_HTTP_PORT: 11000
-      KC_HOSTNAME: keycloak
     depends_on:
       keycloak-db:
         condition: service_started
     healthcheck:
-      test: curl http://keycloak:9000/health || exit 1
+      test: curl http://localhost:9000/health || exit 1
       interval: 1s
       retries: 60
 
@@ -177,7 +176,7 @@ services:
       - .env
     environment:
       GQL_ENDPOINT: http://localhost:15001/graphql
-      KEYCLOAK_URL: http://keycloak:11000
+      KEYCLOAK_URL: http://localhost:11000
       KEYCLOAK_REALM: ${VITE_NC_APP_NAME:-nplintegrations}
       KEYCLOAK_CLIENT_ID: ${VITE_NC_APP_NAME:-nplintegrations}
     depends_on:

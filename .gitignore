@@ -32,3 +32,6 @@ bash
 npl-contrib.properties
 .claude
 .cursorrules
+tmp
+generated
+api-client

@@ -66,8 +66,8 @@ def list_iou():
         iou.description,
         iou.for_amount,
         iou.amount_owed,
-        iou.parties.issuer.entity["email"][0],
-        iou.parties.payee.entity["email"][0]
+        iou.parties.issuer.claims["email"][0],
+        iou.parties.payee.claims["email"][0]
         ] for iou in iou_list.items], columns=["Description", "Total amount", "Owed amount", "Issuer", "Payee"])
     st.write("IOU List")
     st.write(iou_df)
