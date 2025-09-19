@@ -10,19 +10,13 @@ def create_iou(api: DefaultApi):
             forAmount=5,
             parties=IouParties(
                 issuer=Party(
-                    entity={
+                    claims={
                         "email": ["jean@noumenadigital.com"],
-                    },
-                    access={
-                        "other": ["jean@noumenadigital.com"],
                     }
                 ),
                 payee=Party(
-                    entity={
+                    claims={
                         "email": ["jean@noumenadigital.com"],
-                    },
-                    access={
-                        "other": ["jean@noumenadigital.com"],
                     }
                 )
             )

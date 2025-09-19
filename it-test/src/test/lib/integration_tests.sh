@@ -41,7 +41,7 @@ create_iou() {
 	iou_id=$(./it-test/generated/client.sh -s --host "$engine_url" createIou Authorization:"Bearer $access_token" \
 		description=="IOU from integration-test on $(date +%d.%m.%y_%H:%M:%S)" \
 		forAmount:=100 \
-		@parties:='{"issuer":{"entity":{"email":["alice@nd.tech"]},"access":{}},"payee":{"entity":{"email":["bob@nd.tech"]},"access":{}}}' | jq -r '.["@id"]')
+		@parties:='{"issuer":{"claims":{"email":["alice@nd.tech"]}},"payee":{"claims":{"email":["bob@nd.tech"]}}}' | jq -r '.["@id"]')
 
 	if [ -z "$iou_id" ]; then
 		echo "Iou not created" >&2
@@ -59,7 +59,7 @@ pay_iou() {
 
 	local iou_after_payment_state
 
-  ./it-test/generated/client.sh -s --host "$engine_url" iouPay id="$iou_id" Authorization:"Bearer $access_token" amount:=10
+    ./it-test/generated/client.sh -s --host "$engine_url" iouPay id="$iou_id" Authorization:"Bearer $access_token" amount:=10
 
 	iou_after_payment_state=$(./it-test/generated/client.sh -s --host "$engine_url" getIouByID id="$iou_id" Authorization:"Bearer $access_token" | jq -r '.["@state"]')
 

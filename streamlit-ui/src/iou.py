@@ -11,16 +11,14 @@ def create_iou(api: DefaultApi, description: str, amount: float, issuer: str, pa
             forAmount=amount,
             parties=IouParties(
                 issuer=Party(
-                    entity={
+                    claims={
                         "email": [issuer],
-                    },
-                    access={}
+                    }
                 ),
                 payee=Party(
-                    entity={
+                    claims={
                         "email": [payee],
-                    },
-                    access={}
+                    }
                 )
             )
         )

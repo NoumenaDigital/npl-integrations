@@ -32,11 +32,9 @@ export const CreateIouDialog: React.FC<{
             {
                 email: [user.email]
             },
-            {},
             {
                 email: [payee]
-            },
-            {}
+            }
         ).then(() => onClose(true))
     }
 
