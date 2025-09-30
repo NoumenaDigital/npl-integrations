@@ -18,7 +18,7 @@
         "@mui/material": "^6.2.0",
         "@mui/x-charts": "^7.23.2",
         "@react-keycloak/web": "^3.4.0",
-        "axios": "1.8.2",
+        "axios": "1.12.0",
         "event-source-polyfill": "^1.0.31",
         "keycloak-js": "25.0.6",
         "react": "^18.3.1",
