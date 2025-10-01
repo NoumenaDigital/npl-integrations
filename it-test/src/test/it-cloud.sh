@@ -19,8 +19,8 @@ if [ -z "$NC_DOMAIN" ]; then
 	echo "NC_DOMAIN not set"
 	exit 1
 fi
-if [ -z "$VITE_NC_ORG_NAME" ]; then
-	echo "VITE_NC_ORG_NAME not set"
+if [ -z "$VITE_NC_TENANT_SLUG" ]; then
+	echo "VITE_NC_TENANT_SLUG not set"
 	exit 1
 fi
 if [ -z "$NC_ENGINE_VERSION" ]; then
@@ -36,11 +36,11 @@ if [ -z "$NPL_VERSION" ]; then
 	exit 1
 fi
 
-echo "Performing integration tests on domain '$NC_DOMAIN' for org '$VITE_NC_ORG_NAME' with engine version '$NC_ENGINE_VERSION' with auth '$NC_ENV' and NPL version '$NPL_VERSION'"
+echo "Performing integration tests on domain '$NC_DOMAIN' for org '$VITE_NC_TENANT_SLUG' with engine version '$NC_ENGINE_VERSION' with auth '$NC_ENV' and NPL version '$NPL_VERSION'"
 
 org_id=$(get_nc_org)
 if [ -z "$org_id" ]; then
-	echo "NC org id not found for VITE_NC_ORG_NAME '$VITE_NC_ORG_NAME' on domain '$NC_DOMAIN'"
+	echo "NC org id not found for VITE_NC_TENANT_SLUG '$VITE_NC_TENANT_SLUG' on domain '$NC_DOMAIN'"
 	exit 1
 fi
 

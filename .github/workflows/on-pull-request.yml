@@ -43,7 +43,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: "Install & setup"
-        run: "CLI_OS_ARCH=npl_linux_amd64 make -e cloud-install"
+        run: "make -e cloud-install"
 
       - name: "NPL compile & test"
         run: "make npl-test"

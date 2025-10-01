@@ -2,19 +2,12 @@ include .env
 
 GITHUB_SHA=HEAD
 MAVEN_CLI_OPTS?=--no-transfer-progress
-CLI_OS_ARCH=npl_darwin_amd64
-CLI_RELEASE_TAG=1.3.0
 
-NC_APP_NAME_CLEAN := $(shell echo ${VITE_NC_APP_NAME} | tr -d '-' | tr -d '_')
-NC_ORG := $(shell ./cli org list 2>/dev/null | jq --arg VITE_NC_ORG_NAME "$(VITE_NC_ORG_NAME)" -r '.[] | select(.slug == $$VITE_NC_ORG_NAME) | .id' 2>/dev/null)
-NC_APP := $(shell ./cli app list -org $(NC_ORG) 2>/dev/null | jq --arg VITE_NC_APP_NAME "$(VITE_NC_APP_NAME)" '.[] | select(.slug == $$VITE_NC_APP_NAME) | .id' 2>/dev/null)
-NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_username' 2>/dev/null )
-NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_password' 2>/dev/null )
-KEYCLOAK_URL=https://keycloak-$(VITE_NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMAIN)
-ENGINE_URL=https://engine-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)
-READ_MODEL_URL=https://engine-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)/graphql
+KEYCLOAK_URL=https://keycloak-$(VITE_NC_TENANT_SLUG)-$(VITE_NC_APP_SLUG).$(NC_DOMAIN)
+ENGINE_URL=https://engine-$(VITE_NC_TENANT_SLUG)-$(VITE_NC_APP_SLUG).$(NC_DOMAIN)
+READ_MODEL_URL=https://engine-$(VITE_NC_TENANT_SLUG)-$(VITE_NC_APP_SLUG).$(NC_DOMAIN)/graphql
 NPL_SOURCES=$(shell find npl/src/main -name \*npl)
-TF_SOURCES=$(shell find keycloak-provisioning -name \*tf)
+WEBAPP_SOURCES=$(shell find webapp/src -type f -print; find webapp/public -type f -print; find webapp -maxdepth 1 \( -name "*.json" -o -name "*.html" -o -name "*.ts" \) -print)
 
 escape = $(subst $$,\$$,$1)
 
@@ -68,57 +61,46 @@ bump-platform-version:
 ## NOUMENA CLOUD COMMANDS
 
 cli:
-	curl -s "https://api.github.com/repos/NoumenaDigital/npl-cli/releases/tags/$(CLI_RELEASE_TAG)" \
-		| jq --arg CLI_OS_ARCH "$(CLI_OS_ARCH)" '.assets[] | select(.name == $$CLI_OS_ARCH) | .url' -r \
-		| xargs -t -n 2 -P 3 curl -sG -H "Accept: application/octet-stream" -Lo cli
-	chmod +x cli
+	@if ! command -v npl >/dev/null 2>&1; then \
+		curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash ; \
+	fi
 
 .PHONY:	create-app
 create-app:
-	./cli app create -org $(NC_ORG) -engine $(NC_ENGINE_VERSION) -name $(VITE_NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)/realms/$(VITE_NC_APP_NAME)"]'
+	@echo "Creating app is not supported with the NPL CLI"
+	exit 1
 
 .PHONY:	clear-deploy
-clear-deploy:	zip
-	@if [ -z "$(NC_APP)" ] ; then echo "App $(VITE_NC_APP_NAME) not found"; exit 1; fi
-	@if [ -z "$(NPL_VERSION)" ]; then echo "NPL_VERSION not set"; exit 1; fi
-	./cli app clear -app $(NC_APP)
-	./cli app deploy -app $(NC_APP) -binary ./target/npl-integrations-$(NPL_VERSION).zip
+clear-deploy:	clear deploy
+
+.PHONY:	clear
+clear:
+	@if [ -z "$(VITE_NC_TENANT_SLUG)" ] ; then echo "Tenant $(VITE_NC_TENANT_SLUG) not found"; exit 1; fi
+	@if [ -z "$(VITE_NC_APP_SLUG)" ] ; then echo "App $(VITE_NC_APP_SLUG) not found"; exit 1; fi
+	
+	npl cloud clear npl --tenant $(VITE_NC_TENANT_SLUG) --app $(VITE_NC_APP_SLUG)
+
+.PHONY:	deploy
+deploy:	webapp-build $(NPL_SOURCES)
+	@if [ -z "$(VITE_NC_TENANT_SLUG)" ] ; then echo "Tenant $(VITE_NC_TENANT_SLUG) not found"; exit 1; fi
+	@if [ -z "$(VITE_NC_APP_SLUG)" ] ; then echo "App $(VITE_NC_APP_SLUG) not found"; exit 1; fi
+	
+	npl cloud deploy npl --tenant $(VITE_NC_TENANT_SLUG) --app $(VITE_NC_APP_SLUG) --migration npl/src/main/migration.yml
+	npl cloud deploy frontend --tenant $(VITE_NC_TENANT_SLUG) --app $(VITE_NC_APP_SLUG) --frontend webapp/dist
 
 .PHONY:	status-app
 status-app:
-	./cli app detail -org $(NC_ORG) -app $(NC_APP)
+	@echo "Getting app status is not supported with the NPL CLI"
+	exit 1
 
 .PHONY:	delete-app
 delete-app:
-	@echo "Deleting app $(VITE_NC_APP_NAME) with id $(NC_APP)"
-	@./cli app delete -app $(NC_APP)
+	@echo "Deleting app is not supported with the NPL CLI"
+	exit 1
 
-iam:	$(TF_SOURCES)
-	-@curl -s --location --request DELETE '$(KEYCLOAK_URL)/admin/realms/$(NC_APP_NAME_CLEAN)' \
-		--header 'Content-Type: application/x-www-form-urlencoded' \
-		--header "Authorization: Bearer $(shell curl -s --location --request POST --header 'Content-Type: application/x-www-form-urlencoded' \
-			--data-urlencode 'username=$(NC_KEYCLOAK_USERNAME)' \
-			--data-urlencode 'password=$(NC_KEYCLOAK_PASSWORD)' \
-			--data-urlencode 'client_id=admin-cli' \
-			--data-urlencode 'grant_type=password' \
-			'$(KEYCLOAK_URL)/realms/master/protocol/openid-connect/token' | jq -r '.access_token')"
-	cd keycloak-provisioning && \
-		KEYCLOAK_USER=$(NC_KEYCLOAK_USERNAME) \
-		KEYCLOAK_PASSWORD="$(call escape,$(NC_KEYCLOAK_PASSWORD))" \
-		KEYCLOAK_URL=$(KEYCLOAK_URL) \
-		TF_VAR_default_password=welcome \
-		TF_VAR_systemuser_secret=super-secret-system-security-safe \
-		TF_VAR_app_name=$(NC_APP_NAME_CLEAN) \
-		./local.sh
-
-.PHONY:	zip
-zip:	target/npl-integrations-$(NPL_VERSION).zip
-
-target/npl-integrations-$(NPL_VERSION).zip:	$(NPL_SOURCES)
-	@if [ -z "$(NPL_VERSION)" ]; then echo "NPL_VERSION not set"; exit 1; fi
-	@mkdir -p npl/src/main/kotlin-script && mkdir -p target && cd target && mkdir -p src && cd src && \
-		cp -r ../../npl/src/main/npl-* . && cp -r ../../npl/src/main/yaml . && cp -r ../../npl/src/main/kotlin-script . && \
-		zip -r ../npl-integrations-$(NPL_VERSION).zip *
+iam:
+	@echo "Updating IAM with keycloak is not supported with the NPL CLI"
+	exit 1
 
 ## NPL SECTION
 
@@ -198,6 +180,13 @@ webapp/node_modules:	webapp/package.json
 
 .PHONY: webapp-dependencies
 webapp-dependencies: webapp/node_modules
+
+.PHONY:	webapp-build
+webapp-build:	webapp-client webapp/dist
+
+webapp/dist:	$(WEBAPP_SOURCES)
+	cd webapp ; npm run build
+	@touch webapp/dist
 
 .PHONY:	webapp-run
 webapp-run:	webapp-client webapp-dependencies

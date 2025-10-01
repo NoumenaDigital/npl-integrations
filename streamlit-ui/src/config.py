@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 load_dotenv("../.env")
 load_dotenv()
 
-ORG = os.getenv("VITE_NC_ORG_NAME") if os.getenv("VITE_NC_ORG_NAME") is not None else "training"
-REALM = os.getenv("VITE_NC_APP_NAME") if os.getenv("VITE_NC_APP_NAME") is not None else "nplintegrations"
+ORG = os.getenv("VITE_NC_TENANT_SLUG") if os.getenv("VITE_NC_TENANT_SLUG") is not None else "training"
+REALM = os.getenv("VITE_NC_APP_SLUG") if os.getenv("VITE_NC_APP_SLUG") is not None else "nplintegrations"
 DOMAIN = os.getenv("DOMAIN") if os.getenv("DOMAIN") is not None else "noumena.cloud"
 LOCAL_TOKEN_URL = f"""http://keycloak:11000/realms/{REALM}/protocol/openid-connect/token"""
 LOCAL_ROOT_URL = "http://engine:12000"

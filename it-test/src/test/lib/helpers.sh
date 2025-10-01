@@ -8,7 +8,7 @@ get_nc_app_name_clean() {
 }
 
 get_nc_org() {
-	./cli org list | jq --arg NC_ORG_NAME "$VITE_NC_ORG_NAME" -r '.[] | select(.slug == $NC_ORG_NAME) | .id'
+	./cli org list | jq --arg NC_ORG_NAME "$VITE_NC_TENANT_SLUG" -r '.[] | select(.slug == $NC_ORG_NAME) | .id'
 }
 
 get_nc_keycloak_username() {
@@ -23,15 +23,15 @@ get_nc_keycloak_password() {
 
 get_keycloak_url() {
 	local app_name_clean=$1
-	echo "https://keycloak-$VITE_NC_ORG_NAME-$app_name_clean.$NC_DOMAIN"
+	echo "https://keycloak-$VITE_NC_TENANT_SLUG-$app_name_clean.$NC_DOMAIN"
 }
 
 get_engine_url() {
 	local app_name_clean=$1
-	echo "https://engine-$VITE_NC_ORG_NAME-$app_name_clean.$NC_DOMAIN"
+	echo "https://engine-$VITE_NC_TENANT_SLUG-$app_name_clean.$NC_DOMAIN"
 }
 
 get_read_model_url() {
 	local app_name_clean=$1
-	echo "https://engine-$VITE_NC_ORG_NAME-$app_name_clean.$NC_DOMAIN/graphql"
+	echo "https://engine-$VITE_NC_TENANT_SLUG-$app_name_clean.$NC_DOMAIN/graphql"
 }
