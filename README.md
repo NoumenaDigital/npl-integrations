@@ -14,6 +14,7 @@
   - [Webapp](#webapp)
   - [Streamlit UI](#streamlit-ui)
   - [Service endpoints](#service-endpoints-1)
+- [Running pipelines against NOUMENA Cloud](#running-pipelines-against-noumena-cloud)
 - [NPL Development](#npl-development)
 - [Next steps](#next-steps)
 
@@ -191,6 +192,14 @@ Once the project is running, services run behind the following URLs:
 | Keycloak admin console    | `https://keycloak-$VITE_NC_TENANT_SLUG-$NC_APP_NAME.noumena.cloud`           |
 | Webapp                    | http://localhost:5173                                                     |
 | Streamlit UI              | http://localhost:8501                                                     |
+
+## Running pipelines against NOUMENA Cloud
+
+For deployment or testing, the NPL CLI can be used in pipelines. An authorisation mode with services accounts
+is available for this use case.
+
+1. In the tenant page on NOUMENA Cloud, create a service account.
+2. In your github repo running the pipeline, set the `NPL_SERVICE_ACCOUNT_CLIENT_SECRET` with the provided client secret
 
 ## NPL Development
 
