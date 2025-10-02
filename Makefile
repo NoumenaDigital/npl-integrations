@@ -214,7 +214,7 @@ it-test-dependencies:
 clients:	iou-python-lib webapp-client it-test-client
 
 .PHONY:	it-tests-cloud
-it-tests-cloud:	python-libs iou-python-lib it-test-client cli
+it-tests-cloud:	python-libs iou-python-lib it-test-client cloud-install
 	./it-test/src/test/it-cloud.sh
 
 .PHONY:	it-tests-local
