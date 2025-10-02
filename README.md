@@ -87,7 +87,7 @@ Once the project is running, services can be accessed with the following URLs:
 Alternative to the local setup, NPL can be deployed on Noumena Cloud.
 Noumena offers a cloud-based environment for running NPL code, which can be accessed at [portal.noumena.cloud](https://portal.noumena.cloud).
 
-In this setup, to allow a setup without Docker Compose, the Python listener, Python Streamlit UI & Typescript React webapp are not run in Docker containers.
+In this setup, to allow a setup without Docker, the Python listener, Python Streamlit UI & Typescript React webapp are run as services outside of docker containers.
 
 This setup includes running a Python listener, Python Streamlit UI & Typescript React webapp locally, and Noumena Engine on Noumena Cloud.
 
@@ -99,35 +99,12 @@ Supporting services include Keycloak for authentication and authorization, and d
 #### Option 1: Using the NPL CLI & terraform
 
 1. Install the NPL CLI by running `make cli` in the root directory.
-2. Add the following variables to your shell to configure the NPL CLI and restart your terminal
-
-    ```
-    export NC_BASE_URL=https://portal.noumena.cloud
-    export NC_EMAIL=your_email
-    export NC_PASSWORD=your_password
-    export NC_ENV=DEV
-    ```
-
-3. Run `make create-app` to create the application with the name defined in the Makefile.
-4. Run `make iam` to provision keycloak on the created application using terraform.
+2. [Create an application on NOUMENA Cloud](https://documentation.noumenadigital.com/cloud/portal/create-app/)
+3. [Create users on NOUMENA Cloud](https://documentation.noumenadigital.com/cloud/portal/create-users/)
+4. Log in to NOUMENA Cloud by running `npl cloud login`
 5. Run `make clear-deploy` to clear pre-existing packages in the app and upload the current NPL and migration sources.
 
-#### Option 2: Using the NPL-Dev plugin for IntelliJ
-
-1. Edit run configurations by clicking on the three vertical dots icon at the top right of IntelliJ
-2. Add a new configuration by clicking on the `+` icon and selecting `Deploy to Noumena Cloud`
-3. Input the following values:
-    - `Server base URL`: https://portal.noumena.cloud
-    - `Application ID`: The application ID found on the settings page of your app in the Noumena Cloud UI
-    - `Username`: Your email address for Noumena Cloud
-    - `Password`: Your password for Noumena Cloud
-    - `Source path`: The absolute path to the directory ending with `/npl/src/main` within the project. This is where the `npl`, `kotlin-script` and `yaml` folders are located.
-
-4. Click `Run` to save and run the configuration
-
-In addition, Keycloak can be configured from the `Services` tab in the Noumena Cloud UI.
-
-#### Option 3: Using the Noumena Cloud UI
+#### Option 2: Using the Noumena Cloud UI
 
 1. Create a zip file by running the `make zip` command in the root directory. A zip file will be created in the `target` directory.
 2. In the Noumena Cloud UI, click on `Upload packages` and upload the zip file.

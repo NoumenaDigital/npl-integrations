@@ -1,20 +1,9 @@
 . ./it-test/src/test/lib/helpers.sh
 
-zip_sources() {
-	mkdir -p target
-	mkdir -p target/src
-	cp -R npl/src/main/npl-"$NPL_VERSION" target/src/
-	cp -R npl/src/main/yaml target/src/
-	cp -R npl/src/main/kotlin-script target/src/
-	cd target/src || exit
-	zip -r ../npl-integrations-"$NPL_VERSION".zip ./*
-	cd ../..
-}
-
 populate_iam() {
 	local app_name=$1
-	local app_name_clean=$2
-	local app_id=$3
+	local app_slug=$2
+	local app_slug=$3
 	local my_realm_url=$4
 
 	local keycloak_user;
@@ -25,9 +14,9 @@ populate_iam() {
 
 	echo "Populating IAM for app $app_name with realm $my_realm_url" >&2
 
-	keycloak_user=$(get_nc_keycloak_username "$app_id")
-	keycloak_password=$(get_nc_keycloak_password "$app_id")
-	keycloak_url=$(get_keycloak_url "$app_name_clean")
+	keycloak_user=$(get_nc_keycloak_username "$app_slug")
+	keycloak_password=$(get_nc_keycloak_password "$app_slug")
+	keycloak_url=$(get_keycloak_url "$app_slug")
 
 	token_url="$keycloak_url/realms/master/protocol/openid-connect/token"
 
@@ -38,7 +27,7 @@ populate_iam() {
 		--data-urlencode "grant_type=password" \
 		"$token_url" | jq -r '.access_token')
 
-	curl --location --request DELETE "$keycloak_url/admin/realms/$app_name_clean" \
+	curl --location --request DELETE "$keycloak_url/admin/realms/$app_slug" \
 		--header "Content-Type: application/x-www-form-urlencoded" \
 		--header "Authorization: Bearer $admin_token"
 
@@ -50,21 +39,20 @@ populate_iam() {
 	KEYCLOAK_URL=$keycloak_url \
 	TF_VAR_default_password=welcome \
 	TF_VAR_systemuser_secret=super-secret-system-security-safe \
-	TF_VAR_app_name=$app_name_clean \
+	TF_VAR_app_name=$app_slug \
 	./local.sh
 
 	cd ..
 }
 
 setup_deploy() {
-	local app_id=$1
+	local app_slug=$1
 	local app_name=$2
-	local app_name_clean=$3
+	local app_slug=$3
 	local realm_url=$4
 
-	zip_sources
+	# npl cloud clear --tenant "$org_slug" --app "$app_slug" TODO - re-enable when we can clear apps with service accounts
+	npl cloud deploy npl --tenant "$org_slug" --app "$app_slug" --sourceDir ./npl/src/main
 
-    ./cli app deploy -app "$app_id" -binary "./target/npl-integrations-$NPL_VERSION.zip"
-
-    populate_iam "$app_name" "$app_name_clean" "$app_id" "$realm_url"
+    # populate_iam "$app_name" "$app_slug" "$app_slug" "$realm_url" # TODO - re-enable when we can create users
 }
