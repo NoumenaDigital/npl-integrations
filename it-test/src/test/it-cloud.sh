@@ -27,12 +27,8 @@ if [ -z "$VITE_NC_APP_SLUG" ]; then
 	echo "VITE_NC_APP_SLUG not set"
 	exit 1
 fi
-if [ -z "$NC_ENGINE_VERSION" ]; then
-	echo "NC_ENGINE_VERSION not set"
-	exit 1
-fi
 
-echo "Performing integration tests on domain '$NC_DOMAIN' for org '$VITE_NC_TENANT_SLUG' and app '$VITE_NC_APP_SLUG' with engine version '$NC_ENGINE_VERSION'"
+echo "Performing integration tests on domain '$NC_DOMAIN' for org '$VITE_NC_TENANT_SLUG' and app '$VITE_NC_APP_SLUG'"
 
 org_slug=$VITE_NC_TENANT_SLUG
 app_slug=$VITE_NC_APP_SLUG
