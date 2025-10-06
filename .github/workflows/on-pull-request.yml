@@ -16,6 +16,7 @@ env:
   GITHUB_USER_PASS: "${{ secrets.GH_PASSWORD_PUBLIC_REPOS }}"
   NC_EMAIL: "${{ secrets.NC_EMAIL }}"
   NC_PASSWORD: "${{ secrets.NC_PASSWORD }}"
+  NPL_SERVICE_ACCOUNT_CLIENT_SECRET: "${{ secrets.NPL_SERVICE_ACCOUNT_CLIENT_SECRET }}"
 
 jobs:
   build-test-verify:
