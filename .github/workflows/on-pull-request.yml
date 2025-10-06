@@ -64,6 +64,6 @@ jobs:
       - name: "Noumena Cloud integration tests"
         run: "make it-tests-cloud"
 
-      # - name: "Dump docker logs on failure"
-      #   if: failure()
-      #   uses: jwalton/gh-docker-logs@v2
+      - name: "Dump docker logs on failure"
+        if: failure()
+        uses: jwalton/gh-docker-logs@v2
