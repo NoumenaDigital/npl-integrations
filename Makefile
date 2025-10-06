@@ -20,7 +20,7 @@ install:	cli
 .PHONY:	cloud-install
 cloud-install:	cli
 	export PATH=~/.npl/bin:$$PATH
-	echo "$HOME/.npl/bin" >> "$GITHUB_PATH"
+	echo "$$HOME/.npl/bin" >> "$$GITHUB_PATH"
 	-sudo apt-get install jq
 	npm install @openapitools/openapi-generator-cli prettier -g
 
