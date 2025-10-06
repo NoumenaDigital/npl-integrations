@@ -97,12 +97,12 @@ This setup includes running a Python listener, Python Streamlit UI & Typescript 
 In this setup, NPL code runs on Noumena Cloud. Supporting services of the NPL Engine are deployed alongside the NPL Engine.
 Supporting services include Keycloak for authentication and authorization, and databases.
 
-#### Option 1: Using the NPL CLI & terraform
+#### Option 1: Using the NPL CLI
 
 1. Install the NPL CLI by running `make cli` in the root directory.
 2. [Create an application on NOUMENA Cloud](https://documentation.noumenadigital.com/cloud/portal/create-app/)
 3. [Create users on NOUMENA Cloud](https://documentation.noumenadigital.com/cloud/portal/create-users/)
-4. Log in to NOUMENA Cloud by running `npl cloud login`
+4. Log in the NPL CLI to NOUMENA Cloud by running `npl cloud login`
 5. Run `make clear-deploy` to clear pre-existing packages in the app and upload the current NPL and migration sources.
 
 #### Option 2: Using the Noumena Cloud UI
