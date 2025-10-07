@@ -37,6 +37,7 @@ clean:
 	rm -rf venv
 	rm -rf **/generated
 	rm -rf iou-python-client
+	rm -rf openapi
 	rm -rf bash
 	rm -rf keycloak-provisioning/state.tfstate*
 	rm -rf keycloak-provisioning/.terraform*
@@ -108,10 +109,10 @@ iam:
 
 .PHONY:	npl-test
 npl-test:
-	cd npl ; mvn test
+	npl test
 
-iou-openapi.yml:	$(NPL_SOURCES)
-	cd npl ; mvn package
+openapi/iou-openapi.yml:	$(NPL_SOURCES)
+	npl openapi --sourceDir npl/src/main
 
 .PHONY: npl-docker
 npl-docker:
@@ -132,8 +133,8 @@ venv/.installed-libs: venv
 @PHONY:	python-libs
 python-libs:	venv/.installed-libs
 
-iou-python-client:	iou-openapi.yml
-	openapi-generator-cli generate --generator-name python --package-name iou --input-spec iou-openapi.yml --output iou-python-client
+iou-python-client:	openapi/iou-openapi.yml
+	openapi-generator-cli generate --generator-name python --package-name iou --input-spec openapi/iou-openapi.yml --output iou-python-client
 	@touch iou-python-client
 
 venv/.installed-iou:	venv iou-python-client
@@ -172,8 +173,8 @@ streamlit-ui-docker:	iou-python-client python-requirements.txt
 .PHONY:	webapp-client
 webapp-client:	webapp/generated
 
-webapp/generated:	iou-openapi.yml
-	openapi-generator-cli generate --generator-name typescript-axios --additional-properties=useSingleRequestParameter=true --input-spec iou-openapi.yml --output webapp/generated
+webapp/generated:	openapi/iou-openapi.yml
+	openapi-generator-cli generate --generator-name typescript-axios --additional-properties=useSingleRequestParameter=true --input-spec openapi/iou-openapi.yml --output webapp/generated
 	@touch webapp/generated
 
 webapp/node_modules:	webapp/package.json
@@ -202,8 +203,8 @@ webapp-docker:	webapp-client
 .PHONY:	it-test-client
 it-test-client:	it-test/generated
 
-it-test/generated:	iou-openapi.yml
-	openapi-generator-cli generate --generator-name bash --input-spec iou-openapi.yml --output it-test/generated
+it-test/generated:	openapi/iou-openapi.yml
+	openapi-generator-cli generate --generator-name bash --input-spec openapi/iou-openapi.yml --output it-test/generated
 	chmod +x ./it-test/generated/client.sh
 	@touch it-test/generated
 
