@@ -77,7 +77,7 @@ cli:
 			elif [ -f "$$HOME/.npl/bin/npl" ]; then \
 				curl -s $CLI_INSTALL_SCRIPT_URL | bash; \
 			else \
-				@echo "Manual installation detected. Please update manually or reinstall."; \
+				echo "Manual installation detected. Please update manually or reinstall."; \
 				exit 1; \
 			fi; \
 		fi; \
