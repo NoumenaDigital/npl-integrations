@@ -9,20 +9,22 @@ READ_MODEL_URL=https://engine-$(VITE_NC_TENANT_SLUG)-$(VITE_NC_APP_SLUG).$(NC_DO
 NPL_SOURCES=$(shell find npl/src/main -name \*npl)
 WEBAPP_SOURCES=$(shell find webapp/src -type f -print; find webapp/public -type f -print; find webapp -maxdepth 1 \( -name "*.json" -o -name "*.html" -o -name "*.ts" \) -print)
 
-escape = $(subst $$,\$$,$1)
-
 ## Common commands
 .PHONY:	install
 install:	cli
-	brew install jq python3 terraform
-	npm install @openapitools/openapi-generator-cli prettier -g
+	brew install jq python3
+
+.PHONY:	install-openapi-generator
+install-openapi-generator:
+	@if ! command -v openapi-generator-cli >/dev/null 2>&1; then \
+		npm install @openapitools/openapi-generator-cli prettier -g ; \
+	fi
 
 .PHONY:	cloud-install
-cloud-install:	cli
+cloud-install:	cli install-openapi-generator
 	export PATH=~/.npl/bin:$$PATH
 	echo "$$HOME/.npl/bin" >> "$$GITHUB_PATH"
 	-sudo apt-get install jq
-	npm install @openapitools/openapi-generator-cli prettier -g
 
 .PHONY:	clean
 clean:
@@ -64,14 +66,7 @@ bump-platform-version:
 ## NOUMENA CLOUD COMMANDS
 
 cli:
-	@if ! command -v npl >/dev/null 2>&1; then \
-		curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash ; \
-	fi
-
-.PHONY:	create-app
-create-app:
-	@echo "Creating app is not supported with the NPL CLI"
-	exit 1
+	curl -s https://documentation.noumenadiital.com/get-npl-cli.sh | bash
 
 .PHONY:	clear-deploy
 clear-deploy:	clear deploy
@@ -90,20 +85,6 @@ deploy:	webapp-build $(NPL_SOURCES)
 	
 	npl cloud deploy npl --tenant $(VITE_NC_TENANT_SLUG) --app $(VITE_NC_APP_SLUG) --migration npl/src/main/migration.yml
 	npl cloud deploy frontend --tenant $(VITE_NC_TENANT_SLUG) --app $(VITE_NC_APP_SLUG) --frontend webapp/dist
-
-.PHONY:	status-app
-status-app:
-	@echo "Getting app status is not supported with the NPL CLI"
-	exit 1
-
-.PHONY:	delete-app
-delete-app:
-	@echo "Deleting app is not supported with the NPL CLI"
-	exit 1
-
-iam:
-	@echo "Updating IAM with keycloak is not supported with the NPL CLI"
-	exit 1
 
 ## NPL SECTION
 
@@ -133,7 +114,7 @@ venv/.installed-libs: venv
 @PHONY:	python-libs
 python-libs:	venv/.installed-libs
 
-iou-python-client:	openapi/iou-openapi.yml
+iou-python-client:	openapi/iou-openapi.yml install-openapi-generator
 	openapi-generator-cli generate --generator-name python --package-name iou --input-spec openapi/iou-openapi.yml --output iou-python-client
 	@touch iou-python-client
 
@@ -173,7 +154,7 @@ streamlit-ui-docker:	iou-python-client python-requirements.txt
 .PHONY:	webapp-client
 webapp-client:	webapp/generated
 
-webapp/generated:	openapi/iou-openapi.yml
+webapp/generated:	openapi/iou-openapi.yml install-openapi-generator
 	openapi-generator-cli generate --generator-name typescript-axios --additional-properties=useSingleRequestParameter=true --input-spec openapi/iou-openapi.yml --output webapp/generated
 	@touch webapp/generated
 
@@ -203,7 +184,7 @@ webapp-docker:	webapp-client
 .PHONY:	it-test-client
 it-test-client:	it-test/generated
 
-it-test/generated:	openapi/iou-openapi.yml
+it-test/generated:	openapi/iou-openapi.yml install-openapi-generator
 	openapi-generator-cli generate --generator-name bash --input-spec openapi/iou-openapi.yml --output it-test/generated
 	chmod +x ./it-test/generated/client.sh
 	@touch it-test/generated

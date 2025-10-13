@@ -1,10 +1,8 @@
 . ./it-test/src/test/lib/helpers.sh
 
 populate_iam() {
-	local app_name=$1
-	local app_slug=$2
-	local app_slug=$3
-	local my_realm_url=$4
+	local app_slug=$1
+	local my_realm_url=$2
 
 	local keycloak_user;
 	local keycloak_password;
@@ -12,7 +10,7 @@ populate_iam() {
 	local token_url;
 	local admin_token;
 
-	echo "Populating IAM for app $app_name with realm $my_realm_url" >&2
+	echo "Populating IAM for app $app_slug with realm $my_realm_url" >&2
 
 	keycloak_user=$(get_nc_keycloak_username "$app_slug")
 	keycloak_password=$(get_nc_keycloak_password "$app_slug")
@@ -39,7 +37,7 @@ populate_iam() {
 	KEYCLOAK_URL=$keycloak_url \
 	TF_VAR_default_password=welcome \
 	TF_VAR_systemuser_secret=super-secret-system-security-safe \
-	TF_VAR_app_name=$app_slug \
+	TF_VAR_app_slug=$app_slug \
 	./local.sh
 
 	cd ..
@@ -47,12 +45,10 @@ populate_iam() {
 
 setup_deploy() {
 	local app_slug=$1
-	local app_name=$2
-	local app_slug=$3
-	local realm_url=$4
+	local realm_url=$2
 
-	# npl cloud clear --tenant "$org_slug" --app "$app_slug" TODO - re-enable when we can clear apps with service accounts
-	npl cloud deploy npl --tenant "$org_slug" --app "$app_slug" --sourceDir ./npl/src/main
+	# npl cloud clear --tenant "$tenant_slug" --app "$app_slug" TODO - re-enable when we can clear apps with service accounts
+	npl cloud deploy npl --tenant "$tenant_slug" --app "$app_slug" --sourceDir ./npl/src/main
 
-    # populate_iam "$app_name" "$app_slug" "$app_slug" "$realm_url" # TODO - re-enable when we can create users
+    # populate_iam "$app_slug" "$realm_url" # TODO - re-enable when we can create apps & users
 }

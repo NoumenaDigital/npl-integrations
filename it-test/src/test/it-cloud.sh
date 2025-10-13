@@ -30,14 +30,14 @@ fi
 
 echo "Performing integration tests on domain '$NC_DOMAIN' for org '$VITE_NC_TENANT_SLUG' and app '$VITE_NC_APP_SLUG'"
 
-org_slug=$VITE_NC_TENANT_SLUG
+tenant_slug=$VITE_NC_TENANT_SLUG
 app_slug=$VITE_NC_APP_SLUG
 
-engine_url=$(get_engine_url "$org_slug" "$app_slug")
-realm_url="$(get_keycloak_url "$org_slug" "$app_slug")/realms/$app_slug"
+engine_url=$(get_engine_url "$tenant_slug" "$app_slug")
+realm_url="$(get_keycloak_url "$tenant_slug" "$app_slug")/realms/$app_slug"
 
-# waiting_for_activation "$app_slug" "$org_slug" TODO - re-enable when we can get the app status
-setup_deploy "$app_slug" "$app_name" "$app_slug" "$realm_url"
+# waiting_for_activation "$app_slug" "$tenant_slug" TODO - re-enable when we can get the app status
+setup_deploy "$app_slug" "$realm_url"
 run_services "$app_slug"
 listener_pid=$!
 echo "Listener service PID: $listener_pid"
