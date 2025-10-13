@@ -9,6 +9,9 @@ READ_MODEL_URL=https://engine-$(VITE_NC_TENANT_SLUG)-$(VITE_NC_APP_SLUG).$(NC_DO
 NPL_SOURCES=$(shell find npl/src/main -name \*npl)
 WEBAPP_SOURCES=$(shell find webapp/src -type f -print; find webapp/public -type f -print; find webapp -maxdepth 1 \( -name "*.json" -o -name "*.html" -o -name "*.ts" \) -print)
 
+CLI_LATEST_VERSION_URL=https://api.github.com/repos/NoumenaDigital/npl-cli/releases/latest
+CLI_INSTALL_SCRIPT_URL=https://documentation.noumenadigital.com/get-npl-cli.sh
+
 ## Common commands
 .PHONY:	install
 install:	cli
@@ -65,29 +68,21 @@ bump-platform-version:
 
 ## NOUMENA CLOUD COMMANDS
 cli:
-	@echo "Checking NPL CLI installation..."
 	@if command -v npl >/dev/null 2>&1; then \
-		echo "NPL CLI found, checking version..."; \
 		CURRENT_VERSION=$$(npl version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1); \
-		LATEST_VERSION=$$(curl -s https://api.github.com/repos/NoumenaDigital/npl-cli/releases/latest | jq -r .tag_name | sed 's/^v//'); \
-		if [ "$$CURRENT_VERSION" = "$$LATEST_VERSION" ]; then \
-			echo "NPL CLI is up to date ($$CURRENT_VERSION)"; \
-		else \
-			echo "NPL CLI needs update: $$CURRENT_VERSION -> $$LATEST_VERSION"; \
+		LATEST_VERSION=$$(curl -s $CLI_LATEST_VERSION_URL | jq -r .tag_name | sed 's/^v//'); \
+		if [ "$$CURRENT_VERSION" != "$$LATEST_VERSION" ]; then \
 			if brew list npl >/dev/null 2>&1; then \
-				echo "Updating via Homebrew..."; \
 				brew upgrade npl; \
 			elif [ -f "$$HOME/.npl/bin/npl" ]; then \
-				echo "Updating via bash script..."; \
-				curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash; \
+				curl -s $CLI_INSTALL_SCRIPT_URL | bash; \
 			else \
-				echo "Manual installation detected. Please update manually or reinstall."; \
+				@echo "Manual installation detected. Please update manually or reinstall."; \
 				exit 1; \
 			fi; \
 		fi; \
 	else \
-		echo "NPL CLI not found, installing..."; \
-		curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash; \
+		curl -s $CLI_INSTALL_SCRIPT_URL | bash; \
 	fi
 
 .PHONY:	clear-deploy
