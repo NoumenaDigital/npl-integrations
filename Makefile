@@ -64,9 +64,31 @@ bump-platform-version:
 	mvn -pl parent-pom versions:set-property -Dproperty=noumena.platform.version -DnewVersion="$(PLATFORM_VERSION)"
 
 ## NOUMENA CLOUD COMMANDS
-
 cli:
-	curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash
+	@echo "Checking NPL CLI installation..."
+	@if command -v npl >/dev/null 2>&1; then \
+		echo "NPL CLI found, checking version..."; \
+		CURRENT_VERSION=$$(npl version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1); \
+		LATEST_VERSION=$$(curl -s https://api.github.com/repos/NoumenaDigital/npl-cli/releases/latest | jq -r .tag_name | sed 's/^v//'); \
+		if [ "$$CURRENT_VERSION" = "$$LATEST_VERSION" ]; then \
+			echo "NPL CLI is up to date ($$CURRENT_VERSION)"; \
+		else \
+			echo "NPL CLI needs update: $$CURRENT_VERSION -> $$LATEST_VERSION"; \
+			if brew list npl >/dev/null 2>&1; then \
+				echo "Updating via Homebrew..."; \
+				brew upgrade npl; \
+			elif [ -f "$$HOME/.npl/bin/npl" ]; then \
+				echo "Updating via bash script..."; \
+				curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash; \
+			else \
+				echo "Manual installation detected. Please update manually or reinstall."; \
+				exit 1; \
+			fi; \
+		fi; \
+	else \
+		echo "NPL CLI not found, installing..."; \
+		curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash; \
+	fi
 
 .PHONY:	clear-deploy
 clear-deploy:	clear deploy
