@@ -66,7 +66,7 @@ bump-platform-version:
 ## NOUMENA CLOUD COMMANDS
 
 cli:
-	curl -s https://documentation.noumenadiital.com/get-npl-cli.sh | bash
+	curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash
 
 .PHONY:	clear-deploy
 clear-deploy:	clear deploy
