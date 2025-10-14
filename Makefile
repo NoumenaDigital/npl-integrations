@@ -70,19 +70,19 @@ bump-platform-version:
 cli:
 	@if command -v npl >/dev/null 2>&1; then \
 		CURRENT_VERSION=$$(npl version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1); \
-		LATEST_VERSION=$$(curl -s $CLI_LATEST_VERSION_URL | jq -r .tag_name | sed 's/^v//'); \
+		LATEST_VERSION=$$(curl -s "${CLI_LATEST_VERSION_URL}" | jq -r .tag_name | sed 's/^v//'); \
 		if [ "$$CURRENT_VERSION" != "$$LATEST_VERSION" ]; then \
 			if brew list npl >/dev/null 2>&1; then \
 				brew upgrade npl; \
 			elif [ -f "$$HOME/.npl/bin/npl" ]; then \
-				curl -s $CLI_INSTALL_SCRIPT_URL | bash; \
+				curl -s "${CLI_INSTALL_SCRIPT_URL}" | bash; \
 			else \
 				echo "Manual installation detected. Please update manually or reinstall."; \
 				exit 1; \
 			fi; \
 		fi; \
 	else \
-		curl -s $CLI_INSTALL_SCRIPT_URL | bash; \
+		curl -s "${CLI_INSTALL_SCRIPT_URL}" | bash; \
 	fi
 
 .PHONY:	clear-deploy
