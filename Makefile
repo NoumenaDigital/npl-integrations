@@ -74,8 +74,10 @@ cli:
 		if [ "$$CURRENT_VERSION" != "$$LATEST_VERSION" ]; then \
 			if brew list npl >/dev/null 2>&1; then \
 				brew upgrade npl; \
+				echo "npl upgraded to version $$LATEST_VERSION"; \
 			elif [ -f "$$HOME/.npl/bin/npl" ]; then \
 				curl -s "${CLI_INSTALL_SCRIPT_URL}" | bash; \
+				echo "npl upgraded to version $$LATEST_VERSION"; \
 			else \
 				echo "Manual installation detected. Please update manually or reinstall."; \
 				exit 1; \
@@ -83,6 +85,7 @@ cli:
 		fi; \
 	else \
 		curl -s "${CLI_INSTALL_SCRIPT_URL}" | bash; \
+		echo "npl installation done"; \
 	fi
 
 .PHONY:	clear-deploy
