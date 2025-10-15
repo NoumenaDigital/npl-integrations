@@ -50,13 +50,13 @@ clean:
 	rm -f *-openapi.yml
 
 .PHONY:	format-check
-format-check: venv python-libs iou-python-lib
+format-check: webapp-dependencies venv python-libs iou-python-lib
 	cd webapp && npm run format:ci
 	. venv/bin/activate && cd python-listener && flake8
 	. venv/bin/activate && cd streamlit-ui && flake8
 
 .PHONY:	format
-format:
+format:	webapp-dependencies
 	cd webapp && npm run format
 
 .PHONY:	bump-platform-version
@@ -185,7 +185,7 @@ webapp-dependencies: webapp/node_modules
 .PHONY:	webapp-build
 webapp-build:	webapp-client webapp/dist
 
-webapp/dist:	$(WEBAPP_SOURCES)
+webapp/dist:	webapp-dependencies $(WEBAPP_SOURCES)
 	cd webapp ; npm run build
 	@touch webapp/dist
 
