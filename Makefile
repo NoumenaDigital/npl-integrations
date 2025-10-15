@@ -112,7 +112,7 @@ deploy:	webapp-build $(NPL_SOURCES)
 npl-test:
 	npl test
 
-openapi/iou-openapi.yml:	$(NPL_SOURCES)
+openapi/iou-openapi.yml:	$(NPL_SOURCES) npl/pom.xml
 	npl openapi --sourceDir npl/src/main
 
 .PHONY: npl-docker
