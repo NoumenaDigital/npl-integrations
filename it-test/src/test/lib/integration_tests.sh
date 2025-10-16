@@ -1,9 +1,9 @@
 run_integration_tests() {
-	local app_name_clean=$1
+	local app_slug=$1
 	local engine_url=$2
 	local realm_url=$3
 
-	access_token=$(app_auth "$realm_url" "$app_name_clean")
+	access_token=$(app_auth "$realm_url" "$app_slug")
 
 	iou_id=$(create_iou "$engine_url" "$access_token")
 
@@ -16,7 +16,7 @@ run_integration_tests() {
 
 app_auth() {
 	local realm_url=$1
-	local app_name_clean=$2
+	local app_slug=$2
 
 	local access_token;
 
@@ -25,7 +25,7 @@ app_auth() {
 		-d 'username=alice' \
 		-d 'password=alice' \
 		-d 'grant_type=password' \
-		-d "client_id=$app_name_clean" | jq -r '.access_token')
+		-d "client_id=$app_slug" | jq -r '.access_token')
 
 	if [ -z "$access_token" ]; then
 		echo "Access token not found" >&2
@@ -41,7 +41,7 @@ create_iou() {
 	iou_id=$(./it-test/generated/client.sh -s --host "$engine_url" createIou Authorization:"Bearer $access_token" \
 		description=="IOU from integration-test on $(date +%d.%m.%y_%H:%M:%S)" \
 		forAmount:=100 \
-		@parties:='{"issuer":{"claims":{"email":["alice@nd.tech"]}},"payee":{"claims":{"email":["bob@nd.tech"]}}}' | jq -r '.["@id"]')
+		@parties:='{"issuer":{"claims":{"email":["alice@example.com"]}},"payee":{"claims":{"email":["bob@example.com"]}}}' | jq -r '.["@id"]')
 
 	if [ -z "$iou_id" ]; then
 		echo "Iou not created" >&2

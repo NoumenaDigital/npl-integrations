@@ -2,32 +2,32 @@ include .env
 
 GITHUB_SHA=HEAD
 MAVEN_CLI_OPTS?=--no-transfer-progress
-CLI_OS_ARCH=npl_darwin_amd64
-CLI_RELEASE_TAG=1.3.0
 
-NC_APP_NAME_CLEAN := $(shell echo ${VITE_NC_APP_NAME} | tr -d '-' | tr -d '_')
-NC_ORG := $(shell ./cli org list 2>/dev/null | jq --arg VITE_NC_ORG_NAME "$(VITE_NC_ORG_NAME)" -r '.[] | select(.slug == $$VITE_NC_ORG_NAME) | .id' 2>/dev/null)
-NC_APP := $(shell ./cli app list -org $(NC_ORG) 2>/dev/null | jq --arg VITE_NC_APP_NAME "$(VITE_NC_APP_NAME)" '.[] | select(.slug == $$VITE_NC_APP_NAME) | .id' 2>/dev/null)
-NC_KEYCLOAK_USERNAME := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_username' 2>/dev/null )
-NC_KEYCLOAK_PASSWORD := $(shell ./cli app secrets -app $(NC_APP) 2>/dev/null | jq -r '.iam_password' 2>/dev/null )
-KEYCLOAK_URL=https://keycloak-$(VITE_NC_ORG_NAME)-$(NC_APP_NAME_CLEAN).$(NC_DOMAIN)
-ENGINE_URL=https://engine-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)
-READ_MODEL_URL=https://engine-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)/graphql
+KEYCLOAK_URL=https://keycloak-$(VITE_NC_TENANT_SLUG)-$(VITE_NC_APP_SLUG).$(NC_DOMAIN)
+ENGINE_URL=https://engine-$(VITE_NC_TENANT_SLUG)-$(VITE_NC_APP_SLUG).$(NC_DOMAIN)
+READ_MODEL_URL=https://engine-$(VITE_NC_TENANT_SLUG)-$(VITE_NC_APP_SLUG).$(NC_DOMAIN)/graphql
 NPL_SOURCES=$(shell find npl/src/main -name \*npl)
-TF_SOURCES=$(shell find keycloak-provisioning -name \*tf)
+WEBAPP_SOURCES=$(shell find webapp/src -type f -print; find webapp/public -type f -print; find webapp -maxdepth 1 \( -name "*.json" -o -name "*.html" -o -name "*.ts" \) -print)
 
-escape = $(subst $$,\$$,$1)
+CLI_LATEST_VERSION_URL=https://api.github.com/repos/NoumenaDigital/npl-cli/releases/latest
+CLI_INSTALL_SCRIPT_URL=https://documentation.noumenadigital.com/get-npl-cli.sh
 
 ## Common commands
 .PHONY:	install
 install:	cli
-	brew install jq python3 terraform
-	npm install @openapitools/openapi-generator-cli prettier -g
+	brew install jq python3
+
+.PHONY:	install-openapi-generator
+install-openapi-generator:
+	@if ! command -v openapi-generator-cli >/dev/null 2>&1; then \
+		npm install @openapitools/openapi-generator-cli prettier -g ; \
+	fi
 
 .PHONY:	cloud-install
-cloud-install:	cli
+cloud-install:	cli install-openapi-generator
+	export PATH=~/.npl/bin:$$PATH
+	echo "$$HOME/.npl/bin" >> "$$GITHUB_PATH"
 	-sudo apt-get install jq
-	npm install @openapitools/openapi-generator-cli prettier -g
 
 .PHONY:	clean
 clean:
@@ -42,6 +42,7 @@ clean:
 	rm -rf venv
 	rm -rf **/generated
 	rm -rf iou-python-client
+	rm -rf openapi
 	rm -rf bash
 	rm -rf keycloak-provisioning/state.tfstate*
 	rm -rf keycloak-provisioning/.terraform*
@@ -49,13 +50,13 @@ clean:
 	rm -f *-openapi.yml
 
 .PHONY:	format-check
-format-check: venv python-libs iou-python-lib
+format-check: webapp-dependencies venv python-libs iou-python-lib
 	cd webapp && npm run format:ci
 	. venv/bin/activate && cd python-listener && flake8
 	. venv/bin/activate && cd streamlit-ui && flake8
 
 .PHONY:	format
-format:
+format:	webapp-dependencies
 	cd webapp && npm run format
 
 .PHONY:	bump-platform-version
@@ -66,68 +67,53 @@ bump-platform-version:
 	mvn -pl parent-pom versions:set-property -Dproperty=noumena.platform.version -DnewVersion="$(PLATFORM_VERSION)"
 
 ## NOUMENA CLOUD COMMANDS
-
 cli:
-	curl -s "https://api.github.com/repos/NoumenaDigital/npl-cli/releases/tags/$(CLI_RELEASE_TAG)" \
-		| jq --arg CLI_OS_ARCH "$(CLI_OS_ARCH)" '.assets[] | select(.name == $$CLI_OS_ARCH) | .url' -r \
-		| xargs -t -n 2 -P 3 curl -sG -H "Accept: application/octet-stream" -Lo cli
-	chmod +x cli
-
-.PHONY:	create-app
-create-app:
-	./cli app create -org $(NC_ORG) -engine $(NC_ENGINE_VERSION) -name $(VITE_NC_APP_NAME) -provider MicrosoftAzure -trusted_issuers '["https://keycloak-$(VITE_NC_ORG_NAME)-$(VITE_NC_APP_NAME).$(NC_DOMAIN)/realms/$(VITE_NC_APP_NAME)"]'
+	@if command -v npl >/dev/null 2>&1; then \
+		CURRENT_VERSION=$$(npl version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1); \
+		LATEST_VERSION=$$(curl -s "${CLI_LATEST_VERSION_URL}" | jq -r .tag_name | sed 's/^v//'); \
+		if [ "$$CURRENT_VERSION" != "$$LATEST_VERSION" ]; then \
+			if brew list npl >/dev/null 2>&1; then \
+				brew upgrade npl; \
+				echo "npl upgraded to version $$LATEST_VERSION"; \
+			elif [ -f "$$HOME/.npl/bin/npl" ]; then \
+				curl -s "${CLI_INSTALL_SCRIPT_URL}" | bash; \
+				echo "npl upgraded to version $$LATEST_VERSION"; \
+			else \
+				echo "Manual installation detected. Please update manually or reinstall."; \
+				exit 1; \
+			fi; \
+		fi; \
+	else \
+		curl -s "${CLI_INSTALL_SCRIPT_URL}" | bash; \
+		echo "npl installation done"; \
+	fi
 
 .PHONY:	clear-deploy
-clear-deploy:	zip
-	@if [ -z "$(NC_APP)" ] ; then echo "App $(VITE_NC_APP_NAME) not found"; exit 1; fi
-	@if [ -z "$(NPL_VERSION)" ]; then echo "NPL_VERSION not set"; exit 1; fi
-	./cli app clear -app $(NC_APP)
-	./cli app deploy -app $(NC_APP) -binary ./target/npl-integrations-$(NPL_VERSION).zip
+clear-deploy:	clear deploy
 
-.PHONY:	status-app
-status-app:
-	./cli app detail -org $(NC_ORG) -app $(NC_APP)
+.PHONY:	clear
+clear:
+	@if [ -z "$(VITE_NC_TENANT_SLUG)" ] ; then echo "Tenant $(VITE_NC_TENANT_SLUG) not found"; exit 1; fi
+	@if [ -z "$(VITE_NC_APP_SLUG)" ] ; then echo "App $(VITE_NC_APP_SLUG) not found"; exit 1; fi
+	
+	npl cloud clear npl --tenant $(VITE_NC_TENANT_SLUG) --app $(VITE_NC_APP_SLUG)
 
-.PHONY:	delete-app
-delete-app:
-	@echo "Deleting app $(VITE_NC_APP_NAME) with id $(NC_APP)"
-	@./cli app delete -app $(NC_APP)
-
-iam:	$(TF_SOURCES)
-	-@curl -s --location --request DELETE '$(KEYCLOAK_URL)/admin/realms/$(NC_APP_NAME_CLEAN)' \
-		--header 'Content-Type: application/x-www-form-urlencoded' \
-		--header "Authorization: Bearer $(shell curl -s --location --request POST --header 'Content-Type: application/x-www-form-urlencoded' \
-			--data-urlencode 'username=$(NC_KEYCLOAK_USERNAME)' \
-			--data-urlencode 'password=$(NC_KEYCLOAK_PASSWORD)' \
-			--data-urlencode 'client_id=admin-cli' \
-			--data-urlencode 'grant_type=password' \
-			'$(KEYCLOAK_URL)/realms/master/protocol/openid-connect/token' | jq -r '.access_token')"
-	cd keycloak-provisioning && \
-		KEYCLOAK_USER=$(NC_KEYCLOAK_USERNAME) \
-		KEYCLOAK_PASSWORD="$(call escape,$(NC_KEYCLOAK_PASSWORD))" \
-		KEYCLOAK_URL=$(KEYCLOAK_URL) \
-		TF_VAR_default_password=welcome \
-		TF_VAR_systemuser_secret=super-secret-system-security-safe \
-		TF_VAR_app_name=$(NC_APP_NAME_CLEAN) \
-		./local.sh
-
-.PHONY:	zip
-zip:	target/npl-integrations-$(NPL_VERSION).zip
-
-target/npl-integrations-$(NPL_VERSION).zip:	$(NPL_SOURCES)
-	@if [ -z "$(NPL_VERSION)" ]; then echo "NPL_VERSION not set"; exit 1; fi
-	@mkdir -p npl/src/main/kotlin-script && mkdir -p target && cd target && mkdir -p src && cd src && \
-		cp -r ../../npl/src/main/npl-* . && cp -r ../../npl/src/main/yaml . && cp -r ../../npl/src/main/kotlin-script . && \
-		zip -r ../npl-integrations-$(NPL_VERSION).zip *
+.PHONY:	deploy
+deploy:	webapp-build $(NPL_SOURCES)
+	@if [ -z "$(VITE_NC_TENANT_SLUG)" ] ; then echo "Tenant $(VITE_NC_TENANT_SLUG) not found"; exit 1; fi
+	@if [ -z "$(VITE_NC_APP_SLUG)" ] ; then echo "App $(VITE_NC_APP_SLUG) not found"; exit 1; fi
+	
+	npl cloud deploy npl --tenant $(VITE_NC_TENANT_SLUG) --app $(VITE_NC_APP_SLUG) --migration npl/src/main/migration.yml
+	npl cloud deploy frontend --tenant $(VITE_NC_TENANT_SLUG) --app $(VITE_NC_APP_SLUG) --frontend webapp/dist
 
 ## NPL SECTION
 
 .PHONY:	npl-test
 npl-test:
-	cd npl ; mvn test
+	npl test
 
-iou-openapi.yml:	$(NPL_SOURCES)
-	cd npl ; mvn package
+openapi/iou-openapi.yml:	$(NPL_SOURCES) npl/pom.xml
+	npl openapi --sourceDir npl/src/main
 
 .PHONY: npl-docker
 npl-docker:
@@ -148,8 +134,8 @@ venv/.installed-libs: venv
 @PHONY:	python-libs
 python-libs:	venv/.installed-libs
 
-iou-python-client:	iou-openapi.yml
-	openapi-generator-cli generate --generator-name python --package-name iou --input-spec iou-openapi.yml --output iou-python-client
+iou-python-client:	openapi/iou-openapi.yml install-openapi-generator
+	openapi-generator-cli generate --generator-name python --package-name iou --input-spec openapi/iou-openapi.yml --output iou-python-client
 	@touch iou-python-client
 
 venv/.installed-iou:	venv iou-python-client
@@ -188,8 +174,8 @@ streamlit-ui-docker:	iou-python-client python-requirements.txt
 .PHONY:	webapp-client
 webapp-client:	webapp/generated
 
-webapp/generated:	iou-openapi.yml
-	openapi-generator-cli generate --generator-name typescript-axios --additional-properties=useSingleRequestParameter=true --input-spec iou-openapi.yml --output webapp/generated
+webapp/generated:	openapi/iou-openapi.yml install-openapi-generator
+	openapi-generator-cli generate --generator-name typescript-axios --additional-properties=useSingleRequestParameter=true --input-spec openapi/iou-openapi.yml --output webapp/generated
 	@touch webapp/generated
 
 webapp/node_modules:	webapp/package.json
@@ -198,6 +184,13 @@ webapp/node_modules:	webapp/package.json
 
 .PHONY: webapp-dependencies
 webapp-dependencies: webapp/node_modules
+
+.PHONY:	webapp-build
+webapp-build:	webapp-client webapp/dist
+
+webapp/dist:	webapp-dependencies $(WEBAPP_SOURCES)
+	cd webapp ; npm run build
+	@touch webapp/dist
 
 .PHONY:	webapp-run
 webapp-run:	webapp-client webapp-dependencies
@@ -211,8 +204,8 @@ webapp-docker:	webapp-client
 .PHONY:	it-test-client
 it-test-client:	it-test/generated
 
-it-test/generated:	iou-openapi.yml
-	openapi-generator-cli generate --generator-name bash --input-spec iou-openapi.yml --output it-test/generated
+it-test/generated:	openapi/iou-openapi.yml install-openapi-generator
+	openapi-generator-cli generate --generator-name bash --input-spec openapi/iou-openapi.yml --output it-test/generated
 	chmod +x ./it-test/generated/client.sh
 	@touch it-test/generated
 
@@ -224,7 +217,7 @@ it-test-dependencies:
 clients:	iou-python-lib webapp-client it-test-client
 
 .PHONY:	it-tests-cloud
-it-tests-cloud:	iou-python-lib it-test-client
+it-tests-cloud:	python-libs iou-python-lib it-test-client cloud-install
 	./it-test/src/test/it-cloud.sh
 
 .PHONY:	it-tests-local

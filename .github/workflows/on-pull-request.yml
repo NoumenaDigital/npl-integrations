@@ -16,6 +16,7 @@ env:
   GITHUB_USER_PASS: "${{ secrets.GH_PASSWORD_PUBLIC_REPOS }}"
   NC_EMAIL: "${{ secrets.NC_EMAIL }}"
   NC_PASSWORD: "${{ secrets.NC_PASSWORD }}"
+  NPL_SERVICE_ACCOUNT_CLIENT_SECRET: "${{ secrets.NPL_SERVICE_ACCOUNT_CLIENT_SECRET }}"
 
 jobs:
   build-test-verify:
@@ -43,7 +44,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: "Install & setup"
-        run: "CLI_OS_ARCH=npl_linux_amd64 make -e cloud-install"
+        run: "make -e cloud-install"
 
       - name: "NPL compile & test"
         run: "make npl-test"
@@ -61,10 +62,9 @@ jobs:
         if: failure()
         uses: jwalton/gh-docker-logs@v2
 
-      # deactivating the cloud tests until the cli supports service accounts
-      # - name: "Noumena Cloud integration tests"
-      #   run: "NC_ENV=DEV make it-tests-cloud"
+      - name: "Noumena Cloud integration tests"
+        run: "make it-tests-cloud"
 
-      # - name: "Dump docker logs on failure"
-      #   if: failure()
-      #   uses: jwalton/gh-docker-logs@v2
+      - name: "Dump docker logs on failure"
+        if: failure()
+        uses: jwalton/gh-docker-logs@v2

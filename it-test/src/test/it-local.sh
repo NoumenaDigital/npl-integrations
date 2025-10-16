@@ -11,8 +11,8 @@ if [ -f .env ]; then
   export $(cat .env | xargs)
 fi
 
-app_name_clean="$VITE_NC_APP_NAME"
+app_slug="$VITE_NC_APP_SLUG"
 engine_url=http://localhost:12000
-realm_url="http://localhost:11000/realms/$VITE_NC_APP_NAME"
+realm_url="http://localhost:11000/realms/$VITE_NC_APP_SLUG"
 
-run_integration_tests "$app_name_clean" "$engine_url" "$realm_url"
+run_integration_tests "$app_slug" "$engine_url" "$realm_url"

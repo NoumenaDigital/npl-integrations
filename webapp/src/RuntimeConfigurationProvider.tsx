@@ -37,8 +37,8 @@ export const loadRuntimeConfiguration =
         const response = await fetch(config_file)
         const value = await response.json()
 
-        let keycloakRealm = import.meta.env.VITE_NC_APP_NAME
-        let ncOrg = import.meta.env.VITE_NC_ORG_NAME
+        let keycloakRealm = import.meta.env.VITE_NC_APP_SLUG
+        let ncOrg = import.meta.env.VITE_NC_TENANT_SLUG
 
         console.log('keycloakRealm: ', keycloakRealm)
         console.log('ncOrg: ', ncOrg)

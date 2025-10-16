@@ -212,7 +212,7 @@ resource "keycloak_user" "alice" {
   realm_id   = keycloak_realm.realm.id
   depends_on = [keycloak_realm_user_profile.userprofile]
   username   = "alice"
-  email      = "alice@nd.tech"
+  email      = "alice@example.com"
   first_name = "Alice"
   last_name  = "A"
 
@@ -231,7 +231,7 @@ resource "keycloak_user" "bob" {
   realm_id   = keycloak_realm.realm.id
   depends_on = [keycloak_realm_user_profile.userprofile]
   username   = "bob"
-  email      = "bob@nd.tech"
+  email      = "bob@example.com"
   first_name = "Bob"
   last_name  = "B"
 
@@ -250,7 +250,7 @@ resource "keycloak_user" "charlie" {
   realm_id   = keycloak_realm.realm.id
   depends_on = [keycloak_realm_user_profile.userprofile]
   username   = "charlie"
-  email      = "charlie@nd.tech"
+  email      = "charlie@example.com"
   first_name = "Charlie"
   last_name  = "C"
 
