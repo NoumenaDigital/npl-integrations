@@ -48,7 +48,7 @@ setup_deploy() {
 	local realm_url=$2
 
 	# npl cloud clear --tenant "$tenant_slug" --app "$app_slug" TODO - re-enable when we can clear apps with service accounts
-	npl cloud deploy npl --tenant "$tenant_slug" --app "$app_slug" --source-dir ./npl/src/main
+	npl cloud deploy npl --tenant "$tenant_slug" --app "$app_slug" --migration ./npl/src/main/migration.yml
 
     # populate_iam "$app_slug" "$realm_url" # TODO - re-enable when we can create apps & users
 }
