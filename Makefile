@@ -113,7 +113,7 @@ npl-test:
 	npl test
 
 openapi/iou-openapi.yml:	$(NPL_SOURCES) npl/pom.xml
-	npl openapi --sourceDir npl/src/main
+	npl openapi --source-dir npl/src/main
 
 .PHONY: npl-docker
 npl-docker:
