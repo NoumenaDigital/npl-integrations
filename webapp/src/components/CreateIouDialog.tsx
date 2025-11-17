@@ -34,7 +34,7 @@ export const CreateIouDialog: React.FC<{
             },
             {
                 email: [payee]
-            }
+            },
         ).then(() => onClose(true))
     }
 

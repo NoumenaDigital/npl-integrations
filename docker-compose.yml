@@ -5,7 +5,7 @@ volumes:
 services:
 
   engine:
-    image: ghcr.io/noumenadigital/npl-integrations/engine:latest
+    image: ghcr.io/noumenadigital/packages/engine:local
     build:
       context: npl
     ports:
@@ -161,6 +161,7 @@ services:
     ports:
       - "15001:15001"
       - "12001:12001"
+      - "11001:11001"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/snippets:/etc/nginx/snippets

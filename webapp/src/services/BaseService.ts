@@ -95,7 +95,7 @@ export class BaseService {
         description: string,
         amount: number,
         issuerClaims: Party['claims'],
-        payeeClaims: Party['claims']
+        payeeClaims: Party['claims'],
     ) =>
         await this.api
             .createIou(
@@ -105,10 +105,10 @@ export class BaseService {
                         forAmount: amount,
                         ['@parties']: {
                             issuer: {
-                                claims: issuerClaims
+                                claims: issuerClaims,
                             },
                             payee: {
-                                claims: payeeClaims
+                                claims: payeeClaims,
                             }
                         }
                     }
