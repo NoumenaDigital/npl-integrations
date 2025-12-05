@@ -37,8 +37,8 @@ export const loadRuntimeConfiguration = () => {
     const deploymentTarget =
         (import.meta.env.VITE_DEPLOYMENT_TARGET as DeploymentTarget) || 'LOCAL'
 
-    const appSlug = import.meta.env.VITE_NC_APP_NAME
-    const tenantSlug = import.meta.env.VITE_NC_ORG_NAME
+    const appSlug = import.meta.env.VITE_NC_APP_SLUG
+    const tenantSlug = import.meta.env.VITE_NC_TENANT_SLUG
 
     let config: RuntimeConfiguration = {
         apiBaseUrl: 'http://localhost:12000',
@@ -65,11 +65,11 @@ export const loadRuntimeConfiguration = () => {
         if (deploymentTarget === 'NOUMENA_CLOUD') {
             config.authUrl =
                 (import.meta.env.VITE_CLOUD_AUTH_URL ||
-                    'http://localhost:11000') + '/protocol/openid-connect'
+                    'http://localhost:11000') + '/realms/' + appSlug + '/protocol/openid-connect'
         } else {
             config.authUrl =
                 (import.meta.env.VITE_LOCAL_AUTH_URL ||
-                    'http://localhost:11000') + '/protocol/openid-connect'
+                    'http://localhost:11000') + '/realms/' + appSlug + '/protocol/openid-connect'
         }
         config.realm = appSlug
         config.clientId = appSlug

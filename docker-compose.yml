@@ -10,6 +10,7 @@ services:
       context: npl
     ports:
       - "12000:12000"
+      - "12400:12400"
     environment:
       ENGINE_DEV_MODE: ${DEV_MODE:-false}
       ENGINE_ALLOWED_ISSUERS: http://keycloak:11000/realms/${VITE_NC_APP_SLUG:-nplintegrations},http://localhost:11000/realms/${VITE_NC_APP_SLUG:-nplintegrations}
@@ -23,6 +24,8 @@ services:
       SWAGGER_ENGINE_URL: http://localhost:12000
       SWAGGER_SECURITY_AUTH_URL: http://localhost:11000/realms/${VITE_NC_APP_SLUG:-nplintegrations}
       SWAGGER_SECURITY_CLIENT_ID: ${VITE_NC_APP_SLUG:-nplintegrations}
+      ENGINE_MANAGEMENT_HOST: ${ENGINE_MANAGEMENT_HOST:-0.0.0.0}
+      ENGINE_MANAGEMENT_PORT: ${ENGINE_MANAGEMENT_PORT:-12400}
     depends_on:
       engine-db:
         condition: service_started
@@ -63,9 +66,10 @@ services:
       READ_MODEL_DB_USER: postgraphile
       READ_MODEL_DB_SCHEMA: noumena
       READ_MODEL_ALLOWED_ISSUERS: >
-        http://keycloak:11000/realms/${VITE_NC_APP_SLUG:-nplintegrations},
-        http://keycloak:11000,
+        http://keycloak:11000/realms/${VITE_NC_APP_SLUG:-nplintegrations}
+        http://keycloak:11000
         http://localhost:11000/realms/${VITE_NC_APP_SLUG:-nplintegrations}
+      READ_MODEL_ISSUER_OVERRIDE: http://keycloak:11000/realms/${VITE_NC_APP_SLUG:-nplintegrations}
       READ_MODEL_ENGINE_HEALTH_ENDPOINT: "http://engine:12000/actuator/health"
       READ_MODEL_ENGINE_HEALTH_TIMEOUT_SECONDS: 250
     depends_on:
@@ -106,8 +110,8 @@ services:
       --http-enabled=true
       --http-port=11000
       --hostname-strict=false
-      --hostname=http://localhost:11000
-      --hostname-admin=http://localhost:11000
+      --hostname=http://keycloak:11000
+      --hostname-admin=http://keycloak:11000
       --hostname-backchannel-dynamic=true
       --metrics-enabled=true
       --db=postgres
