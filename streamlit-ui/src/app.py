@@ -18,6 +18,7 @@ from npl_objects_lib.configuration import Configuration
 if "uploader_key" not in st.session_state:
     st.session_state.uploader_key = 0
 
+
 def get_api():
     api = DefaultApi(
         ApiClient(
@@ -86,7 +87,7 @@ def print_iou(iou_to_print):
 
 def iou_select():
     iou_list = get_api().get_iou_list().items
-    selected_iou = st.selectbox("Select IOU", iou_list, format_func=print_iou) # [iou_i.id for iou_i in iou_list.items])
+    selected_iou = st.selectbox("Select IOU", iou_list, format_func=print_iou)
     st.session_state["selected_iou"] = selected_iou.id
     iou_details()
 
@@ -148,6 +149,7 @@ def iou_details():
                 mime=filetype,
                 key=i,
             )
+
 
 def app_page():
     page_names_to_funcs = {

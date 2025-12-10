@@ -1,4 +1,5 @@
-import json, base64
+import base64
+import json
 import pandas as pd
 from io import StringIO, BytesIO
 
@@ -138,7 +139,6 @@ class StreamReader:
     def manage_payment_confirmation_required_state_change(self, payload: Payload):
         pass
 
-    
     def decode_file(self, f, names=None):
         file = f.split(";")
 
@@ -161,12 +161,12 @@ class StreamReader:
     def manage_file_reception(self, notification: Notification):
 
         iou_protocol_id = notification.refId
-        
+
         print("arguments:", notification.arguments)
 
         file_df = self.decode_file(notification.arguments[0].value)
 
-        # iou_protocol = self.api.get_iou_by_id(iou_protocol_id)
+        # iou_protocol = self.api.get_iou_by_id(iou_protocol_id)
 
         print("file received for IOU id:", iou_protocol_id)
         print("head", file_df.head())
