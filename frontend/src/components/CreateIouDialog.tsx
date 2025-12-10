@@ -12,13 +12,14 @@ import {
 } from '@mui/material'
 import { useMe } from '../UserProvider.tsx'
 import { useServices } from '../ServiceProvider.tsx'
+import { createIou } from '../api-client'
 
 export const CreateIouDialog: React.FC<{
     open: boolean
     onClose: (_: boolean) => void
 }> = ({ open, onClose }) => {
     const user = useMe()
-    const { createIou } = useServices()
+    const { api, withAuthorizationHeader } = useServices()
     const [description, setDescription] = useState<string>('')
     const [payee, setPayee] = useState<string>('')
     const [forAmount, setForAmount] = useState<number>()
@@ -26,16 +27,29 @@ export const CreateIouDialog: React.FC<{
     const [valid, setValid] = useState(false)
 
     const create = async () => {
-        await createIou(
-            description,
-            forAmount || 0,
-            {
-                email: [user.email]
+        await createIou({
+            body: {
+                description: description,
+                forAmount: forAmount || 0,
+                ['@parties']: {
+                    issuer: {
+                        entity: {
+                            email: [user.email]
+                        },
+                        access: {}
+                    },
+                    payee: {
+                        entity: {
+                            email: [payee]
+                        },
+                        access: {}
+                    }
+                }
             },
-            {
-                email: [payee]
-            },
-        ).then(() => onClose(true))
+            method: 'POST',
+            client: api,
+            ...withAuthorizationHeader()
+        }).then(() => onClose(true))
     }
 
     const handleForAmountChange = (input: string) => {
