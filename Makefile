@@ -41,7 +41,7 @@ clean:
 	rm -rf **/venv
 	rm -rf venv
 	rm -rf **/generated
-	rm -rf objects-python-client
+	rm -rf *-python-client
 	rm -rf openapi
 	rm -rf bash
 	rm -rf keycloak-provisioning/state.tfstate*

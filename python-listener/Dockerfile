@@ -6,13 +6,13 @@ WORKDIR /app
 
 # Add the current directory contents into the container at /app
 ADD ./python-listener /app
-ADD ./iou-python-client /app/iou-python-client
+ADD ./objects-python-client /app/objects-python-client
 ADD .env .env
 ADD ./python-requirements.txt /app/python-requirements.txt
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r python-requirements.txt
-RUN pip install ./iou-python-client
+RUN pip install ./objects-python-client
 
 # Make port 80 available to the world outside this container
 EXPOSE 80
