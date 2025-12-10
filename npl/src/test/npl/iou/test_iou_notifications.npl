@@ -1,4 +1,4 @@
-package iou
+package objects
 
 @test
 function test_iou_notifications(test: Test) -> {

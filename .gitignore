@@ -23,6 +23,7 @@ certs.json
 *.tfstate
 *.tfstate.backup
 iou-python-client
+objects-python-client
 node_modules
 cli
 .vite

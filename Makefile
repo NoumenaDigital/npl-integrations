@@ -41,7 +41,7 @@ clean:
 	rm -rf **/venv
 	rm -rf venv
 	rm -rf **/generated
-	rm -rf iou-python-client
+	rm -rf objects-python-client
 	rm -rf openapi
 	rm -rf bash
 	rm -rf keycloak-provisioning/state.tfstate*
@@ -50,7 +50,7 @@ clean:
 	rm -f *-openapi.yml
 
 .PHONY:	format-check
-format-check: webapp-dependencies venv python-libs iou-python-lib
+format-check: webapp-dependencies venv python-libs objects-python-lib
 	cd webapp && npm run format:ci
 	. venv/bin/activate && cd python-listener && flake8
 	. venv/bin/activate && cd streamlit-ui && flake8
@@ -96,7 +96,7 @@ clear:
 	@if [ -z "$(VITE_NC_TENANT_SLUG)" ] ; then echo "Tenant $(VITE_NC_TENANT_SLUG) not found"; exit 1; fi
 	@if [ -z "$(VITE_NC_APP_SLUG)" ] ; then echo "App $(VITE_NC_APP_SLUG) not found"; exit 1; fi
 	
-	npl cloud clear npl --tenant $(VITE_NC_TENANT_SLUG) --app $(VITE_NC_APP_SLUG)
+	npl cloud clear --tenant $(VITE_NC_TENANT_SLUG) --app $(VITE_NC_APP_SLUG)
 
 .PHONY:	deploy
 deploy:	webapp-build $(NPL_SOURCES)
@@ -112,7 +112,7 @@ deploy:	webapp-build $(NPL_SOURCES)
 npl-test:
 	npl test
 
-openapi/iou-openapi.yml:	$(NPL_SOURCES) npl/pom.xml
+openapi/objects-openapi.yml:	$(NPL_SOURCES) npl/pom.xml
 	npl openapi --source-dir npl/src/main
 
 .PHONY: npl-docker
@@ -134,39 +134,39 @@ venv/.installed-libs: venv
 @PHONY:	python-libs
 python-libs:	venv/.installed-libs
 
-iou-python-client:	openapi/iou-openapi.yml install-openapi-generator
-	openapi-generator-cli generate --generator-name python --package-name iou --input-spec openapi/iou-openapi.yml --output iou-python-client
-	@touch iou-python-client
+objects-python-client:	openapi/objects-openapi.yml install-openapi-generator
+	openapi-generator-cli generate --generator-name python --package-name npl_objects_lib --input-spec openapi/objects-openapi.yml --output objects-python-client
+	@touch objects-python-client
 
-venv/.installed-iou:	venv iou-python-client
-	. venv/bin/activate ; pip install ./iou-python-client
-	@touch venv/.installed-iou
+venv/.installed-objects:	venv objects-python-client
+	. venv/bin/activate ; pip install ./objects-python-client
+	@touch venv/.installed-objects
 
-.PHONY:	iou-python-lib
-iou-python-lib:	venv/.installed-iou
+.PHONY:	objects-python-lib
+objects-python-lib:	venv/.installed-objects
 
 ## PYTHON LISTENER SECTION
 
 .PHONY:	python-listener-run
-python-listener-run:	python-libs iou-python-lib
+python-listener-run:	python-libs objects-python-lib
 	. venv/bin/activate && cd python-listener ; python3 app.py
 
 .PHONY: python-listener-docker
-python-listener-docker:	iou-python-client python-requirements.txt
+python-listener-docker:	objects-python-client python-requirements.txt
 	docker compose up --wait --build python-listener
 
 .PHONY:	unit-tests-python-listener
-unit-tests-python-listener:	venv python-libs iou-python-lib
+unit-tests-python-listener:	venv python-libs objects-python-lib
 	. venv/bin/activate && cd python-listener && PYTHONPATH=$(shell pwd) nosetests --verbosity=2 .
 
 ## STREAMLIT UI SECTION
 
 .PHONY:	streamlit-ui-run
-streamlit-ui-run:	python-libs iou-python-lib
+streamlit-ui-run:	python-libs objects-python-lib
 	. venv/bin/activate && cd streamlit-ui ; streamlit run main.py
 
 .PHONY:	streamlit-ui-docker
-streamlit-ui-docker:	iou-python-client python-requirements.txt
+streamlit-ui-docker:	objects-python-client python-requirements.txt
 	docker compose up --wait --build streamlit-ui
 
 ## WEBAPP SECTION
@@ -174,8 +174,8 @@ streamlit-ui-docker:	iou-python-client python-requirements.txt
 .PHONY:	webapp-client
 webapp-client:	webapp/generated
 
-webapp/generated:	openapi/iou-openapi.yml install-openapi-generator
-	openapi-generator-cli generate --generator-name typescript-axios --additional-properties=useSingleRequestParameter=true --input-spec openapi/iou-openapi.yml --output webapp/generated
+webapp/generated:	openapi/objects-openapi.yml install-openapi-generator
+	openapi-generator-cli generate --generator-name typescript-axios --additional-properties=useSingleRequestParameter=true --input-spec openapi/objects-openapi.yml --output webapp/generated
 	@touch webapp/generated
 
 webapp/node_modules:	webapp/package.json
@@ -204,8 +204,8 @@ webapp-docker:	webapp-client
 .PHONY:	it-test-client
 it-test-client:	it-test/generated
 
-it-test/generated:	openapi/iou-openapi.yml install-openapi-generator
-	openapi-generator-cli generate --generator-name bash --input-spec openapi/iou-openapi.yml --output it-test/generated
+it-test/generated:	openapi/objects-openapi.yml install-openapi-generator
+	openapi-generator-cli generate --generator-name bash --input-spec openapi/objects-openapi.yml --output it-test/generated
 	chmod +x ./it-test/generated/client.sh
 	@touch it-test/generated
 
@@ -214,10 +214,10 @@ it-test-dependencies:
 
 ## ALL
 .PHONY:	clients
-clients:	iou-python-lib webapp-client it-test-client
+clients:	objects-python-lib webapp-client it-test-client
 
 .PHONY:	it-tests-cloud
-it-tests-cloud:	python-libs iou-python-lib it-test-client cloud-install
+it-tests-cloud:	python-libs objects-python-lib it-test-client cloud-install
 	./it-test/src/test/it-cloud.sh
 
 .PHONY:	it-tests-local

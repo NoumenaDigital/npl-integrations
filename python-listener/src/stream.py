@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 from time import sleep
 from requests_sse import EventSource, MessageEvent
 
-from iou.api.default_api import DefaultApi
-from iou.models.iou_states import IouStates
+from npl_objects_lib.api.default_api import DefaultApi
+from npl_objects_lib.models.iou_states import IouStates
 
 from src import config
 

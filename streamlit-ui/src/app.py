@@ -6,14 +6,14 @@ import jwt
 import pandas as pd
 import streamlit as st
 
-from openapi_client.models.iou_add_file_command import IouAddFileCommand
+from npl_objects_lib.models.iou_add_file_command import IouAddFileCommand
 
 from src import iou
 from src import config
 
-from iou.api.default_api import DefaultApi
-from iou.api_client import ApiClient
-from iou.configuration import Configuration
+from npl_objects_lib.api.default_api import DefaultApi
+from npl_objects_lib.api_client import ApiClient
+from npl_objects_lib.configuration import Configuration
 
 if "uploader_key" not in st.session_state:
     st.session_state.uploader_key = 0
@@ -105,6 +105,8 @@ def iou_details():
         st.write("Issuer:", selected_iou.parties.issuer)
         st.write("Payee:", selected_iou.parties.payee)
 
+        if "uploader_key" not in st.session_state:
+            st.session_state.uploader_key = 0
         uploaded_file = st.file_uploader("Upload file here", key=f"uploader_{st.session_state.uploader_key}")
 
         if uploaded_file is not None:
@@ -114,6 +116,8 @@ def iou_details():
             mimetype = mimetypes.guess_type(uploaded_file.name)[0]
             file = f"data:{mimetype};filename={uploaded_file.name};base64,{encoded_bytes_data}"
             get_api().iou_add_file(iou_id, IouAddFileCommand(file=file))
+            if "uploader_key" not in st.session_state:
+                st.session_state.uploader_key = 0
             st.session_state.uploader_key += 1
             st.rerun()
 
