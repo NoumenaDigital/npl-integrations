@@ -24,6 +24,8 @@ struct PaymentDetails {
 @multinode
 notification RepaymentOccurrenceMultiNode(payment: PaymentDetails) returns PaymentConfirmation; 
 
+notification ReceivedFile(file: Blob) returns Unit;
+
 @api
 protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
     require(forAmount > 0, "Initial amount must be strictly positive");
@@ -44,6 +46,7 @@ protocol[issuer, payee] Iou(var description: Text, var forAmount: Number) {
     @api
     permission[issuer | payee] addFile(file: Blob) {
         files = files.with(file);
+        notify ReceivedFile(file);
     };
 
     @api

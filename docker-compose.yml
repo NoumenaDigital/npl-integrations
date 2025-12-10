@@ -23,6 +23,7 @@ services:
       SWAGGER_ENGINE_URL: http://localhost:12000
       SWAGGER_SECURITY_AUTH_URL: http://localhost:11000/realms/${VITE_NC_APP_SLUG:-nplintegrations}
       SWAGGER_SECURITY_CLIENT_ID: ${VITE_NC_APP_SLUG:-nplintegrations}
+      SWAGGER_SECURITY_CLIENT_SECRET:
     depends_on:
       engine-db:
         condition: service_started
