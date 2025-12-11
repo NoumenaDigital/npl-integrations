@@ -1,9 +1,9 @@
 from src.auth import AuthService
 from src import config, stream
 
-from iou.api.default_api import DefaultApi
-from iou.api_client import ApiClient
-from iou.configuration import Configuration
+from npl_objects_lib.api.default_api import DefaultApi
+from npl_objects_lib.api_client import ApiClient
+from npl_objects_lib.configuration import Configuration
 
 
 def main():

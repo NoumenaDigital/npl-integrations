@@ -78,7 +78,7 @@ Once the project is running, services can be accessed with the following URLs:
 | Service                   | URL                                |
 |---------------------------|------------------------------------|
 | Engine APIs               | http://localhost:12000/            |
-| Swagger UI of Engine APIs | http://localhost:12000/swagger-ui/ |
+| Swagger UI of Engine APIs | http://localhost:12000/ |
 | Keycloak admin console    | http://localhost:11000              |
 | Webapp                    | http://localhost:8090              |
 | Inspector                 | http://localhost:8070              |
@@ -188,7 +188,7 @@ Once the project is running, services run behind the following URLs:
 | Service                   | URL                                                                       |
 |---------------------------|---------------------------------------------------------------------------|
 | Engine APIs               | `https://engine-$VITE_NC_TENANT_SLUG-$NC_APP_NAME.noumena.cloud`             |
-| Swagger UI of Engine APIs | `https://engine-$VITE_NC_TENANT_SLUG-$NC_APP_NAME.noumena.cloud/swagger-ui/` |
+| Swagger UI of Engine APIs | `https://engine-$VITE_NC_TENANT_SLUG-$NC_APP_NAME.noumena.cloud/` |
 | Keycloak admin console    | `https://keycloak-$VITE_NC_TENANT_SLUG-$NC_APP_NAME.noumena.cloud`           |
 | Webapp                    | http://localhost:5173                                                     |
 | Streamlit UI              | http://localhost:8501                                                     |

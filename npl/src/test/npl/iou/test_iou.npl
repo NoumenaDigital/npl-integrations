@@ -1,4 +1,4 @@
-package iou
+package objects
 
 const ISSUER = 'issuer';
 const PAYEE = 'payee';

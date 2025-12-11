@@ -1,18 +1,23 @@
+import base64
 import json
+import pandas as pd
+from io import StringIO, BytesIO
 
 from dataclasses import dataclass, field
 from time import sleep
 from requests_sse import EventSource, MessageEvent
 
-from iou.api.default_api import DefaultApi
-from iou.models.iou_states import IouStates
+from npl_objects_lib.api.default_api import DefaultApi
+from npl_objects_lib.models.iou_states import IouStates
 
 from src import config
 
 NPL_PREFIX = '/nplintegrations-1.0?'
-IOU_PROTOTYPE_ID = NPL_PREFIX + '/iou/Iou'
-REPAYMENT_OCCURRENCE_NAME = NPL_PREFIX + '/iou/RepaymentOccurrence'
-MULTINODE_REPAYMENT_OCCURRENCE_NAME = NPL_PREFIX + '/iou/RepaymentOccurrenceMultiNode'
+IOU_PACKAGE = '/objects'
+IOU_PROTOTYPE_ID = NPL_PREFIX + IOU_PACKAGE + '/Iou'
+REPAYMENT_OCCURRENCE_NAME = NPL_PREFIX + IOU_PACKAGE + '/RepaymentOccurrence'
+MULTINODE_REPAYMENT_OCCURRENCE_NAME = NPL_PREFIX + IOU_PACKAGE + '/RepaymentOccurrenceMultiNode'
+IOU_RECEIVED_FILE_NAME = NPL_PREFIX + IOU_PACKAGE + '/ReceivedFile'
 
 
 @dataclass
@@ -99,6 +104,9 @@ class StreamReader:
             print("Acted on notification RepaymentOccurrence")
         elif notification.name == MULTINODE_REPAYMENT_OCCURRENCE_NAME:
             print("Received notification RepaymentOccurrenceMultiNode")
+        elif notification.name == IOU_RECEIVED_FILE_NAME:
+            self.manage_file_reception(notification)
+            print("Acted on notification ReceivedFile")
         else:
             print("unrecognized notification event", event)
             print("No action in this notification")
@@ -130,3 +138,35 @@ class StreamReader:
 
     def manage_payment_confirmation_required_state_change(self, payload: Payload):
         pass
+
+    def decode_file(self, f, names=None):
+        file = f.split(";")
+
+        file_data = file[-1].split(",")
+        if file_data[0] == "base64":
+            file_bytes = base64.b64decode(file_data[1])
+        else:
+            file_bytes = file_data[1].encode('utf-8')
+        filetype = file[0].split(":")[1]
+        if filetype == "text/csv":
+            data_str = file_bytes.decode('utf-8')
+            csv_df = pd.read_csv(StringIO(data_str), sep=';')
+            return csv_df
+        elif filetype == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+            excel_df = pd.read_excel(BytesIO(file_bytes), names=names)
+            return excel_df
+        else:
+            print("File type not supported:", filetype)
+
+    def manage_file_reception(self, notification: Notification):
+
+        iou_protocol_id = notification.refId
+
+        print("arguments:", notification.arguments)
+
+        file_df = self.decode_file(notification.arguments[0].value)
+
+        # iou_protocol = self.api.get_iou_by_id(iou_protocol_id)
+
+        print("file received for IOU id:", iou_protocol_id)
+        print("head", file_df.head())
