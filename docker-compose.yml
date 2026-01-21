@@ -211,3 +211,19 @@ services:
     depends_on:
       engine:
         condition: service_healthy
+
+  npl-mcp-server:
+    image: ghcr.io/noumenadigital/npl-mcp-server:latest
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - OPENAPI_URL=http://host.docker.internal:12000/npl/iou/-/openapi.json
+      - API_BASE_URL=http://host.docker.internal:12000
+      - KEYCLOAK_URL=http://host.docker.internal:11000
+      - KEYCLOAK_REALM=integrationtest
+      - KEYCLOAK_CLIENT_ID=npl-mcp
+      - KEYCLOAK_CLIENT_SECRET=tygekWbAJqOGpKDfPWXV32beFIox0JC3
+      - ALLOWED_REDIRECT_URIS=http://127.0.0.1:*,http://localhost:*,https://vscode.dev/*
+      - MCP_SERVER_URL=http://localhost:8000
