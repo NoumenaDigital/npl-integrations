@@ -208,6 +208,29 @@ resource "keycloak_openid_user_attribute_protocol_mapper" "department_mapper" {
   claim_value_type = "JSON"
 }
 
+resource "keycloak_openid_client" "npl_mcp" {
+  realm_id                        = keycloak_realm.realm.id
+  client_id                       = "npl-mcp"
+  name                            = "npl-mcp"
+  description                     = ""
+  enabled                         = true
+  access_type                     = "CONFIDENTIAL"
+  standard_flow_enabled           = true
+  implicit_flow_enabled           = true
+  direct_access_grants_enabled    = true
+  service_accounts_enabled        = false
+  full_scope_allowed              = true
+  
+  valid_redirect_uris = [
+    "http://127.0.0.1:8000/*",
+    "http://0.0.0.0:8000/*",
+    "http://localhost:8000/*"
+  ]
+  
+  valid_post_logout_redirect_uris = ["+"]
+  web_origins                     = ["+"]
+}
+
 resource "keycloak_user" "alice" {
   realm_id   = keycloak_realm.realm.id
   depends_on = [keycloak_realm_user_profile.userprofile]

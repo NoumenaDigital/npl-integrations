@@ -176,10 +176,10 @@ services:
     env_file:
       - .env
     environment:
-      GQL_ENDPOINT: http://localhost:15001/graphql
-      KEYCLOAK_URL: http://localhost:11000
-      KEYCLOAK_REALM: ${VITE_NC_APP_SLUG:-nplintegrations}
-      KEYCLOAK_CLIENT_ID: ${VITE_NC_APP_SLUG:-nplintegrations}
+      - NPL_ENGINE_URL=http://engine:12001
+      - KEYCLOAK_URL=${VITE_KEYCLOAK_URL:-http://keycloak:11000}
+      - KEYCLOAK_REALM=${VITE_NC_APP_SLUG:-nplintegrations}
+      - KEYCLOAK_CLIENT_ID=${VITE_NC_APP_SLUG:-nplintegrations}
     depends_on:
       nginx-proxy:
         condition: service_started
@@ -219,11 +219,16 @@ services:
     env_file:
       - .env
     environment:
-      - OPENAPI_URL=http://host.docker.internal:12000/npl/iou/-/openapi.json
-      - API_BASE_URL=http://host.docker.internal:12000
-      - KEYCLOAK_URL=http://host.docker.internal:11000
-      - KEYCLOAK_REALM=integrationtest
+      - OPENAPI_URL=http://engine:12000/npl/objects/-/openapi.json
+      - API_BASE_URL=http://engine:12000/
+      - KEYCLOAK_URL=http://keycloak:11000/
+      - KEYCLOAK_REALM=nplintegrations
       - KEYCLOAK_CLIENT_ID=npl-mcp
-      - KEYCLOAK_CLIENT_SECRET=tygekWbAJqOGpKDfPWXV32beFIox0JC3
+      - KEYCLOAK_CLIENT_SECRET=YWON47g40cAM9tmjDAEevfBjMKAvWW5v
       - ALLOWED_REDIRECT_URIS=http://127.0.0.1:*,http://localhost:*,https://vscode.dev/*
-      - MCP_SERVER_URL=http://localhost:8000
+      - MCP_SERVER_URL=http://npl-mcp-server:8000
+    depends_on:
+      engine:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
