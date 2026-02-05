@@ -8,7 +8,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <noumena.platform.version>2025.2.6</noumena.platform.version>
+        <noumena.platform.version>0.0.1-SNAPSHOT</noumena.platform.version>
     </properties>
 
     <build>

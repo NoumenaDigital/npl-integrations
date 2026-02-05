@@ -176,10 +176,10 @@ services:
     env_file:
       - .env
     environment:
-      GQL_ENDPOINT: http://localhost:15001/graphql
-      KEYCLOAK_URL: http://localhost:11000
-      KEYCLOAK_REALM: ${VITE_NC_APP_SLUG:-nplintegrations}
-      KEYCLOAK_CLIENT_ID: ${VITE_NC_APP_SLUG:-nplintegrations}
+      - NPL_ENGINE_URL=http://engine:12001
+      - KEYCLOAK_URL=${VITE_KEYCLOAK_URL:-http://keycloak:11000}
+      - KEYCLOAK_REALM=${VITE_NC_APP_SLUG:-nplintegrations}
+      - KEYCLOAK_CLIENT_ID=${VITE_NC_APP_SLUG:-nplintegrations}
     depends_on:
       nginx-proxy:
         condition: service_started
@@ -210,4 +210,22 @@ services:
       VITE_NC_APP_SLUG: nplintegrations
     depends_on:
       engine:
+        condition: service_healthy
+
+  npl-mcp-server:
+    image: ghcr.io/noumenadigital/npl-mcp-server:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAPI_URL=http://engine:12000/npl/objects/-/openapi.json
+      - API_BASE_URL=http://engine:12000/
+      - KEYCLOAK_URL=http://keycloak:11000/ # maybe has to be changed to localhost for the mcp client to work in vscode.dev?
+      - KEYCLOAK_REALM=nplintegrations
+      - KEYCLOAK_CLIENT_ID=npl-mcp
+      - KEYCLOAK_CLIENT_SECRET=... # todo: copy secret from keycloak
+      - ALLOWED_REDIRECT_URIS=http://localhost:*,http://127.0.0.1:*
+    depends_on:
+      engine:
+        condition: service_healthy
+      keycloak:
         condition: service_healthy
