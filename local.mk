@@ -1,6 +1,6 @@
 GITHUB_SHA=HEAD
 ENGINE_URL?=http://localhost:12000
-KEYCLOAK_HEALTH_URL?=http://localhost:9000
+KEYCLOAK_HEALTH_URL?=http://localhost:11000
 
 .PHONY: health-check
 health-check:

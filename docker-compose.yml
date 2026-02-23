@@ -1,6 +1,10 @@
 volumes:
   keycloak-db: { }
   keycloak-provisioning: { }
+  step:
+    name: step_ca
+  keycloak-truststore:
+    name: keycloak_truststore
 
 services:
 
@@ -103,7 +107,11 @@ services:
       start
       --spi-events-listener-jboss-logging-success-level=info
       --spi-events-listener-jboss-logging-error-level=error
-      --health-enabled=true
+      --https-port=9443
+      --https-certificate-file=/opt/keycloak/ssl/keycloak-server-cert.crt
+      --https-certificate-key-file=/opt/keycloak/ssl/keycloak-server-cert.key
+      --https-trust-store-file=/opt/keycloak/ssl/root_ca.p12
+      --https-trust-store-password=${KEYCLOAK_TRUSTSTORE_PASS}
       --http-enabled=true
       --http-port=11000
       --hostname-strict=false
@@ -112,21 +120,25 @@ services:
       --hostname-backchannel-dynamic=true
       --metrics-enabled=true
       --db=postgres
+    volumes:
+      - ./keycloak/certs:/opt/keycloak/ssl
     ports:
       - "11000:11000"
-      - "9000:9000"
+      - "9443:9443"
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-welcome}
-      KC_DB_URL: jdbc:postgresql://keycloak-db/postgres
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloak-db
+      KC_DB_URL_DATABASE: postgres
       KC_DB_USERNAME: postgres
       KC_DB_PASSWORD: testing
-      KC_HEALTH_ENABLED: "true"
+      KC_LOG_LEVEL: INFO,manager.keycloak:debug
     depends_on:
       keycloak-db:
         condition: service_started
     healthcheck:
-      test: curl http://localhost:9000/health || exit 1
+      test: timeout 1s bash -c ':> /dev/tcp/localhost/11000' || exit 1
       interval: 1s
       retries: 60
 
@@ -145,6 +157,19 @@ services:
       interval: 1s
       timeout: 5s
       retries: 50
+
+  keycloak-truststore:
+    image: eclipse-temurin:21-jdk
+    entrypoint: ["/bin/sh","-lc"]
+    working_dir: /truststore
+    command: /usr/local/bin/keycloak-truststore.sh
+    environment:
+      KEYCLOAK_TRUSTSTORE_PASS: ${KEYCLOAK_TRUSTSTORE_PASS}
+    volumes:
+      - step:/mnt/ca:ro
+      - keycloak-truststore:/truststore
+      - ./keycloak/keycloak-truststore.sh:/usr/local/bin/keycloak-truststore.sh:ro
+    profiles: ["mtls"]
 
   webapp:
     image: ghcr.io/noumenadigital/npl-integrations/webapp:latest
@@ -211,3 +236,39 @@ services:
     depends_on:
       engine:
         condition: service_healthy
+
+  step-ca:
+    image: smallstep/step-ca:latest
+    container_name: step-ca
+    ports:
+      - "9000:9000"
+    environment:
+      DOCKER_STEPCA_INIT_NAME: ${DOCKER_STEPCA_INIT_NAME}
+      DOCKER_STEPCA_INIT_DNS_NAMES: ${DOCKER_STEPCA_INIT_DNS_NAMES}
+      DOCKER_STEPCA_INIT_PROVISIONER_NAME: ${DOCKER_STEPCA_INIT_PROVISIONER_NAME}
+      DOCKER_STEPCA_INIT_ADMIN_SUBJECT: ${DOCKER_STEPCA_INIT_ADMIN_SUBJECT}
+      DOCKER_STEPCA_INIT_PASSWORD: ${DOCKER_STEPCA_INIT_PASSWORD}
+      DOCKER_STEPCA_INIT_REMOTE_MANAGEMENT: ${DOCKER_STEPCA_INIT_REMOTE_MANAGEMENT}
+      STEP_LOGGER_ONLY_TRACE_HEALTH_ENDPOINT: "true"
+    volumes:
+      - step:/home/step
+    restart: unless-stopped
+    healthcheck:
+      test: step ca health
+      interval: 1s
+      timeout: 5s
+      retries: 15
+    profiles: ["mtls"]
+
+  step-ca-bootstrap:
+    image: smallstep/step-ca:latest
+    entrypoint: ["/bin/sh","-lc"]
+    environment:
+      DOCKER_STEPCA_INIT_PROVISIONER_NAME: ${DOCKER_STEPCA_INIT_PROVISIONER_NAME}
+      DOCKER_STEPCA_INIT_ADMIN_SUBJECT: ${DOCKER_STEPCA_INIT_ADMIN_SUBJECT}
+    command: /usr/local/bin/ca-bootstrap.sh
+    volumes:
+      - step:/mnt/ca
+      - ./step-ca/ca-bootstrap.sh:/usr/local/bin/ca-bootstrap.sh:ro
+      - ./step-ca/secrets:/home/step/secrets
+    profiles: ["mtls"]

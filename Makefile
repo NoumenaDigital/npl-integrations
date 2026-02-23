@@ -227,12 +227,24 @@ it-tests-local:	npl-docker python-listener-docker run-it-tests-local down
 run-it-tests-local: it-test-client
 	./it-test/src/test/it-local.sh
 
+.PHONY: mtls-docker
+mtls-docker:
+	docker compose --profile mtls up -d --build step-ca
+	docker compose --profile mtls run --rm step-ca-bootstrap
+	docker compose --profile mtls run --rm keycloak-truststore
+	docker run --rm -v step_ca:/src -v "$(CURDIR)/keycloak/certs":/dst busybox sh -c 'mkdir -p /dst && cp -av /src/certs/. /dst/ && echo "--- Copied files:" && ls -l /dst && chmod -R a+rX,u+w /dst'
+	docker run --rm -v keycloak_truststore:/src -v "$(CURDIR)/keycloak/certs":/dst busybox sh -c 'mkdir -p /dst && cp -av /src/. /dst/ && echo "--- Copied files:" && ls -l /dst && chmod -R a+rX,u+w /dst'
+
+.PHONY:	up-mtls
+up-mtls: mtls-docker up
+
 .PHONY:	up
-up:	npl-docker webapp-docker streamlit-ui-docker python-listener-docker
+up:	mtls-docker npl-docker webapp-docker streamlit-ui-docker python-listener-docker
 
 .PHONY:	down
 down:
 	docker compose down -v
+	docker compose --profile mtls down --remove-orphans --volumes
 
 .PHONY:	run-only
 run-only:

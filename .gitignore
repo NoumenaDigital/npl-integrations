@@ -36,3 +36,4 @@ npl-contrib.properties
 tmp
 generated
 api-client
+keycloak/certs

@@ -23,7 +23,12 @@ RUN dnf install --installroot /mnt/rootfs curl --releasever 9 --setopt install_w
 
 FROM quay.io/keycloak/keycloak:25.0.6
 
+COPY keycloak-plugin/san-uri-to-roles-mapper/target/san-uri-to-roles-mapper-*.jar /opt/keycloak/providers/
+COPY keycloak-plugin/mtls-x509-sans-authenticator/target/mtls-x509-sans-authenticator-*.jar /opt/keycloak/providers/
 COPY --from=ubi-micro-build /mnt/rootfs /
+
+RUN /opt/keycloak/bin/kc.sh build
+
 # Restore the keycloak user and group created by the base container and overwritten during copying rootfs
 USER root
 RUN /bin/sh -c echo "keycloak:x:0:root" >> /etc/group && echo "keycloak:x:1000:0:keycloak user:/opt/keycloak:/sbin/nologin" >> /etc/passwd
