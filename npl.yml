@@ -1,0 +1,11 @@
+structure: # Configuration for project structure
+  sourceDir: npl/src/main
+  outputDir: . # Directory for generated files (e.g., OpenAPI specs, PUML diagrams)
+  migration: npl/src/main/migration.yml
+
+local: # Configuration for deploying to a local NOUMENA Engine instance
+  managementUrl: http://localhost:12400
+  authUrl: http://localhost:11000/realms/nplintegrations
+  clientId: nplintegrations
+  username: alice
+  password: alice
